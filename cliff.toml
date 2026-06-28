@@ -9,7 +9,7 @@ repo = "vscode-terminal-recipes"
 header = """
 # Changelog
 
-All notable changes to **Terminal Recipes** are documented here.
+All notable changes to **Terminal Recipes** are documented here.    
 Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
