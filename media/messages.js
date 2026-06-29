@@ -100,6 +100,9 @@ window.addEventListener("message", function (event) {
       if (typeof message.payload.modelId === "string") {
         aiState.settingsModelId = message.payload.modelId;
       }
+      // Capture originals for change detection when Save is clicked
+      _originalSettingsProvider = aiState.settingsProviderName;
+      _originalSettingsModelId = resolveSettingsModelId(aiState.settingsProviderName);
       // Apply cached model list if fresh; otherwise fetch from API
       if (aiState.keyStatus[providerName]) {
         const cached = getCachedModels(providerName);

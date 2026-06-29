@@ -113,6 +113,10 @@ function formatTimeAgo(timestamp) {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Snapshot of provider/model at modal open time — used to detect actual changes when Save is clicked.
+let _originalSettingsProvider = "";
+let _originalSettingsModelId = "";
+
 /**
  * Returns a display label for the active AI provider + model.
  * Used in the AI prompt modal footer link.
@@ -440,24 +444,38 @@ function bindAiSettingsEvents() {
     if (saveBtn) {
       saveBtn.addEventListener("click", function () {
         const resolvedModelId = resolveSettingsModelId(aiState.settingsProviderName);
-        // Clear model cache if a new API key was entered
-        if (aiState.apiKeyInput) {
-          clearModelsCache(aiState.settingsProviderName);
+        // Detect whether anything actually changed
+        const providerChanged = aiState.settingsProviderName !== _originalSettingsProvider;
+        const modelChanged = resolvedModelId !== _originalSettingsModelId;
+        const keyChanged = aiState.apiKeyInput && aiState.apiKeyInput.length > 0;
+
+        if (providerChanged || modelChanged || keyChanged) {
+          // Clear model cache if a new API key was entered
+          if (aiState.apiKeyInput) {
+            clearModelsCache(aiState.settingsProviderName);
+          }
+          vscode.postMessage({
+            type: "aiSaveSettings",
+            payload: {
+              providerName: aiState.settingsProviderName,
+              modelId: resolvedModelId,
+              apiKey: aiState.apiKeyInput,
+            },
+          });
+          // Update active providerName + modelId immediately so prompt modal reflects the new selection
+          aiState.providerName = aiState.settingsProviderName;
+          aiState.settingsModelId = resolvedModelId;
+          aiState.view = aiState.returnToPrompt ? "prompt" : null;
+          aiState.returnToPrompt = false;
+          aiState.apiKeyInput = "";
+          // render() will be called by the aiSettingsResult roundtrip that follows aiSaveSettings
+        } else {
+          // Nothing changed — close the modal immediately with a direct render()
+          aiState.view = aiState.returnToPrompt ? "prompt" : null;
+          aiState.returnToPrompt = false;
+          aiState.apiKeyInput = "";
+          render();
         }
-        vscode.postMessage({
-          type: "aiSaveSettings",
-          payload: {
-            providerName: aiState.settingsProviderName,
-            modelId: resolvedModelId,
-            apiKey: aiState.apiKeyInput,
-          },
-        });
-        // Update active providerName + modelId immediately so prompt modal reflects the new selection
-        aiState.providerName = aiState.settingsProviderName;
-        aiState.settingsModelId = resolvedModelId;
-        aiState.view = aiState.returnToPrompt ? "prompt" : null;
-        aiState.returnToPrompt = false;
-        aiState.apiKeyInput = "";
       });
     }
 
