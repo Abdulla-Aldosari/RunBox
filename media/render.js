@@ -240,7 +240,7 @@ function render() {
     autoResizeTextarea(el);
     updateTemplateHighlight(el);
     el.addEventListener("scroll", function () {
-      var h = el.previousElementSibling;
+      const h = el.previousElementSibling;
       if (h && h.classList.contains("template-highlight")) {
         h.scrollTop = el.scrollTop;
       }
@@ -255,7 +255,7 @@ function render() {
 
   // Scroll & highlight a pending row (set before render() was called)
   if (uiState.pendingScrollCommandId) {
-    var _pendingId = uiState.pendingScrollCommandId;
+    const _pendingId = uiState.pendingScrollCommandId;
     uiState.pendingScrollCommandId = null;
     setTimeout(function () {
       scrollToAndHighlight(_pendingId);
@@ -345,7 +345,7 @@ const modalDismissHandlers = {
 function bindModalDismiss() {
   // --- Overlays that dismiss on outside click (true) ---
   document.querySelectorAll('.modal-overlay[data-dismiss-on-outside-click="true"]').forEach(function (overlay) {
-    var handler = modalDismissHandlers[overlay.id];
+    const handler = modalDismissHandlers[overlay.id];
     if (handler) {
       overlay.addEventListener("pointerdown", function (e) {
         if (e.target === overlay) {
@@ -359,7 +359,7 @@ function bindModalDismiss() {
   document.querySelectorAll('.modal-overlay[data-dismiss-on-outside-click="false"]').forEach(function (overlay) {
     overlay.addEventListener("pointerdown", function (e) {
       if (e.target === overlay) {
-        var box = overlay.querySelector(".modal-box");
+        const box = overlay.querySelector(".modal-box");
         if (box) {
           box.classList.remove("modal-box-flash");
           void box.offsetWidth; // force reflow to restart animation
@@ -426,7 +426,7 @@ function bindEvents() {
  * Clicking a row or any element inside it will select/highlight that row.
  */
 function bindRowSelectionEvents() {
-  var tab = uiState.activeTab;
+  const tab = uiState.activeTab;
   if (tab !== "recent" && tab !== "favorites" && tab !== "commands") {
     return;
   }

@@ -45,7 +45,7 @@ window.addEventListener("message", function (event) {
       // Rollback optimistic render — reload authoritative state from disk
       vscode.postMessage({ type: "requestState" });
     }
-    // Page is already rendered by persistDataThenRender() — just update the notice element
+    // Page is already rendered by persistDataThenRender() — just append the notice to document.body (outside #app, survives render)
     paintNotice();
     return;
   }
@@ -196,7 +196,7 @@ window.addEventListener("message", function (event) {
         "error"
       );
     }
-    // Page is already rendered — just insert the notice element directly
+    // Page is already rendered — just append the notice to document.body (outside #app, survives any future render)
     paintNotice();
     return;
   }

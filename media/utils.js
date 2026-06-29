@@ -676,9 +676,12 @@ function showError(message, icon, type) {
 }
 
 /**
- * Inserts or updates the notice element in the DOM directly,
- * without triggering a full page re-render.
- * Call this after showNotice() / showError() when a full render is not needed.
+ * Appends a transient notice element to document.body (outside #app),
+ * so it survives full re-renders of the app shell via render().
+ * Unlike render(), which rebuilds #app.innerHTML, this function attaches
+ * the notice to document.body — it is never wiped by a render cycle.
+ * Call this after showNotice() / showError() instead of render() when
+ * only a transient notice needs updating.
  */
 function paintNotice() {
   // Remove any existing notice
