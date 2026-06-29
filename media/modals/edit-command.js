@@ -9,50 +9,84 @@
 // Edit Command form (rendered as a full tab when uiState.editingCommandId is set).
 // Loads after run-confirm.js (renderToggleSwitch3 dependency).
 
-function syncEditCommandDraftFromDom() {
-  if (!uiState.editingCommandId) {
-    return;
-  }
+// Isolated working copy of the entire edit form state.
+// All user edits go here — the global sources of truth (commandLocalDrafts, etc.)
+// are never touched until the user explicitly confirms by clicking Save.
+const editCommandBuffer = {
+  commandId: null,
 
-  const titleInput = document.getElementById("edit-command-title");
-  const descriptionInput = document.getElementById("edit-command-description");
-  const templateInput = document.getElementById("edit-command-template");
-  const helpUrlInput = document.getElementById("edit-command-help-url");
+  // Working fields — command metadata
+  title: "",
+  template: "",
+  description: "",
+  groupId: "",
+  targetCategoryId: "",
+  helpUrl: "",
+  variableMeta: "", // JSON.stringify of variableMeta object
 
-  if (!titleInput || !templateInput) {
-    return;
-  }
+  // Working fields — variable scope data
+  local: {}, // { [varName]: value }
+  global: {}, // { [varName]: value }
+  session: {}, // { [varName]: value }
+  remember: {}, // { [varName]: "local"|"global"|"off" }
 
-  uiState.editCommandDraft.title = titleInput.value;
-  uiState.editCommandDraft.description = descriptionInput ? descriptionInput.value : "";
-  uiState.editCommandDraft.template = templateInput.value;
-  if (helpUrlInput) {
-    uiState.editCommandDraft.helpUrl = helpUrlInput.value;
-  }
-}
+  // Private originals — captured at form-open time for change detection
+  _orig: null,
 
-function syncEditCommandDraftFromCommand(command) {
-  if (!command || uiState.editingCommandId !== command.id) {
-    return;
-  }
+  capture(command) {
+    this.commandId = command.id;
+    this.title = command.title || "";
+    this.template = command.command || "";
+    this.description = command.description || "";
+    this.groupId = command.groupId || "";
+    this.targetCategoryId = command.categoryId || "";
+    this.helpUrl = command.helpUrl || "";
+    this.variableMeta = JSON.stringify(command.variableMeta || {});
+    this.local = Object.assign({}, getCommandLocalDraft(command.id));
+    this.global = Object.assign({}, getCommandGlobalDraft(command.id));
+    this.session = Object.assign({}, getCommandSessionDraft(command.id));
+    this.remember = Object.assign({}, getCommandRemember(command.id));
 
-  if (
-    !uiState.editCommandDraft.title &&
-    !uiState.editCommandDraft.template &&
-    !uiState.editCommandDraft.description &&
-    !uiState.editCommandDraft.groupId
-  ) {
-    uiState.editCommandDraft = {
-      title: command.title || "",
-      template: command.command || "",
-      description: command.description || "",
-      groupId: command.groupId || "",
-      helpUrl: command.helpUrl || "",
-      variableMeta: command.variableMeta ? JSON.parse(JSON.stringify(command.variableMeta)) : {},
-      targetCategoryId: command.categoryId || "",
+    this._orig = {
+      title: this.title,
+      template: this.template,
+      description: this.description,
+      groupId: this.groupId,
+      targetCategoryId: this.targetCategoryId,
+      helpUrl: this.helpUrl,
+      variableMeta: this.variableMeta,
+      local: Object.assign({}, this.local),
+      global: Object.assign({}, this.global),
+      session: Object.assign({}, this.session),
+      remember: Object.assign({}, this.remember),
     };
-  }
-}
+  },
+
+  hasChanged() {
+    const o = this._orig;
+    if (!o) return true;
+    if (this.title !== o.title) return true;
+    if (this.template !== o.template) return true;
+    if (this.description !== o.description) return true;
+    if (this.groupId !== o.groupId) return true;
+    if (this.targetCategoryId !== o.targetCategoryId) return true;
+    if ((this.helpUrl || "") !== (o.helpUrl || "")) return true;
+    if (this.variableMeta !== o.variableMeta) return true;
+    if (JSON.stringify(this.local) !== JSON.stringify(o.local)) return true;
+    if (JSON.stringify(this.global) !== JSON.stringify(o.global)) return true;
+    if (JSON.stringify(this.remember) !== JSON.stringify(o.remember)) return true;
+    if (JSON.stringify(this.session) !== JSON.stringify(o.session)) return true;
+    return false;
+  },
+
+  clear() {
+    this.commandId = null;
+    this.title = this.template = this.description = "";
+    this.groupId = this.targetCategoryId = this.helpUrl = this.variableMeta = "";
+    this.local = this.global = this.session = this.remember = {};
+    this._orig = null;
+  },
+};
 
 function renderEditTab() {
   const command = getEditingCommand();
@@ -65,28 +99,31 @@ function renderEditTab() {
     `;
   }
 
-  syncEditCommandDraftFromCommand(command);
-  const editDraft = uiState.editCommandDraft;
-  const targetCategoryId = editDraft.targetCategoryId || command.categoryId;
+  if (editCommandBuffer.commandId !== command.id) {
+    editCommandBuffer.capture(command);
+  }
+
+  const targetCategoryId = editCommandBuffer.targetCategoryId || command.categoryId;
   const allCategories = state.data.categories || [];
   const targetCategory = allCategories.find(function (cat) {
     return cat.id === targetCategoryId;
   });
   const groups = targetCategory ? targetCategory.groups || [] : [];
   const autoVarNames = getEnabledAutoVariableNames();
-  const variables = collectVariables([editDraft.template || command.command]).filter(function (n) {
+  const variables = collectVariables([editCommandBuffer.template || command.command]).filter(function (n) {
     return !autoVarNames.includes(n);
   });
-  const commandRemember = getCommandRemember(command.id);
+  const commandRemember = editCommandBuffer.remember;
   const isMoved = targetCategoryId !== command.categoryId;
+  const bufferVariableMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
 
   return `
     <section class="card recipe-editor">
       <h2>Edit Command</h2>
       <form id="form-edit-command" class="form-grid add-command-grid">
-        <label class="add-command-title">Command Title<input id="edit-command-title" class="input" required value="${escapeAttr(editDraft.title)}" /></label>
+        <label class="add-command-title">Command Title<input id="edit-command-title" class="input" required value="${escapeAttr(editCommandBuffer.title)}" /></label>
         <label class="add-command-template">Command Template<div class="template-editor-wrap"><div class="template-highlight" aria-hidden="true"></div>
-        <textarea id="edit-command-template" class="input template-textarea" required rows="1">${escapeHtml(editDraft.template)}</textarea>
+        <textarea id="edit-command-template" class="input template-textarea" required rows="1">${escapeHtml(editCommandBuffer.template)}</textarea>
         </div><div class="template-var-legend">
 
         <span class="legend-item legend-auto hidden" data-tooltip="Reserved variables that are automatically resolved.<br>
@@ -96,7 +133,7 @@ function renderEditTab() {
         Their values must be set by the user."><span class="legend-dot" aria-hidden="true"></span>user defined</span>
 
         </div></label>
-        <label class="full-width">Description<textarea id="edit-command-description" class="input" rows="2">${escapeHtml(editDraft.description)}</textarea></label>
+        <label class="full-width">Description<textarea id="edit-command-description" class="input" rows="2">${escapeHtml(editCommandBuffer.description)}</textarea></label>
         <div class="full-width grouped-tags-wrap">
           <span class="groups-label">Category:</span>
           ${renderCustomSelect(
@@ -119,12 +156,12 @@ function renderEditTab() {
             ${groups.length === 0 ? `<span class="muted">No groups in this category.</span>` : ""}
             ${groups
               .map(function (group) {
-                return `<button type="button" class="tag d-focus edit-command-group-tag ${editDraft.groupId === group.id ? "active" : ""}" data-group-id="${escapeAttr(group.id)}">${escapeHtml(group.title)}</button>`;
+                return `<button type="button" class="tag d-focus edit-command-group-tag ${editCommandBuffer.groupId === group.id ? "active" : ""}" data-group-id="${escapeAttr(group.id)}">${escapeHtml(group.title)}</button>`;
               })
               .join("")}
           </div>
         </div>
-        <label class="full-width">Help URL (optional)<input id="edit-command-help-url" class="input" placeholder="https://docs.example.com/command" value="${escapeAttr(editDraft.helpUrl || "")}" /></label>
+        <label class="full-width">Help URL (optional)<input id="edit-command-help-url" class="input" placeholder="https://docs.example.com/command" value="${escapeAttr(editCommandBuffer.helpUrl || "")}" /></label>
         ${
           variables.length
             ? `
@@ -140,21 +177,18 @@ function renderEditTab() {
             ${variables
               .map(function (name) {
                 const pref = commandRemember[name] || (state.workspaceFolder ? "local" : "global");
-                const localDraftV = getCommandLocalDraft(command.id);
-                const globalDraftV = getCommandGlobalDraft(command.id);
-                const sessionDraftV = getCommandSessionDraft(command.id);
                 let rawVal;
                 if (pref === "local") {
-                  rawVal = localDraftV[name];
+                  rawVal = editCommandBuffer.local[name];
                 } else if (pref === "global") {
-                  rawVal = globalDraftV[name];
+                  rawVal = editCommandBuffer.global[name];
                 } else {
-                  rawVal = sessionDraftV[name];
+                  rawVal = editCommandBuffer.session[name];
                 }
                 rawVal = rawVal !== undefined ? rawVal : "";
                 const isEmptyVal = rawVal === RECIPES_EMPTY_VALUE;
                 const displayVal = isEmptyVal ? "[EmptyValue]" : rawVal;
-                const meta = editDraft.variableMeta && editDraft.variableMeta[name];
+                const meta = bufferVariableMeta[name];
                 const isEnum = meta && meta.type === "enum";
                 const enumCount = isEnum ? meta.enumValues.length : 0;
                 return `
@@ -204,105 +238,90 @@ function bindEditTabEvents() {
     return;
   }
 
-  // Take a snapshot of the current scope drafts when the edit form first opens.
-  // If the user presses Cancel, the snapshot is restored so no changes persist.
-  if (!uiState.editCommandScopeSnapshot || uiState.editCommandScopeSnapshot.commandId !== command.id) {
-    uiState.editCommandScopeSnapshot = {
-      commandId: command.id,
-      local: Object.assign({}, getCommandLocalDraft(command.id)),
-      global: Object.assign({}, getCommandGlobalDraft(command.id)),
-      session: Object.assign({}, getCommandSessionDraft(command.id)),
-      commandRemember: Object.assign({}, getCommandRemember(command.id)),
-    };
+  if (editCommandBuffer.commandId !== command.id) {
+    editCommandBuffer.capture(command);
   }
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
-    syncEditCommandDraftFromDom();
-    const draft = uiState.editCommandDraft;
 
-    const titleTrimmed = draft.title ? draft.title.trim() : "";
-    const templateTrimmed = draft.template ? draft.template.trim() : "";
+    // Read text fields from DOM into buffer
+    const titleEl = document.getElementById("edit-command-title");
+    const templateEl = document.getElementById("edit-command-template");
+    const descriptionEl = document.getElementById("edit-command-description");
+    const helpUrlEl = document.getElementById("edit-command-help-url");
 
-    if (titleTrimmed.length < 3) {
+    editCommandBuffer.title = titleEl ? titleEl.value.trim() : "";
+    editCommandBuffer.template = templateEl ? templateEl.value.trim() : "";
+    editCommandBuffer.description = descriptionEl ? descriptionEl.value : "";
+    editCommandBuffer.helpUrl = helpUrlEl ? helpUrlEl.value : "";
+
+    if (editCommandBuffer.title.length < 3) {
       showError("Command Title must be at least 3 characters.");
       render();
       return;
     }
 
-    if (!templateTrimmed) {
+    if (!editCommandBuffer.template) {
       showError("Command Template is required.");
       render();
       return;
     }
 
-    // Apply trimmed values
-    draft.title = titleTrimmed;
-    draft.template = templateTrimmed;
-
-    if (!draft.groupId) {
+    if (!editCommandBuffer.groupId) {
       showError("Please select at least one group from the list below.", icons.exclamationTriangle, "warning");
       render();
       return;
     }
 
-    command.title = draft.title;
-    command.description = draft.description;
-    command.command = draft.template;
-    command.groupId = draft.groupId;
-
-    // Apply category move if changed
-    if (draft.targetCategoryId && draft.targetCategoryId !== command.categoryId) {
-      command.categoryId = draft.targetCategoryId;
+    // Skip persist if nothing changed
+    // Note: buffer is already up-to-date via live input/toggle events — no DOM read needed here.
+    if (!editCommandBuffer.hasChanged()) {
+      const returnTab = uiState.editSourceTab || "commands";
+      const savedCommandId = command.id;
+      editCommandBuffer.clear();
+      uiState.editingCommandId = null;
+      uiState.editSourceTab = null;
+      uiState.activeTab = returnTab;
+      uiState.pendingScrollCommandId = savedCommandId;
+      render();
+      return;
     }
 
-    // Save helpUrl
-    if (draft.helpUrl) {
-      command.helpUrl = draft.helpUrl;
+    // Apply buffer to command object
+    command.title = editCommandBuffer.title;
+    command.description = editCommandBuffer.description;
+    command.command = editCommandBuffer.template;
+    command.groupId = editCommandBuffer.groupId;
+
+    if (editCommandBuffer.targetCategoryId && editCommandBuffer.targetCategoryId !== command.categoryId) {
+      command.categoryId = editCommandBuffer.targetCategoryId;
+    }
+
+    if (editCommandBuffer.helpUrl) {
+      command.helpUrl = editCommandBuffer.helpUrl;
     } else {
       delete command.helpUrl;
     }
 
-    // Read variable values from DOM → write to scope-specific drafts
-    document.querySelectorAll(".variable-input").forEach(function (varInput) {
-      const cid = varInput.dataset.commandId;
-      const vname = varInput.dataset.variableName;
-      if (!cid || !vname) {
-        return;
-      }
-      const scope = varInput.dataset.scope || getCommandRemember(cid)[vname] || "off";
-      const val = varInput.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : varInput.value;
-      if (scope === "local") {
-        getCommandLocalDraft(cid)[vname] = val;
-      } else if (scope === "global") {
-        getCommandGlobalDraft(cid)[vname] = val;
-      } else {
-        getCommandSessionDraft(cid)[vname] = val;
-      }
-    });
+    // Apply variableMeta from buffer
+    const parsedMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+    if (Object.keys(parsedMeta).length > 0) {
+      command.variableMeta = parsedMeta;
+    } else {
+      delete command.variableMeta;
+    }
 
-    // Read toggle states from DOM → update commandRemember
-    document.querySelectorAll(".variable-remember-toggle").forEach(function (container) {
-      const cid = container.dataset.commandId;
-      const vname = container.dataset.variableName;
-      const activeBtn = container.querySelector(".toggle-option-3.active");
-      if (cid && vname && activeBtn) {
-        const rm = getCommandRemember(cid);
-        rm[vname] = activeBtn.dataset.value;
-        uiState.commandRemember[cid] = rm;
-      }
-    });
+    // Write buffer scope data to uiState sources of truth for persistence
+    uiState.commandLocalDrafts[command.id] = Object.assign({}, editCommandBuffer.local);
+    uiState.commandGlobalDrafts[command.id] = Object.assign({}, editCommandBuffer.global);
+    uiState.commandSessionDrafts[command.id] = Object.assign({}, editCommandBuffer.session);
+    uiState.commandRemember[command.id] = Object.assign({}, editCommandBuffer.remember);
 
     const savedCommandId = command.id;
     const returnTab = uiState.editSourceTab || "commands";
-    uiState.editCommandScopeSnapshot = null; // Discard snapshot — save was intentional
+    editCommandBuffer.clear();
     uiState.editingCommandId = null;
-    uiState.editCommandDraft = {
-      title: "",
-      template: "",
-      description: "",
-      groupId: "",
-    };
     uiState.editSourceTab = null;
     uiState.activeTab = returnTab;
     uiState.pendingScrollCommandId = savedCommandId;
@@ -315,23 +334,8 @@ function bindEditTabEvents() {
     cancelEditButton.addEventListener("click", function () {
       const savedCommandId = command.id;
       const returnTab = uiState.editSourceTab || "commands";
-
-      // Restore scope drafts from snapshot — discard all edits made in this session
-      if (uiState.editCommandScopeSnapshot && uiState.editCommandScopeSnapshot.commandId === command.id) {
-        uiState.commandLocalDrafts[command.id] = uiState.editCommandScopeSnapshot.local;
-        uiState.commandGlobalDrafts[command.id] = uiState.editCommandScopeSnapshot.global;
-        uiState.commandSessionDrafts[command.id] = uiState.editCommandScopeSnapshot.session;
-        uiState.commandRemember[command.id] = uiState.editCommandScopeSnapshot.commandRemember;
-        uiState.editCommandScopeSnapshot = null;
-      }
-
+      editCommandBuffer.clear();
       uiState.editingCommandId = null;
-      uiState.editCommandDraft = {
-        title: "",
-        template: "",
-        description: "",
-        groupId: "",
-      };
       uiState.editSourceTab = null;
       uiState.activeTab = returnTab;
       uiState.pendingScrollCommandId = savedCommandId;
@@ -345,13 +349,13 @@ function bindEditTabEvents() {
 
   if (editCommandTitleInput) {
     editCommandTitleInput.addEventListener("input", function () {
-      uiState.editCommandDraft.title = editCommandTitleInput.value;
+      editCommandBuffer.title = editCommandTitleInput.value;
     });
   }
 
   if (editCommandTemplateInput) {
     editCommandTemplateInput.addEventListener("input", function () {
-      uiState.editCommandDraft.template = editCommandTemplateInput.value;
+      editCommandBuffer.template = editCommandTemplateInput.value;
       // Preserve cursor position before re-render (to update variables section)
       const cursorStart = editCommandTemplateInput.selectionStart;
       const cursorEnd = editCommandTemplateInput.selectionEnd;
@@ -367,68 +371,76 @@ function bindEditTabEvents() {
 
   if (editCommandDescriptionInput) {
     editCommandDescriptionInput.addEventListener("input", function () {
-      uiState.editCommandDraft.description = editCommandDescriptionInput.value;
+      editCommandBuffer.description = editCommandDescriptionInput.value;
     });
   }
 
   document.querySelectorAll(".edit-command-group-tag").forEach(function (tabButton) {
     tabButton.addEventListener("click", function () {
       const groupId = tabButton.dataset.groupId;
-      uiState.editCommandDraft.groupId = uiState.editCommandDraft.groupId === groupId ? "" : groupId;
+      editCommandBuffer.groupId = editCommandBuffer.groupId === groupId ? "" : groupId;
       render();
     });
   });
 
   document.querySelectorAll(".variable-input").forEach(function (input) {
-    // Write typed value to the correct scope draft based on data-scope attribute
+    // Write typed value to the buffer based on data-scope attribute
     input.addEventListener("input", function () {
-      const commandId = input.dataset.commandId;
       const variableName = input.dataset.variableName;
-      const scope = input.dataset.scope || getCommandRemember(commandId)[variableName] || "off";
+      const scope = input.dataset.scope || editCommandBuffer.remember[variableName] || "off";
       const val = input.value;
       if (scope === "local") {
-        getCommandLocalDraft(commandId)[variableName] = val;
+        editCommandBuffer.local[variableName] = val;
       } else if (scope === "global") {
-        getCommandGlobalDraft(commandId)[variableName] = val;
+        editCommandBuffer.global[variableName] = val;
       } else {
-        getCommandSessionDraft(commandId)[variableName] = val;
+        editCommandBuffer.session[variableName] = val;
       }
       // Update scope indicator dots
       const toggleContainer = document.querySelector(
-        '.variable-remember-toggle[data-command-id="' + commandId + '"][data-variable-name="' + variableName + '"]'
+        '.variable-remember-toggle[data-command-id="' +
+          input.dataset.commandId +
+          '"][data-variable-name="' +
+          variableName +
+          '"]'
       );
-      updateScopeIndicatorDots(toggleContainer, commandId, variableName, scope);
+      updateScopeIndicatorDots(toggleContainer, input.dataset.commandId, variableName, scope);
     });
 
-    // Alt+0 to toggle empty value — writes to the scope-specific draft
+    // Alt+0 to toggle empty value — writes to the buffer
     input.addEventListener("keydown", function (e) {
       if (e.altKey && e.key === "0") {
         e.preventDefault();
-        const commandId = input.dataset.commandId;
         const varName = input.dataset.variableName;
-        const scope = input.dataset.scope || getCommandRemember(commandId)[varName] || "off";
-        if (!varName || !commandId) {
+        const scope = input.dataset.scope || editCommandBuffer.remember[varName] || "off";
+        if (!varName) {
           return;
         }
-        const scopeDraft =
-          scope === "local"
-            ? getCommandLocalDraft(commandId)
-            : scope === "global"
-              ? getCommandGlobalDraft(commandId)
-              : getCommandSessionDraft(commandId);
         if (input.dataset.isEmptyValue === "true") {
           const saved = input.dataset.preEmptyValue !== undefined ? input.dataset.preEmptyValue : "";
           input.removeAttribute("data-pre-empty-value");
           input.readOnly = false;
           input.removeAttribute("data-is-empty-value");
           input.value = saved;
-          scopeDraft[varName] = saved;
+          if (scope === "local") {
+            editCommandBuffer.local[varName] = saved;
+          } else if (scope === "global") {
+            editCommandBuffer.global[varName] = saved;
+          } else {
+            editCommandBuffer.session[varName] = saved;
+          }
         } else {
           input.setAttribute("data-pre-empty-value", input.value);
           input.readOnly = true;
           input.setAttribute("data-is-empty-value", "true");
           input.value = "[EmptyValue]";
-          scopeDraft[varName] = RECIPES_EMPTY_VALUE;
+          if (scope === "local") {
+            editCommandBuffer.local[varName] = RECIPES_EMPTY_VALUE;
+          } else if (scope === "global") {
+            editCommandBuffer.global[varName] = RECIPES_EMPTY_VALUE;
+          } else {
+            editCommandBuffer.session[varName] = RECIPES_EMPTY_VALUE;
+          }
         }
       }
     });
@@ -440,12 +452,12 @@ function bindEditTabEvents() {
     "edit-category-select-btn",
     "edit-category-select-menu",
     function (newCategoryId) {
-      uiState.editCommandDraft.targetCategoryId = newCategoryId;
+      editCommandBuffer.targetCategoryId = newCategoryId;
       // If the user reverts to the original category, restore the original groupId
       if (newCategoryId === command.categoryId) {
-        uiState.editCommandDraft.groupId = command.groupId || "";
+        editCommandBuffer.groupId = command.groupId || "";
       } else {
-        uiState.editCommandDraft.groupId = ""; // reset group — it belongs to the new category
+        editCommandBuffer.groupId = ""; // reset group — it belongs to the new category
       }
       render();
     }
@@ -455,7 +467,7 @@ function bindEditTabEvents() {
   const editHelpUrlInput = document.getElementById("edit-command-help-url");
   if (editHelpUrlInput) {
     editHelpUrlInput.addEventListener("input", function () {
-      uiState.editCommandDraft.helpUrl = editHelpUrlInput.value;
+      editCommandBuffer.helpUrl = editHelpUrlInput.value;
     });
   }
 
@@ -475,7 +487,8 @@ function bindEditTabEvents() {
               })
             : [];
       } else {
-        const meta = uiState.editCommandDraft.variableMeta && uiState.editCommandDraft.variableMeta[varName];
+        const bufMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+        const meta = bufMeta[varName];
         currentEnumValues =
           meta && meta.type === "enum" && meta.enumValues
             ? meta.enumValues.map(function (e) {
@@ -515,18 +528,18 @@ function bindEditTabEvents() {
           '.variable-input[data-command-id="' + commandId + '"][data-variable-name="' + variableName + '"]'
         );
 
-        // Step 1: Save current input value to current scope's draft before switching
+        // Step 1: Save current input value to current scope in buffer
         if (inputEl) {
           const currentActiveBtn = container.querySelector(".toggle-option-3.active");
           const currentScope = currentActiveBtn ? currentActiveBtn.dataset.value : "off";
           const currentVal = inputEl.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : inputEl.value;
-          const currentScopeDraft =
-            currentScope === "local"
-              ? getCommandLocalDraft(commandId)
-              : currentScope === "global"
-                ? getCommandGlobalDraft(commandId)
-                : getCommandSessionDraft(commandId);
-          currentScopeDraft[variableName] = currentVal;
+          if (currentScope === "local") {
+            editCommandBuffer.local[variableName] = currentVal;
+          } else if (currentScope === "global") {
+            editCommandBuffer.global[variableName] = currentVal;
+          } else {
+            editCommandBuffer.session[variableName] = currentVal;
+          }
         }
 
         // Step 2: Update active class
@@ -535,20 +548,18 @@ function bindEditTabEvents() {
         });
         btn.classList.add("active");
 
-        // Step 3: Update commandRemember (scope preference)
-        const rememberMap = getCommandRemember(commandId);
-        rememberMap[variableName] = newScope;
-        uiState.commandRemember[commandId] = rememberMap;
+        // Step 3: Update remember preference in buffer
+        editCommandBuffer.remember[variableName] = newScope;
 
-        // Step 4: Load new scope's value into the input
+        // Step 4: Load new scope's value into the input from buffer
         if (inputEl) {
           let newVal = "";
           if (newScope === "local") {
-            newVal = getCommandLocalDraft(commandId)[variableName] || "";
+            newVal = editCommandBuffer.local[variableName] || "";
           } else if (newScope === "global") {
-            newVal = getCommandGlobalDraft(commandId)[variableName] || "";
+            newVal = editCommandBuffer.global[variableName] || "";
           } else {
-            newVal = getCommandSessionDraft(commandId)[variableName] || "";
+            newVal = editCommandBuffer.session[variableName] || "";
           }
           const isEmptyValue = newVal === RECIPES_EMPTY_VALUE;
           inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;

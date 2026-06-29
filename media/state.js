@@ -54,17 +54,6 @@ const uiState = {
   commandGlobalDrafts: {}, // { [commandId]: { [varName]: value } } — global scope
   commandSessionDrafts: {}, // { [commandId]: { [varName]: value } } — session-only (never written to disk)
   commandRemember: {},
-  // Snapshot of scope drafts taken when edit command form opens — restored on Cancel
-  editCommandScopeSnapshot: null,
-  editCommandDraft: {
-    title: "",
-    template: "",
-    description: "",
-    groupId: "",
-    helpUrl: "",
-    variableMeta: {},
-    targetCategoryId: "",
-  },
   newCommandDraft: {
     visible: false,
     title: "",

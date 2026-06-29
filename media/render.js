@@ -485,25 +485,11 @@ function bindTabs() {
     tabButton.addEventListener("click", function () {
       const nextTab = tabButton.dataset.tab;
 
-      // Switching tabs while editing → restore snapshot and discard editing state
+      // Switching tabs while editing → clear buffer and discard editing state
       if (uiState.editingCommandId && nextTab !== uiState.activeTab) {
-        const snap = uiState.editCommandScopeSnapshot;
-        if (snap) {
-          uiState.commandLocalDrafts[snap.commandId] = snap.local;
-          uiState.commandGlobalDrafts[snap.commandId] = snap.global;
-          uiState.commandSessionDrafts[snap.commandId] = snap.session;
-          if (snap.commandRemember) {
-            uiState.commandRemember[snap.commandId] = snap.commandRemember;
-          }
-          uiState.editCommandScopeSnapshot = null;
-        }
+        editCommandBuffer.clear();
         uiState.editingCommandId = null;
-        uiState.editCommandDraft = {
-          title: "",
-          template: "",
-          description: "",
-          groupId: "",
-        };
+        uiState.editSourceTab = null;
       }
 
       // Exit sort mode when switching away from commands tab

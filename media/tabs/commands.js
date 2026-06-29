@@ -584,7 +584,6 @@ function dispatchCommandAction(commandId, action, shellPath, shellName, activeFs
 function bindCommandActionButtons() {
   document.querySelectorAll(".btn-run").forEach(function (button) {
     button.addEventListener("click", function () {
-      syncEditCommandDraftFromDom();
       const commandId = button.dataset.commandId;
       const command = (state.data.commands || []).find(function (item) {
         return item.id === commandId;
@@ -651,14 +650,12 @@ function bindCommandActionButtons() {
 
   document.querySelectorAll(".btn-use").forEach(function (button) {
     button.addEventListener("click", function (e) {
-      syncEditCommandDraftFromDom();
       performCommandAction(button.dataset.commandId, "use", e.ctrlKey);
     });
   });
 
   document.querySelectorAll(".btn-copy").forEach(function (button) {
     button.addEventListener("click", function () {
-      syncEditCommandDraftFromDom();
       performCommandAction(button.dataset.commandId, "copy");
     });
   });
@@ -674,16 +671,10 @@ function bindCommandActionButtons() {
       uiState.editSourceTab = uiState.activeTab;
       uiState.editingCommandId = commandId;
 
+      // editCommandBuffer.capture(command) is called inside renderEditTab / bindEditTabEvents
+      // when editCommandBuffer.commandId !== command.id
       if (command) {
-        uiState.editCommandDraft = {
-          title: command.title || "",
-          template: command.command || "",
-          description: command.description || "",
-          groupId: command.groupId || "",
-          helpUrl: command.helpUrl || "",
-          variableMeta: command.variableMeta ? JSON.parse(JSON.stringify(command.variableMeta)) : {},
-          targetCategoryId: command.categoryId || "",
-        };
+        editCommandBuffer.capture(command);
       }
 
       // Do NOT change activeTab — keep it as-is, tabs will show no active selection
@@ -1360,13 +1351,8 @@ function executeDeleteConfirm() {
       });
 
       if (!editCmd) {
+        editCommandBuffer.clear();
         uiState.editingCommandId = null;
-        uiState.editCommandDraft = {
-          title: "",
-          template: "",
-          description: "",
-          groupId: "",
-        };
       }
     }
 
@@ -1420,13 +1406,8 @@ function executeDeleteConfirm() {
     }
 
     if (uiState.editingCommandId === id) {
+      editCommandBuffer.clear();
       uiState.editingCommandId = null;
-      uiState.editCommandDraft = {
-        title: "",
-        template: "",
-        description: "",
-        groupId: "",
-      };
       runConfirmState = {
         commandId: null,
         resolvedCommand: "",

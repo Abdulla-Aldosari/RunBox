@@ -181,7 +181,8 @@ function bindAddCommandTabEvents() {
             : [];
       } else {
         // Edit command context
-        const meta = uiState.editCommandDraft.variableMeta && uiState.editCommandDraft.variableMeta[varName];
+        const bufMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+        const meta = bufMeta[varName];
         currentEnumValues =
           meta && meta.type === "enum" && meta.enumValues
             ? meta.enumValues.map(function (e) {

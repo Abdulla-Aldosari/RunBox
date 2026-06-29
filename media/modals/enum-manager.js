@@ -57,6 +57,7 @@ function renderEnumManagerModal() {
       <div class="modal-box enum-manager-box">
         <div class="row between">
           <h3>Enum Values for <code>\${${escapeHtml(s.varName)}}</code></h3>
+          <button class="btn-close d-focus" id="btn-enum-manager-close" type="button" aria-label="Close">${icons.cancel}</button>
         </div>
         ${
           values.length > 0
@@ -74,13 +75,43 @@ function renderEnumManagerModal() {
             : `<p class="muted muted-no-margin">No enum values yet. Add one below.</p>`
         }
         ${editFormHtml}
-        <div class="row justify-content-flex-end mt-20">
-          <button class="btn small primary min-w65" id="btn-enum-manager-save">Save</button>
-          <button class="btn small secondary action min-w65" id="btn-enum-manager-cancel">Cancel</button>
-        </div>
       </div>
     </div>
   `;
+}
+
+/**
+ * Writes the current enumManagerState.enumValues to the correct target:
+ * - newCommandDraft.variableMeta when commandId is null (Add Command context)
+ * - editCommandBuffer.variableMeta when commandId is set (Edit Command context)
+ * Called after every add, update, or delete action so changes are live.
+ */
+function flushEnumValuesToTarget() {
+  const varName = enumManagerState.varName;
+  const commandId = enumManagerState.commandId;
+  const enumValues = enumManagerState.enumValues.slice();
+
+  if (commandId === null) {
+    // New command context
+    if (!uiState.newCommandDraft.variableMeta) {
+      uiState.newCommandDraft.variableMeta = {};
+    }
+    if (enumValues.length > 0) {
+      uiState.newCommandDraft.variableMeta[varName] = { type: "enum", enumValues };
+    } else {
+      delete uiState.newCommandDraft.variableMeta[varName];
+    }
+  } else {
+    // Edit command context — write ONLY to buffer, not to command directly.
+    // The main Save Changes button applies buffer.variableMeta to command on confirm.
+    const currentMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+    if (enumValues.length > 0) {
+      currentMeta[varName] = { type: "enum", enumValues };
+    } else {
+      delete currentMeta[varName];
+    }
+    editCommandBuffer.variableMeta = JSON.stringify(currentMeta);
+  }
 }
 
 /**
@@ -105,11 +136,7 @@ function bindEnumManagerEvents() {
       }
 
       if (enumManagerState.editIndex !== null) {
-        enumManagerState.enumValues[enumManagerState.editIndex] = {
-          title,
-          value,
-          description,
-        };
+        enumManagerState.enumValues[enumManagerState.editIndex] = { title, value, description };
         enumManagerState.editIndex = null;
         enumManagerState.editTitle = "";
         enumManagerState.editValue = "";
@@ -121,6 +148,8 @@ function bindEnumManagerEvents() {
         enumManagerState.editDescription = "";
       }
 
+      // Immediately apply to target — no separate Save step needed
+      flushEnumValuesToTarget();
       render();
     });
   }
@@ -164,82 +193,17 @@ function bindEnumManagerEvents() {
         enumManagerState.editValue = "";
         enumManagerState.editDescription = "";
       }
+
+      // Immediately apply to target — no separate Save step needed
+      flushEnumValuesToTarget();
       render();
     });
   });
 
-  // --- Save enum to command state ---
-  const saveBtn = document.getElementById("btn-enum-manager-save");
-  if (saveBtn) {
-    saveBtn.addEventListener("click", function () {
-      const varName = enumManagerState.varName;
-      const commandId = enumManagerState.commandId;
-      const enumValues = enumManagerState.enumValues.slice();
-
-      // Apply to the correct draft's variableMeta
-      if (commandId === null) {
-        // New command context
-        if (!uiState.newCommandDraft.variableMeta) {
-          uiState.newCommandDraft.variableMeta = {};
-        }
-        if (enumValues.length > 0) {
-          uiState.newCommandDraft.variableMeta[varName] = {
-            type: "enum",
-            enumValues,
-          };
-        } else {
-          delete uiState.newCommandDraft.variableMeta[varName];
-        }
-      } else {
-        // Edit command context — find command and update
-        const command = (state.data.commands || []).find(function (c) {
-          return c.id === commandId;
-        });
-        if (command) {
-          if (!command.variableMeta) {
-            command.variableMeta = {};
-          }
-          if (enumValues.length > 0) {
-            command.variableMeta[varName] = { type: "enum", enumValues };
-          } else {
-            delete command.variableMeta[varName];
-            if (Object.keys(command.variableMeta).length === 0) {
-              delete command.variableMeta;
-            }
-          }
-        }
-        // Also update editCommandDraft
-        if (!uiState.editCommandDraft.variableMeta) {
-          uiState.editCommandDraft.variableMeta = {};
-        }
-        if (enumValues.length > 0) {
-          uiState.editCommandDraft.variableMeta[varName] = {
-            type: "enum",
-            enumValues,
-          };
-        } else {
-          delete uiState.editCommandDraft.variableMeta[varName];
-        }
-      }
-
-      enumManagerState = {
-        visible: false,
-        commandId: null,
-        varName: "",
-        enumValues: [],
-        editIndex: null,
-        editTitle: "",
-        editValue: "",
-        editDescription: "",
-      };
-      render();
-    });
-  }
-
-  // --- Cancel ---
-  const cancelBtn = document.getElementById("btn-enum-manager-cancel");
-  if (cancelBtn) {
-    cancelBtn.addEventListener("click", function () {
+  // --- Close button (X) — dismisses the modal, changes already applied live ---
+  const closeBtn = document.getElementById("btn-enum-manager-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", function () {
       enumManagerState = {
         visible: false,
         commandId: null,
