@@ -1000,6 +1000,65 @@ function bindCommandActionButtons() {
     });
   });
 
+  // Alt+0 on enum dropdown buttons — switch to custom value and toggle empty value
+  document.querySelectorAll(".cs-btn-enum-var").forEach(function (btn) {
+    btn.addEventListener("keydown", function (e) {
+      if (e.altKey && e.key === "0") {
+        e.preventDefault();
+        var wrapEl = btn.closest(".enum-input-wrap");
+        if (!wrapEl) return;
+        var varName = wrapEl.dataset.variableName;
+        if (!varName) return;
+        var customInput = wrapEl.querySelector(".variable-modal-custom-input");
+        if (!customInput) return;
+
+        // If custom input is hidden, switch dropdown to custom mode first
+        if (customInput.classList.contains("hidden")) {
+          var btnEl = document.getElementById("enum-var-btn-" + varName);
+          var menuEl = document.getElementById("enum-var-menu-" + varName);
+
+          // Update button label
+          if (btnEl) {
+            var lbl = btnEl.querySelector(".cs-btn-label");
+            if (lbl) lbl.textContent = "✏️ Custom value...";
+          }
+
+          // Update menu checkmark
+          if (menuEl) {
+            menuEl.querySelectorAll(".cs-item").forEach(function (item) {
+              item.querySelectorAll(".cs-check").forEach(function (el) {
+                el.remove();
+              });
+              if (item.dataset.value === "__custom__") {
+                item.insertAdjacentHTML("beforeend", icons.checkmark);
+              }
+            });
+          }
+
+          // Show custom input and focus it
+          customInput.classList.remove("hidden");
+          customInput.focus();
+        }
+
+        // Apply EmptyValue toggle logic (same as regular input)
+        if (customInput.dataset.isEmptyValue === "true") {
+          var saved = customInput.dataset.preEmptyValue !== undefined ? customInput.dataset.preEmptyValue : "";
+          customInput.removeAttribute("data-pre-empty-value");
+          customInput.readOnly = false;
+          customInput.removeAttribute("data-is-empty-value");
+          customInput.value = saved;
+          variableInputState.inputValues[varName] = saved;
+        } else {
+          customInput.setAttribute("data-pre-empty-value", customInput.value);
+          customInput.readOnly = true;
+          customInput.setAttribute("data-is-empty-value", "true");
+          customInput.value = "[EmptyValue]";
+          variableInputState.inputValues[varName] = RECIPES_EMPTY_VALUE;
+        }
+      }
+    });
+  });
+
   // Bind custom selects for enum variables in variable input modal
   document.querySelectorAll(".enum-input-wrap[data-variable-name]").forEach(function (wrapEl) {
     const varName = wrapEl.dataset.variableName;
