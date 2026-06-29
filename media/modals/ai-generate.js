@@ -77,7 +77,7 @@ function renderAiPromptModal() {
                     ${icons.recent}
                     <span>Recent prompts</span>
                   </div>
-                  <button class="ai-history-close d-focus" id="btn-ai-history-close" type="button" aria-label="Close">${icons.cancel}</button>
+                  <button class="btn-close d-focus" id="btn-ai-history-close" type="button" aria-label="Close">${icons.cancel}</button>
                 </div>
                 <ul class="ai-history-list">${promptHistory
                   .map(function (p, i) {
