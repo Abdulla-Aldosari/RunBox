@@ -993,7 +993,7 @@ td.actions-cell {
 
 .toggle-switch-3 {
   display: inline-flex;
-  border: 1px solid var(--recipes-input-border);
+  border: 1px solid var(--recipes-settings-textInputBorder);
   border-radius: var(--recipes-cornerRadius-small, 4px);
   background: var(--recipes-input-background);
   overflow: hidden;
