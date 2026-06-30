@@ -140,10 +140,24 @@ function renderVariableInputModal() {
                 const isEnumEmptyValue = currentValue === RECIPES_EMPTY_VALUE;
                 const enumOptions = enumMeta.enumValues
                   .map(function (ev) {
+                    var label;
+                    if (ev.title === ev.value) {
+                      label = ev.title;
+                    } else {
+                      label = ev.title + " (" + ev.value + ")";
+                    }
+                    var tip = "";
+                    if (ev.value) {
+                      tip += "<strong>" + escapeHtml(ev.value) + "</strong>";
+                    }
+                    if (ev.description) {
+                      if (tip) tip += "<br>";
+                      tip += escapeHtml(ev.description);
+                    }
                     return {
                       value: ev.value,
-                      label: ev.value,
-                      tooltip: ev.description || "",
+                      label: label,
+                      tooltip: tip || undefined,
                     };
                   })
                   .concat([{ value: "__custom__", label: "✏️ Custom value..." }]);
