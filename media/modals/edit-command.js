@@ -32,6 +32,8 @@ const editCommandBuffer = {
 
   // Private originals — captured at form-open time for change detection
   _orig: null,
+  // Tracks variable names after the last template edit — used to detect renames
+  _prevVarNames: [],
 
   capture(command) {
     this.commandId = command.id;
@@ -46,6 +48,11 @@ const editCommandBuffer = {
     this.global = Object.assign({}, getCommandGlobalDraft(command.id));
     this.session = Object.assign({}, getCommandSessionDraft(command.id));
     this.remember = Object.assign({}, getCommandRemember(command.id));
+
+    const autoVarNamesCapture = getEnabledAutoVariableNames();
+    this._prevVarNames = collectVariables([this.template]).filter(function (n) {
+      return !autoVarNamesCapture.includes(n);
+    });
 
     this._orig = {
       title: this.title,
@@ -85,6 +92,7 @@ const editCommandBuffer = {
     this.groupId = this.targetCategoryId = this.helpUrl = this.variableMeta = "";
     this.local = this.global = this.session = this.remember = {};
     this._orig = null;
+    this._prevVarNames = [];
   },
 };
 
@@ -304,8 +312,28 @@ function bindEditTabEvents() {
       delete command.helpUrl;
     }
 
-    // Apply variableMeta from buffer
+    // Prune orphaned variable data — remove any variable no longer in the final template.
+    // This is the last line of defense against stale keys left by deletions or renames
+    // that were not caught by the 1-to-1 auto-transfer logic in the template input handler.
+    const finalVarNames = collectVariables([editCommandBuffer.template]);
+    Object.keys(editCommandBuffer.local).forEach(function (k) {
+      if (!finalVarNames.includes(k)) delete editCommandBuffer.local[k];
+    });
+    Object.keys(editCommandBuffer.global).forEach(function (k) {
+      if (!finalVarNames.includes(k)) delete editCommandBuffer.global[k];
+    });
+    Object.keys(editCommandBuffer.session).forEach(function (k) {
+      if (!finalVarNames.includes(k)) delete editCommandBuffer.session[k];
+    });
+    Object.keys(editCommandBuffer.remember).forEach(function (k) {
+      if (!finalVarNames.includes(k)) delete editCommandBuffer.remember[k];
+    });
+
+    // Apply variableMeta from buffer (after pruning orphaned keys)
     const parsedMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+    Object.keys(parsedMeta).forEach(function (k) {
+      if (!finalVarNames.includes(k)) delete parsedMeta[k];
+    });
     if (Object.keys(parsedMeta).length > 0) {
       command.variableMeta = parsedMeta;
     } else {
@@ -356,6 +384,56 @@ function bindEditTabEvents() {
   if (editCommandTemplateInput) {
     editCommandTemplateInput.addEventListener("input", function () {
       editCommandBuffer.template = editCommandTemplateInput.value;
+
+      // Detect 1-to-1 variable rename and auto-transfer stored values
+      const autoVarNamesNow = getEnabledAutoVariableNames();
+      const newVarNames = collectVariables([editCommandBuffer.template]).filter(function (n) {
+        return !autoVarNamesNow.includes(n);
+      });
+      const prevVarNames = editCommandBuffer._prevVarNames;
+      const orphaned = prevVarNames.filter(function (n) {
+        return !newVarNames.includes(n);
+      });
+      const added = newVarNames.filter(function (n) {
+        return !prevVarNames.includes(n);
+      });
+
+      if (orphaned.length === 1 && added.length === 1) {
+        const oldName = orphaned[0];
+        const newName = added[0];
+
+        // Transfer local scope value
+        if (editCommandBuffer.local[oldName] !== undefined) {
+          editCommandBuffer.local[newName] = editCommandBuffer.local[oldName];
+          delete editCommandBuffer.local[oldName];
+        }
+        // Transfer global scope value
+        if (editCommandBuffer.global[oldName] !== undefined) {
+          editCommandBuffer.global[newName] = editCommandBuffer.global[oldName];
+          delete editCommandBuffer.global[oldName];
+        }
+        // Transfer session scope value
+        if (editCommandBuffer.session[oldName] !== undefined) {
+          editCommandBuffer.session[newName] = editCommandBuffer.session[oldName];
+          delete editCommandBuffer.session[oldName];
+        }
+        // Transfer remember preference
+        if (editCommandBuffer.remember[oldName] !== undefined) {
+          editCommandBuffer.remember[newName] = editCommandBuffer.remember[oldName];
+          delete editCommandBuffer.remember[oldName];
+        }
+        // Transfer variableMeta (enum definitions)
+        const meta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
+        if (meta[oldName] !== undefined) {
+          meta[newName] = meta[oldName];
+          delete meta[oldName];
+          editCommandBuffer.variableMeta = JSON.stringify(meta);
+        }
+      }
+
+      // Always update _prevVarNames to reflect the current template state
+      editCommandBuffer._prevVarNames = newVarNames;
+
       // Preserve cursor position before re-render (to update variables section)
       const cursorStart = editCommandTemplateInput.selectionStart;
       const cursorEnd = editCommandTemplateInput.selectionEnd;
