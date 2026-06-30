@@ -6,13 +6,14 @@ All settings are available via **File → Preferences → Settings** → search 
 
 ## Settings
 
-| Setting                                     | Type      | Default      | Description                                                                                                                                                                      |
-| ------------------------------------------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `terminalRecipes.aiProvider`                | `string`  | `"gemini"`   | The AI provider used for generating and explaining terminal commands. Accepted values: `gemini`, `openai`, `anthropic`, `deepseek`, `groq`, `mistral`, `cohere`, `stepfun`.      |
-| `terminalRecipes.aiModel`                   | `string`  | `""`         | The model ID for the selected AI provider. Leave empty to use the provider's default model. This is set automatically when you pick a model in **AI Settings** inside the panel. |
-| `terminalRecipes.customSystemInstructions`  | `string`  | `""`         | Custom instructions for the AI command generator. Replaces the default prompt entirely. Leave empty to use the built-in instructions. Supports multi-line text.                  |
-| `terminalRecipes.debugOutput`               | `boolean` | `false`      | Enables detailed debug logging in the **Terminal Recipes** Output Channel. Useful for diagnosing AI request failures, model listing errors, and other internal events.           |
-| `terminalRecipes.multiRootFolderResolution` | `string`  | `"remember"` | Controls how the active workspace folder is determined when opening the panel in a **multi-root workspace**. Has no effect in single-folder workspaces. See values below.        |
+| Setting                                     | Type      | Default      | Description                                                                                                                                                                             |
+| ------------------------------------------- | --------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `terminalRecipes.aiProvider`                | `string`  | `"gemini"`   | The AI provider used for generating and explaining terminal commands. Accepted values: `gemini`, `openai`, `anthropic`, `deepseek`, `groq`, `mistral`, `cohere`, `stepfun`.             |
+| `terminalRecipes.aiModel`                   | `string`  | `""`         | The model ID for the selected AI provider. Leave empty to use the provider's default model. This is set automatically when you pick a model in **AI Settings** inside the panel.        |
+| `terminalRecipes.customSystemInstructions`  | `string`  | `""`         | Custom instructions for the AI command generator. Replaces the default prompt entirely. Leave empty to use the built-in instructions. Supports multi-line text.                         |
+| `terminalRecipes.debugOutput`               | `boolean` | `false`      | Enables detailed debug logging in the **Terminal Recipes** Output Channel. Useful for diagnosing AI request failures, model listing errors, and other internal events.                  |
+| `terminalRecipes.multiRootFolderResolution` | `string`  | `"remember"` | Controls how the active workspace folder is determined when opening the panel in a **multi-root workspace**. Has no effect in single-folder workspaces. See values below.               |
+| `terminalRecipes.localWorkspaceFilesPath`   | `string`  | `""`         | Relative path from the workspace root for extension-local files (variables, favorites, etc.). When empty, files are stored in `.vscode/`. Example: `.temp` or `.temp/terminal-recipes`. |
 
 ### `terminalRecipes.multiRootFolderResolution` values
 
@@ -51,7 +52,8 @@ All settings are available via **File → Preferences → Settings** → search 
   "terminalRecipes.aiModel": "",
   "terminalRecipes.customSystemInstructions": "",
   "terminalRecipes.debugOutput": false,
-  "terminalRecipes.multiRootFolderResolution": "remember"
+  "terminalRecipes.multiRootFolderResolution": "remember",
+  "terminalRecipes.localWorkspaceFilesPath": ""
 }
 ```
 

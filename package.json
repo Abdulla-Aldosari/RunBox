@@ -110,6 +110,11 @@
           ],
           "default": "remember",
           "description": "Controls how the active workspace folder is determined when opening the panel in a multi-root workspace. Has no effect in single-folder workspaces."
+        },
+        "terminalRecipes.localWorkspaceFilesPath": {
+          "type": "string",
+          "default": "",
+          "description": "Relative path from the workspace root for extension-local files (variables, favorites, etc.). When empty, files are stored in .vscode/. Example: '.temp' or '.temp/terminal-recipes'."
         }
       }
     }
