@@ -1074,8 +1074,12 @@ function bindCommandActionButtons() {
         if (selectedValue === "__custom__") {
           if (customInput) {
             customInput.classList.remove("hidden");
+            customInput.value = "";
+            customInput.removeAttribute("data-is-empty-value");
+            customInput.readOnly = false;
             customInput.focus();
           }
+          variableInputState.inputValues[varName] = "";
         } else {
           if (customInput) {
             customInput.classList.add("hidden");
