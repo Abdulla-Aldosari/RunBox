@@ -89,10 +89,11 @@ expectFn(normalize, "normalizeCommandsData");
 expectFn(normalize, "normalizeCommandVariables");
 expectFn(normalize, "normalizeGroups");
 expectFn(normalize, "normalizeVariableMeta");
+expectConst(normalize, "VALID_TARGET_SHELLS");
 
-test("has exactly 7 exports", function () {
+test("has exactly 8 exports", function () {
   const keys = Object.keys(normalize);
-  assert.strictEqual(keys.length, 7, `Expected 7 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 8, `Expected 8 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -107,10 +108,11 @@ expectFn(terminal, "fixShellPath");
 expectFn(terminal, "resolveSourceProfilePath");
 expectFn(terminal, "getTerminalProfiles");
 expectFn(terminal, "getOrCreateTerminal");
+expectFn(terminal, "detectShellType");
 
-test("has exactly 4 exports", function () {
+test("has exactly 5 exports", function () {
   const keys = Object.keys(terminal);
-  assert.strictEqual(keys.length, 4, `Expected 4 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 5, `Expected 5 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
