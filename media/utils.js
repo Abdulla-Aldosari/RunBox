@@ -971,7 +971,7 @@ function renderCustomSelect(wrapperId, btnId, menuId, options, selectedValue, bt
       const badgeHtml = opt.badge ? `<span class="cs-item-badge">${opt.badge}</span>` : "";
       const isStart = opt.badgePosition === "start";
       return `
-      <div class="cs-item" role="menuitem" tabindex="-1" data-value="${escapeAttr(opt.value)}"${opt.tooltip ? ` data-tooltip="${escapeAttr(opt.tooltip)}"` : ""}>
+      <div class="cs-item" role="menuitem" tabindex="-1" data-value="${escapeAttr(opt.value)}"${opt.tooltip ? ` data-tooltip="${escapeAttr(opt.tooltip)}"` : ""}${opt.tooltipFooter ? ` data-tooltip-footer="${escapeAttr(opt.tooltipFooter)}"` : ""}>
         <span class="cs-item-label-group">
           ${isStart ? badgeHtml : ""}
           <span class="cs-item-label">${escapeHtml(opt.label)}</span>

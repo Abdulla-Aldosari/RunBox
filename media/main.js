@@ -36,9 +36,6 @@ document.addEventListener("contextmenu", function (e) {
       _hoverEl = document.createElement("div");
       _hoverEl.className = "tr-tooltip-hover";
       _hoverEl.setAttribute("role", "tooltip");
-      const inner = document.createElement("div");
-      inner.className = "tr-tooltip-hover-content";
-      _hoverEl.appendChild(inner);
     }
     return _hoverEl;
   }
@@ -88,7 +85,18 @@ document.addEventListener("contextmenu", function (e) {
 
   function showTooltip(el) {
     const tip = getOrCreateTooltip();
-    tip.querySelector(".tr-tooltip-hover-content").innerHTML = el.dataset.tooltip;
+    const header = el.dataset.tooltipHeader || "";
+    const body = el.dataset.tooltip || "";
+    const footer = el.dataset.tooltipFooter || "";
+
+    var html = "";
+    if (header) html += '<div class="tr-tooltip-header">' + header + "</div>";
+    if (body) html += '<div class="tr-tooltip-body">' + body + "</div>";
+    if (footer) {
+      if (body || header) html += '<div class="tr-tooltip-divider"></div>';
+      html += '<div class="tr-tooltip-footer">' + footer + "</div>";
+    }
+    tip.innerHTML = html;
     positionTooltip(el);
   }
 

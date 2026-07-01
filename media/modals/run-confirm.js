@@ -141,23 +141,20 @@ function renderVariableInputModal() {
                 const enumOptions = enumMeta.enumValues
                   .map(function (ev) {
                     var label;
-                    if (ev.title === ev.value) {
+                    if (String(ev.title).toLowerCase() === String(ev.value).toLowerCase()) {
                       label = ev.title;
                     } else {
                       label = ev.title + " (" + ev.value + ")";
                     }
-                    var tip = "";
-                    if (ev.value) {
-                      tip += "<strong>" + escapeHtml(ev.value) + "</strong>";
-                    }
-                    if (ev.description) {
-                      if (tip) tip += "<br>";
-                      tip += escapeHtml(ev.description);
-                    }
                     return {
                       value: ev.value,
                       label: label,
-                      tooltip: tip || undefined,
+                      tooltip: ev.description
+                        ? escapeHtml(ev.description)
+                        : ev.value
+                          ? escapeHtml(ev.value)
+                          : undefined,
+                      tooltipFooter: ev.description && ev.value ? escapeHtml(ev.value) : undefined,
                     };
                   })
                   .concat([{ value: "__custom__", label: "✏️ Custom value..." }]);

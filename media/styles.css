@@ -2284,8 +2284,32 @@ tr.row-highlight td {
   overflow: visible;
 }
 
-.tr-tooltip-hover-content {
+.tr-tooltip-header {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--recipes-editorHoverWidget-foreground);
+  opacity: 0.75;
   word-break: break-word;
+  padding-bottom: 2px;
+}
+
+.tr-tooltip-body {
+  font-weight: 600;
+  word-break: break-word;
+}
+
+.tr-tooltip-divider {
+  border-top: 1px solid var(--tooltip-border-color);
+  margin: 5px 0;
+  opacity: 0.5;
+}
+
+.tr-tooltip-footer {
+  font-size: 11px;
+  color: var(--recipes-editorHoverWidget-foreground);
+  opacity: 0.65;
+  word-break: break-word;
+  padding-top: 2px;
 }
 
 /* ── Tooltip Arrow ────────────────────────────────────────────────────────── */
