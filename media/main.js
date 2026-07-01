@@ -106,9 +106,24 @@ document.addEventListener("contextmenu", function (e) {
     _hoverEl?.remove();
   }
 
+  function getTooltipTarget(node) {
+    return node?.closest("[data-tooltip], [data-tooltip-header], [data-tooltip-footer]") || null;
+  }
+
+  // Tracks the last element for which a tooltip show was scheduled/shown.
+  // Needed because elements with nested children (e.g. multi-path <svg> icons)
+  // fire many native `mouseover` events as the pointer crosses each child node,
+  // even while `getTooltipTarget()` (via closest()) keeps resolving to the same
+  // tooltip-owning ancestor. Without this guard, every one of those nested
+  // `mouseover` events would cancel and reschedule the show timer.
+  let _currentTooltipTarget = null;
+
   document.addEventListener("mouseover", function (e) {
-    const el = e.target.closest("[data-tooltip]");
-    if (!el) return;
+    const el = getTooltipTarget(e.target);
+    // Skip: no tooltip target, or pointer is still inside the same target
+    // (e.g. moving between an icon's internal <path> elements).
+    if (!el || el === _currentTooltipTarget) return;
+    _currentTooltipTarget = el;
 
     // Cancel any pending show for a different element
     clearTimeout(_showTimer);
@@ -119,11 +134,14 @@ document.addEventListener("contextmenu", function (e) {
   });
 
   document.addEventListener("mouseout", function (e) {
-    const fromEl = e.target.closest("[data-tooltip]");
-    const toEl = e.relatedTarget?.closest("[data-tooltip]");
+    const fromEl = getTooltipTarget(e.target);
+    const toEl = getTooltipTarget(e.relatedTarget);
 
     // Mouse stayed within tooltip-owning elements — do nothing
     if (fromEl && toEl && fromEl === toEl) return;
+
+    // Reset so the next mouseover on this (or another) target is treated as new
+    _currentTooltipTarget = null;
 
     hideTooltip();
   });
