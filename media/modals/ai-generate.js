@@ -274,13 +274,21 @@ function bindAiGenerateEvents() {
     // Bind shell selector — sync aiState.shellName when the user picks a different shell
     const profiles = (state.terminalProfiles && state.terminalProfiles.profiles) || [];
     const defaultProfile = (state.terminalProfiles && state.terminalProfiles.defaultProfile) || "";
-    // Initialise shellName from default profile on first open
+    // Initialise shellName/shellPath from default profile on first open
     if (!aiState.shellName && (defaultProfile || profiles.length > 0)) {
       aiState.shellName = defaultProfile || profiles[0].name;
+      const initialProfile = profiles.find(function (p) {
+        return p.name === aiState.shellName;
+      });
+      aiState.shellPath = initialProfile ? initialProfile.shellPath : null;
     }
     if (profiles.length > 0) {
       bindCustomSelect("ai-shell-select-wrap", "ai-shell-select-btn", "ai-shell-select-menu", function (newShell) {
         aiState.shellName = newShell;
+        const matchedProfile = profiles.find(function (p) {
+          return p.name === newShell;
+        });
+        aiState.shellPath = matchedProfile ? matchedProfile.shellPath : null;
       });
     }
 
@@ -322,6 +330,7 @@ function bindAiGenerateEvents() {
             categoryId: aiState.categoryId,
             groupId: aiState.groupId,
             shellName: aiState.shellName,
+            shellPath: aiState.shellPath,
           },
         });
       });
