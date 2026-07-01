@@ -18,6 +18,18 @@ const RECIPES_EMPTY_VALUE = "__EMPTY_VALUE__";
 // List of tabs whose selections can be saved in `localStorage`
 const PERSISTABLE_TABS = ["recent", "favorites", "categories", "commands", "variables"];
 
+// Options for the manual "Target Shell" selector in Add/Edit Command forms.
+// Empty value ("") means "Any Shell" — no restriction, preserves current behavior.
+const TARGET_SHELL_OPTIONS = [
+  { value: "", label: "Any Shell" },
+  { value: "powershell", label: "PowerShell" },
+  { value: "cmd", label: "Command Prompt" },
+  { value: "bash", label: "Bash / Git Bash" },
+  { value: "wsl", label: "WSL" },
+  { value: "zsh", label: "Zsh" },
+  { value: "sh", label: "Sh" },
+];
+
 const uiState = {
   activeTab: (function () {
     try {
@@ -61,8 +73,10 @@ const uiState = {
     description: "",
     groupId: "",
     helpUrl: "",
+    targetShell: "",
     variableMeta: {},
   },
+
   columnVisibility: (function () {
     try {
       const saved = localStorage.getItem("columnVisibility");

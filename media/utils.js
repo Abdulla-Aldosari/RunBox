@@ -77,6 +77,25 @@ function generateEntityId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${random}`;
 }
 
+/**
+ * Finds the first configured terminal profile whose detected shellType matches
+ * the given targetShell (e.g. "bash", "powershell"). Returns null if targetShell
+ * is empty or no matching profile is configured.
+ * @param {string} targetShell
+ * @returns {{name: string, shellPath: string, shellType: string}|null}
+ */
+function findMatchingShellProfile(targetShell) {
+  if (!targetShell) {
+    return null;
+  }
+  const profiles = (state.terminalProfiles && state.terminalProfiles.profiles) || [];
+  return (
+    profiles.find(function (p) {
+      return p.shellType === targetShell;
+    }) || null
+  );
+}
+
 // ─── Variable Collection & Resolution ─────────────────────────────────────────
 
 /**

@@ -22,6 +22,7 @@ const editCommandBuffer = {
   groupId: "",
   targetCategoryId: "",
   helpUrl: "",
+  targetShell: "",
   variableMeta: "", // JSON.stringify of variableMeta object
 
   // Working fields — variable scope data
@@ -43,6 +44,7 @@ const editCommandBuffer = {
     this.groupId = command.groupId || "";
     this.targetCategoryId = command.categoryId || "";
     this.helpUrl = command.helpUrl || "";
+    this.targetShell = command.targetShell || "";
     this.variableMeta = JSON.stringify(command.variableMeta || {});
     this.local = Object.assign({}, getCommandLocalDraft(command.id));
     this.global = Object.assign({}, getCommandGlobalDraft(command.id));
@@ -61,6 +63,7 @@ const editCommandBuffer = {
       groupId: this.groupId,
       targetCategoryId: this.targetCategoryId,
       helpUrl: this.helpUrl,
+      targetShell: this.targetShell,
       variableMeta: this.variableMeta,
       local: Object.assign({}, this.local),
       global: Object.assign({}, this.global),
@@ -78,6 +81,7 @@ const editCommandBuffer = {
     if (this.groupId !== o.groupId) return true;
     if (this.targetCategoryId !== o.targetCategoryId) return true;
     if ((this.helpUrl || "") !== (o.helpUrl || "")) return true;
+    if ((this.targetShell || "") !== (o.targetShell || "")) return true;
     if (this.variableMeta !== o.variableMeta) return true;
     if (JSON.stringify(this.local) !== JSON.stringify(o.local)) return true;
     if (JSON.stringify(this.global) !== JSON.stringify(o.global)) return true;
@@ -89,7 +93,7 @@ const editCommandBuffer = {
   clear() {
     this.commandId = null;
     this.title = this.template = this.description = "";
-    this.groupId = this.targetCategoryId = this.helpUrl = this.variableMeta = "";
+    this.groupId = this.targetCategoryId = this.helpUrl = this.targetShell = this.variableMeta = "";
     this.local = this.global = this.session = this.remember = {};
     this._orig = null;
     this._prevVarNames = [];
@@ -170,6 +174,19 @@ function renderEditTab() {
           </div>
         </div>
         <label class="full-width">Help URL (optional)<input id="edit-command-help-url" class="input" placeholder="https://docs.example.com/command" value="${escapeAttr(editCommandBuffer.helpUrl || "")}" /></label>
+        <div class="full-width grouped-tags-wrap">
+          <span class="groups-label" data-tooltip="Restricts this command to a specific shell.<br>Leave as Any Shell if it works everywhere.">Target Shell:</span>
+          ${renderCustomSelect(
+            "edit-target-shell-wrap",
+            "edit-target-shell-btn",
+            "edit-target-shell-menu",
+            TARGET_SHELL_OPTIONS,
+            editCommandBuffer.targetShell || "",
+            "cs-btn-sm", // btnExtraClass
+            false // menuUp
+          )}
+        </div>
+
         ${
           variables.length
             ? `
@@ -310,6 +327,12 @@ function bindEditTabEvents() {
       command.helpUrl = editCommandBuffer.helpUrl;
     } else {
       delete command.helpUrl;
+    }
+
+    if (editCommandBuffer.targetShell) {
+      command.targetShell = editCommandBuffer.targetShell;
+    } else {
+      delete command.targetShell;
     }
 
     // Prune orphaned variable data — remove any variable no longer in the final template.
@@ -548,6 +571,12 @@ function bindEditTabEvents() {
       editCommandBuffer.helpUrl = editHelpUrlInput.value;
     });
   }
+
+  // Bind target shell selector in edit tab (custom select)
+  bindCustomSelect("edit-target-shell-wrap", "edit-target-shell-btn", "edit-target-shell-menu", function (newShell) {
+    editCommandBuffer.targetShell = newShell;
+    render();
+  });
 
   // Bind Enum Manager buttons in edit tab
   document.querySelectorAll(".btn-open-enum-manager").forEach(function (btn) {

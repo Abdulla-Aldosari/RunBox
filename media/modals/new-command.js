@@ -55,6 +55,19 @@ function renderAddCommandTab(selectedCategory) {
           </div>
         </div>
         <label class="full-width">Help URL (optional)<input id="new-command-help-url" class="input" placeholder="https://docs.example.com/command" value="${escapeAttr(draft.helpUrl || "")}" /></label>
+        <div class="full-width grouped-tags-wrap">
+          <span class="groups-label" data-tooltip="Restricts this command to a specific shell.<br>Leave as Any Shell if it works everywhere.">Target Shell:</span>
+          ${renderCustomSelect(
+            "new-target-shell-wrap",
+            "new-target-shell-btn",
+            "new-target-shell-menu",
+            TARGET_SHELL_OPTIONS,
+            draft.targetShell || "",
+            "cs-btn-sm", // btnExtraClass
+            false // menuUp
+          )}
+        </div>
+
         ${
           detectedVars.length
             ? `
@@ -161,6 +174,11 @@ function bindAddCommandTabEvents() {
       uiState.newCommandDraft.helpUrl = newCommandHelpUrlInput.value;
     });
   }
+
+  bindCustomSelect("new-target-shell-wrap", "new-target-shell-btn", "new-target-shell-menu", function (newShell) {
+    uiState.newCommandDraft.targetShell = newShell;
+    render();
+  });
 
   // --- Enum Manager buttons (in Add Command tab) ---
   document.querySelectorAll(".btn-open-enum-manager").forEach(function (btn) {
@@ -345,9 +363,11 @@ function bindAddCommandTabEvents() {
         description: "",
         groupId: "",
         helpUrl: "",
+        targetShell: "",
         variableMeta: {},
       };
       delete uiState.commandLocalDrafts["__new__"];
+
       delete uiState.commandGlobalDrafts["__new__"];
       delete uiState.commandSessionDrafts["__new__"];
       delete uiState.commandRemember["__new__"];
@@ -377,6 +397,7 @@ function bindAddCommandTabEvents() {
       const commandTemplate = templateInput ? templateInput.value.trim() : "";
       const helpUrl = helpUrlInputEl ? helpUrlInputEl.value.trim() : "";
       const groupId = uiState.newCommandDraft.groupId;
+      const targetShell = uiState.newCommandDraft.targetShell || "";
       const variableMeta = uiState.newCommandDraft.variableMeta || {};
 
       if (title.length < 3) {
@@ -405,6 +426,7 @@ function bindAddCommandTabEvents() {
         categoryId: selectedCategory.id,
         groupId,
         ...(helpUrl ? { helpUrl } : {}),
+        ...(targetShell ? { targetShell } : {}),
         ...(Object.keys(variableMeta).length > 0 ? { variableMeta } : {}),
       };
 
@@ -463,10 +485,12 @@ function bindAddCommandTabEvents() {
         description: "",
         groupId: "",
         helpUrl: "",
+        targetShell: "",
         variableMeta: {},
       };
       uiState.activeTab = "commands";
       uiState.pendingScrollCommandId = newCommandId;
+
       persistDataThenRender("Command added.");
       persistCommandVariables();
     });

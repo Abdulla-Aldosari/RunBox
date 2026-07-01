@@ -637,11 +637,12 @@ function bindCommandActionButtons() {
         return;
       }
 
+      const matchedProfile = findMatchingShellProfile(command.targetShell);
       runConfirmState = {
         commandId,
         resolvedCommand: resolveCommandTemplate(command),
-        selectedShellPath: runConfirmState.selectedShellPath,
-        selectedShellName: runConfirmState.selectedShellName,
+        selectedShellPath: matchedProfile ? matchedProfile.shellPath : runConfirmState.selectedShellPath,
+        selectedShellName: matchedProfile ? matchedProfile.name : runConfirmState.selectedShellName,
       };
 
       render();
@@ -1319,11 +1320,12 @@ function bindCommandActionButtons() {
         });
 
         if (command) {
+          const matchedProfile = findMatchingShellProfile(command.targetShell);
           runConfirmState = {
             commandId,
             resolvedCommand: resolveCommandTemplate(command),
-            selectedShellPath: runConfirmState.selectedShellPath,
-            selectedShellName: runConfirmState.selectedShellName,
+            selectedShellPath: matchedProfile ? matchedProfile.shellPath : runConfirmState.selectedShellPath,
+            selectedShellName: matchedProfile ? matchedProfile.name : runConfirmState.selectedShellName,
           };
         }
 
