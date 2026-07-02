@@ -89,8 +89,9 @@ Two separate execution contexts:
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `fixShellPath(rawPath)`                           | Replaces `\Sysnative\` with `\System32\` on Windows                                                                                                                                                                                                                                                                |
 | `resolveSourceProfilePath(source)`                | Resolves shell path from a VS Code profile source name                                                                                                                                                                                                                                                             |
-| `getTerminalProfiles()`                           | Reads terminal profiles from VS Code settings                                                                                                                                                                                                                                                                      |
+| `getTerminalProfiles()`                           | Reads terminal profiles from VS Code settings. Each returned profile includes a `shellType` field (see `detectShellType` below), used to match profiles against a command's `targetShell`.                                                                                                                         |
 | `getOrCreateTerminal(shellPath, shellName, cwd?)` | Returns the active terminal or creates a new one. When `cwd` is provided, always creates a new terminal that opens at the specified directory — reusing an existing terminal would ignore the `cwd`. Used by `handlePerformAction` to open the terminal in the workspace folder selected in the run-confirm modal. |
+| `detectShellType(shellPath)`                      | Classifies a shell executable path into a standardized identifier: `"powershell"`, `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`, or `null` if unrecognized. See "Target Shell System" below.                                                                                                                        |
 
 **Dependencies:** `vscode`, `fs` (sync `accessSync` only).
 
@@ -271,6 +272,68 @@ Each `[Local | Off | Global]` toggle button contains a `<span class="scope-value
 
 ---
 
+## Target Shell System
+
+Commands can be tagged with the shell environment they were written for, so that
+running them auto-selects a matching terminal profile instead of relying on the
+user's default shell.
+
+### Data Model
+
+Each command may carry an optional `targetShell` field, a string identifier from
+the fixed set: `"powershell"`, `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`. The
+field is validated in `lib/normalize.js` against `VALID_TARGET_SHELLS` (a
+`Set` that must stay in sync with the classification logic in
+`detectShellType`). An invalid or empty value is dropped, and the key is
+omitted from the stored command object entirely — matching the same
+"omit-if-empty" convention used for `helpUrl` and `variableMeta`.
+
+### Where `targetShell` Is Set
+
+- **Manually** — via the "Target Shell" dropdown in the Add Command
+  (`media/modals/new-command.js`, wrapper `new-target-shell-wrap`) and Edit
+  Command (`media/modals/edit-command.js`, wrapper `edit-target-shell-wrap`)
+  forms. Both use the shared `TARGET_SHELL_OPTIONS` list defined in
+  `media/state.js`.
+- **By AI generation** — the AI Generate modal lets the user pick a target
+  shell for the prompt (`ai-shell-select-wrap` in
+  `media/modals/ai-generate.js`). `lib/ai/factory.js` (`buildShellContext()`)
+  injects that shell name into the system instruction so the AI writes
+  shell-appropriate syntax, and the generated command is tagged with the
+  matching `targetShell`.
+
+### Matching a Command to a Real Terminal Profile
+
+1. `lib/terminal.js` → `detectShellType(shellPath)` classifies a shell
+   executable path (e.g. `pwsh.exe`, `bash.exe`) into the same standardized
+   identifier set used by `targetShell`.
+2. `getTerminalProfiles()` calls `detectShellType()` for every configured VS
+   Code terminal profile and attaches the result as `shellType` on each
+   profile entry sent to the webview (`state.terminalProfiles.profiles`).
+3. `findMatchingShellProfile(targetShell)` in `media/utils.js` scans
+   `state.terminalProfiles.profiles` and returns the first profile whose
+   `shellType` equals the requested `targetShell`, or `null` if none matches
+   or `targetShell` is empty.
+
+### Run Confirm Auto-Selection
+
+When the Run Confirm modal is opened for a command (Run button click, or
+after resolving missing variables), `media/tabs/commands.js` calls
+`findMatchingShellProfile(command.targetShell)`:
+
+- **Match found** → that profile's `shellPath`/`name` pre-select the shell
+  dropdown in the Run Confirm modal (`renderShellSelector()` in
+  `media/modals/run-confirm.js`).
+- **No match** (empty `targetShell`, or no configured profile has that
+  `shellType`) → falls back to whatever shell was previously selected in
+  `runConfirmState`, preserving prior behavior exactly.
+
+The user can still override the auto-selected shell manually via the
+dropdown before confirming — this system only changes the pre-selected
+default, never the final choice.
+
+---
+
 ## Message Flow — Webview ↔ Extension
 
 ### Webview → Extension (`vscode.postMessage`)
@@ -336,6 +399,8 @@ All dropdowns use `renderCustomSelect()` + `bindCustomSelect()` from `media/util
 | AI Settings Modal — provider                    | `ai-provider-select-wrap`   | `media/modals/ai-settings.js`                                                                                                                   |
 | AI Settings Modal — model                       | `ai-model-select-wrap`      | `media/modals/ai-settings.js`                                                                                                                   |
 | AI Generate Modal — target shell                | `ai-shell-select-wrap`      | `media/modals/ai-generate.js`                                                                                                                   |
+| Add Command Modal — target shell                | `new-target-shell-wrap`     | `media/modals/new-command.js`                                                                                                                   |
+| Edit Command Modal — target shell               | `edit-target-shell-wrap`    | `media/modals/edit-command.js`                                                                                                                  |
 | Variable inputs — enum type                     | `enum-var-wrap-{varName}`   | `media/modals/run-confirm.js` (variable input modal), `media/modals/edit-command.js`, `media/modals/new-command.js`                             |
 | **Header** — workspace folder (multi-root only) | `workspace-folder-select`   | `media/render.js` — visible only when `state.workspaceFolders.length > 1`; selecting a folder posts `setActiveWorkspaceFolder` to the extension |
 
