@@ -216,13 +216,12 @@ const state = {
   globalCommandsFile: "",
   workspaceFolder: null,
   commandVariables: {
-    version: 2,
     commands: {},
   },
   globalCommandVariables: {
-    version: 2,
     commands: {},
   },
+
   terminalProfiles: {
     defaultProfile: "",
     profiles: [],

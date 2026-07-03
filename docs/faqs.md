@@ -48,11 +48,11 @@ Yes. Simply copy `~/.vscode-terminal-recipes/commands.json` to a safe location o
 
 Every variable in a command can be saved in one of three independent scopes. The **Local / Off / Global** toggle on each variable row controls which scope is active for that variable:
 
-| Scope      | Where the value is saved                                                     | When to use it                                                                                            |
-| ---------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Local**  | `.vscode/terminal-recipes.variables.json` inside your current project folder | When the value is specific to this project (e.g. a database name, a port number that differs per project) |
-| **Global** | `~/.vscode-terminal-recipes/variables.json` in your home directory           | When you use the same value across all your projects (e.g. your username, a shared server address)        |
-| **Off**    | In memory only — never written to disk                                       | When you want to fill in a value just for this session without saving it anywhere                         |
+| Scope      | Where the value is saved                                                | When to use it                                                                                            |
+| ---------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Local**  | `.vscode/terminal-recipes.data.json` inside your current project folder | When the value is specific to this project (e.g. a database name, a port number that differs per project) |
+| **Global** | `~/.vscode-terminal-recipes/data.json` in your home directory           | When you use the same value across all your projects (e.g. your username, a shared server address)        |
+| **Off**    | In memory only — never written to disk                                  | When you want to fill in a value just for this session without saving it anywhere                         |
 
 Switching the toggle does **not** delete the value stored in the other scopes — each scope stores its value independently.
 

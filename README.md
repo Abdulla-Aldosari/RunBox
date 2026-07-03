@@ -44,8 +44,8 @@ Each variable can be saved in one of three independent scopes:
 
 | Scope      | Saved to                                    | Best for                               |
 | ---------- | ------------------------------------------- | -------------------------------------- |
-| **Local**  | `.vscode/terminal-recipes.variables.json`   | Values that differ per project         |
-| **Global** | `~/.vscode-terminal-recipes/variables.json` | Values shared across all projects      |
+| **Local**  | `.vscode/terminal-recipes.data.json`        | Values that differ per project         |
+| **Global** | `~/.vscode-terminal-recipes/data.json`      | Values shared across all projects      |
 | **Off**    | Session memory only - never written to disk | One-time values you don't need to keep |
 
 Switching the scope toggle never deletes the value stored in the other scopes.

@@ -17,7 +17,9 @@ const {
   sanitizeTitle,
   getDefaultCommandsData,
   normalizeCommandsData,
-  normalizeCommandVariables,
+  normalizeVariablesSection,
+  normalizeFavoritesSection,
+  normalizeDataFile,
   normalizeGroups,
   normalizeVariableMeta,
 } = require("../lib/normalize");
@@ -311,67 +313,128 @@ test("drops the whole variable if all enumValues are invalid", function () {
 });
 
 // ---------------------------------------------------------------------------
-// normalizeCommandVariables
+// normalizeVariablesSection
 // ---------------------------------------------------------------------------
 
-section("normalizeCommandVariables");
+section("normalizeVariablesSection");
 
-test("returns { version:2, commands:{} } for null input", function () {
-  const result = normalizeCommandVariables(null);
-  assert.strictEqual(result.version, 2);
-  assert.deepStrictEqual(result.commands, {});
+test("returns { commands:{} } for null input", function () {
+  assert.deepStrictEqual(normalizeVariablesSection(null), { commands: {} });
 });
 
-test("returns { version:2, commands:{} } for non-object input", function () {
-  assert.deepStrictEqual(normalizeCommandVariables("bad"), { version: 2, commands: {} });
-  assert.deepStrictEqual(normalizeCommandVariables(42), { version: 2, commands: {} });
+test("returns { commands:{} } for non-object input", function () {
+  assert.deepStrictEqual(normalizeVariablesSection("bad"), { commands: {} });
+  assert.deepStrictEqual(normalizeVariablesSection(42), { commands: {} });
 });
 
-test("normalizes valid v2 data correctly", function () {
+test("normalizes valid data correctly", function () {
   const input = {
-    version: 2,
     commands: {
       "cmd-1": { branch: "main", env: "dev" },
     },
   };
-  const result = normalizeCommandVariables(input);
-  assert.strictEqual(result.version, 2);
+  const result = normalizeVariablesSection(input);
   assert.deepStrictEqual(result.commands["cmd-1"], { branch: "main", env: "dev" });
 });
 
 test("drops non-string variable values", function () {
   const input = {
-    version: 2,
     commands: {
       "cmd-1": { branch: "main", count: 42, flag: true },
     },
   };
-  const result = normalizeCommandVariables(input);
+  const result = normalizeVariablesSection(input);
   assert.deepStrictEqual(result.commands["cmd-1"], { branch: "main" });
 });
 
 test("drops commands with no valid string variables", function () {
   const input = {
-    version: 2,
     commands: {
       "cmd-1": { count: 42 },
     },
   };
-  const result = normalizeCommandVariables(input);
+  const result = normalizeVariablesSection(input);
   assert.deepStrictEqual(result.commands, {});
 });
 
 test("handles commands with no variables entry (non-object value)", function () {
   const input = {
-    version: 2,
     commands: {
       "cmd-1": null,
       "cmd-2": { branch: "main" },
     },
   };
-  const result = normalizeCommandVariables(input);
+  const result = normalizeVariablesSection(input);
   assert.ok(!result.commands["cmd-1"]);
   assert.ok(result.commands["cmd-2"]);
+});
+
+// ---------------------------------------------------------------------------
+// normalizeFavoritesSection
+// ---------------------------------------------------------------------------
+
+section("normalizeFavoritesSection");
+
+test("returns { commandIds:[] } for null input", function () {
+  assert.deepStrictEqual(normalizeFavoritesSection(null), { commandIds: [] });
+});
+
+test("returns { commandIds:[] } for non-object input", function () {
+  assert.deepStrictEqual(normalizeFavoritesSection("bad"), { commandIds: [] });
+  assert.deepStrictEqual(normalizeFavoritesSection(42), { commandIds: [] });
+});
+
+test("returns { commandIds:[] } when commandIds is not an array", function () {
+  assert.deepStrictEqual(normalizeFavoritesSection({ commandIds: "bad" }), { commandIds: [] });
+});
+
+test("keeps valid string commandIds", function () {
+  const result = normalizeFavoritesSection({ commandIds: ["cmd-1", "cmd-2"] });
+  assert.deepStrictEqual(result.commandIds, ["cmd-1", "cmd-2"]);
+});
+
+test("filters out non-string entries", function () {
+  const result = normalizeFavoritesSection({ commandIds: ["cmd-1", 42, null, "cmd-2"] });
+  assert.deepStrictEqual(result.commandIds, ["cmd-1", "cmd-2"]);
+});
+
+// ---------------------------------------------------------------------------
+// normalizeDataFile
+// ---------------------------------------------------------------------------
+
+section("normalizeDataFile");
+
+test("returns default structure for null input", function () {
+  const result = normalizeDataFile(null);
+  assert.strictEqual(result.version, 1);
+  assert.deepStrictEqual(result.variables, { commands: {} });
+  assert.deepStrictEqual(result.favorites, { commandIds: [] });
+});
+
+test("returns default structure for non-object input", function () {
+  const result = normalizeDataFile("bad");
+  assert.deepStrictEqual(result.variables, { commands: {} });
+  assert.deepStrictEqual(result.favorites, { commandIds: [] });
+});
+
+test("preserves valid variables and favorites sections together", function () {
+  const input = {
+    variables: { commands: { "cmd-1": { branch: "main" } } },
+    favorites: { commandIds: ["cmd-1"] },
+  };
+  const result = normalizeDataFile(input);
+  assert.deepStrictEqual(result.variables.commands["cmd-1"], { branch: "main" });
+  assert.deepStrictEqual(result.favorites.commandIds, ["cmd-1"]);
+});
+
+test("always returns version: 1 regardless of input version", function () {
+  assert.strictEqual(normalizeDataFile({ version: 99 }).version, 1);
+  assert.strictEqual(normalizeDataFile(null).version, 1);
+});
+
+test("ignores unknown top-level keys not present in DATA_SECTIONS", function () {
+  const result = normalizeDataFile({ unknownSection: { foo: "bar" } });
+  assert.strictEqual(result.unknownSection, undefined);
 });
 
 // ---------------------------------------------------------------------------

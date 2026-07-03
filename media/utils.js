@@ -357,8 +357,8 @@ function getCommandRemember(commandId) {
  * @returns {{ local: object, global: object }}
  */
 function buildCommandVariablesPayload() {
-  var local = { version: 2, commands: {} };
-  var global = { version: 2, commands: {} };
+  var local = { commands: {} };
+  var global = { commands: {} };
 
   var allCommandIds = {};
   Object.keys(uiState.commandLocalDrafts).forEach(function (id) {

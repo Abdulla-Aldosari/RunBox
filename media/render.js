@@ -20,10 +20,10 @@ function hydrateState(payload) {
   state.data = payload && payload.data ? payload.data : state.data;
   state.globalCommandsFile = payload && payload.globalCommandsFile ? payload.globalCommandsFile : "";
   state.workspaceFolder = payload ? payload.workspaceFolder : null;
-  state.commandVariables =
-    payload && payload.commandVariables ? payload.commandVariables : { version: 2, commands: {} };
+  state.commandVariables = payload && payload.commandVariables ? payload.commandVariables : { commands: {} };
   state.globalCommandVariables =
-    payload && payload.globalCommandVariables ? payload.globalCommandVariables : { version: 2, commands: {} };
+    payload && payload.globalCommandVariables ? payload.globalCommandVariables : { commands: {} };
+
   state.terminalProfiles =
     payload && payload.terminalProfiles ? payload.terminalProfiles : { defaultProfile: "", profiles: [] };
   state.autoVariables = payload && Array.isArray(payload.autoVariables) ? payload.autoVariables : [];
@@ -184,8 +184,9 @@ function render() {
         <h1>Terminal Recipes</h1>
         <div class="header-actions">
           ${typeof renderDevToolsOverlay === "function" ? `<button id="btn-open-dev-tools" class="btn small secondary" data-tooltip="Open Dev Tools">Dev Tools</button>` : ""}
-          <button id="btn-open-local-variables-file" class="btn small secondary" ${state.workspaceFolder ? "" : "disabled"} data-tooltip="${state.workspaceFolder ? "Open local variables JSON file" : "No workspace open"}">Open Local Variables JSON</button>
-          <button id="btn-open-global-variables-file" class="btn small secondary" data-tooltip="Open global variables JSON file">Open Global Variables JSON</button>
+          <button id="btn-open-local-data-file" class="btn small secondary" ${state.workspaceFolder ? "" : "disabled"} data-tooltip="${state.workspaceFolder ? "Open local data JSON file" : "No workspace open"}">Open Local Data JSON</button>
+          <button id="btn-open-global-data-file" class="btn small secondary" data-tooltip="Open global data JSON file">Open Global Data JSON</button>
+
           <button id="btn-open-commands-file" class="btn small secondary" data-tooltip="Open global commands JSON file">Open Global JSON</button>
           <button id="btn-ai-settings" class="btn small secondary ai-settings-btn" data-tooltip="AI Settings">${icons.aiSettings} AI Settings</button>
         </div>
@@ -451,8 +452,8 @@ function bindTopActions() {
   }
 
   const openCommandsFileButton = document.getElementById("btn-open-commands-file");
-  const openGlobalVariablesFileButton = document.getElementById("btn-open-global-variables-file");
-  const openLocalVariablesFileButton = document.getElementById("btn-open-local-variables-file");
+  const openGlobalDataFileButton = document.getElementById("btn-open-global-data-file");
+  const openLocalDataFileButton = document.getElementById("btn-open-local-data-file");
 
   if (openCommandsFileButton) {
     openCommandsFileButton.addEventListener("click", function () {
@@ -460,15 +461,15 @@ function bindTopActions() {
     });
   }
 
-  if (openGlobalVariablesFileButton) {
-    openGlobalVariablesFileButton.addEventListener("click", function () {
-      vscode.postMessage({ type: "openGlobalVariablesFile" });
+  if (openGlobalDataFileButton) {
+    openGlobalDataFileButton.addEventListener("click", function () {
+      vscode.postMessage({ type: "openGlobalDataFile" });
     });
   }
 
-  if (openLocalVariablesFileButton) {
-    openLocalVariablesFileButton.addEventListener("click", function () {
-      vscode.postMessage({ type: "openLocalVariablesFile" });
+  if (openLocalDataFileButton) {
+    openLocalDataFileButton.addEventListener("click", function () {
+      vscode.postMessage({ type: "openLocalDataFile" });
     });
   }
 

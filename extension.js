@@ -10,9 +10,10 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const {
-  readGlobalCommandsData,
+  readCommandsData,
   readWorkspaceVariables,
   readGlobalVariables,
+
   readAutoVariablesSettings,
   readGlobalFavorites,
   readWorkspaceFavorites,
@@ -60,9 +61,10 @@ function activate(context) {
       await context.workspaceState.update("activeWorkspaceFolder", workspaceFolder);
     }
 
-    const data = await readGlobalCommandsData();
+    const data = await readCommandsData();
     const commandVariables = await readWorkspaceVariables(workspaceFolder);
     const globalCommandVariables = await readGlobalVariables();
+
     const terminalProfiles = getTerminalProfiles();
     const autoVariablesSettings = await readAutoVariablesSettings();
     const autoVariables = buildAutoVariablesPayload({ workspaceFolder }, autoVariablesSettings);
@@ -153,7 +155,7 @@ function activate(context) {
 
         // Persists the full commands JSON to the global commands file.
         if (message.type === "saveData") {
-          await H.handleSaveData(panel, message.payload, postState);
+          await H.handleSaveCommandsData(panel, message.payload, postState);
           return;
         }
 
@@ -178,16 +180,16 @@ function activate(context) {
           return;
         }
 
-        // Opens the global variables JSON file in the VS Code editor.
-        if (message.type === "openGlobalVariablesFile") {
-          await H.openGlobalVariablesFile();
+        // Opens the global unified data file in the VS Code editor.
+        if (message.type === "openGlobalDataFile") {
+          await H.openGlobalDataFile();
           return;
         }
 
-        // Opens the local variables file for the currently active workspace folder.
-        if (message.type === "openLocalVariablesFile") {
+        // Opens the local unified data file for the currently active workspace folder.
+        if (message.type === "openLocalDataFile") {
           const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
-          await H.openLocalVariablesFile(activeFsPath);
+          await H.openLocalDataFile(activeFsPath);
           return;
         }
 

@@ -167,10 +167,11 @@
 - [ ] **Local Variables** section (workspace-scoped) is disabled / hidden when no workspace is open
 - [ ] **Global Variables** section is always visible
 - [ ] Saved variable values are pre-filled in the input fields
-- [ ] Editing a field and clicking **Save Local**: saves to `.vscode/terminal-recipes.variables.json` → green notice
-- [ ] Editing a field and clicking **Save Global**: saves to `~/.vscode-terminal-recipes/variables.json` → green notice
-- [ ] **Open Local Variables File** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
-- [ ] **Open Global Variables File** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
+- [ ] Editing a field and clicking **Save Local**: saves to `.vscode/terminal-recipes.data.json` → green notice
+- [ ] Editing a field and clicking **Save Global**: saves to `~/.vscode-terminal-recipes/data.json` → green notice
+- [ ] **Open Local Data JSON** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
+- [ ] **Open Global Data JSON** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
+- [ ] The first time a local variable or local favorite is saved in a fresh workspace, a one-time notice appears: `Created file ".vscode/terminal-recipes.data.json". You can change this location anytime in workspace settings.` with an "Open Settings" action; saving again does not repeat the notice
 
 ### 9.1 Auto-Variables
 

@@ -53,14 +53,6 @@ window.addEventListener("message", function (event) {
   if (message.type === "actionResult") {
     if (message.payload && message.payload.success) {
       showNotice(`Action "${message.payload.action}" completed.`, icons.circleCheck, "info");
-
-      if (message.payload.commandVariables && typeof message.payload.commandVariables === "object") {
-        state.commandVariables = message.payload.commandVariables;
-      }
-
-      if (message.payload.globalCommandVariables && typeof message.payload.globalCommandVariables === "object") {
-        state.globalCommandVariables = message.payload.globalCommandVariables;
-      }
     } else {
       showNotice(
         `Action failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,

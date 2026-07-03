@@ -86,14 +86,17 @@ expectFn(normalize, "sanitizeId");
 expectFn(normalize, "sanitizeTitle");
 expectFn(normalize, "getDefaultCommandsData");
 expectFn(normalize, "normalizeCommandsData");
-expectFn(normalize, "normalizeCommandVariables");
+expectFn(normalize, "normalizeVariablesSection");
+expectFn(normalize, "normalizeFavoritesSection");
+expectFn(normalize, "normalizeDataFile");
 expectFn(normalize, "normalizeGroups");
 expectFn(normalize, "normalizeVariableMeta");
 expectConst(normalize, "VALID_TARGET_SHELLS");
+expectConst(normalize, "DATA_SECTIONS");
 
-test("has exactly 8 exports", function () {
+test("has exactly 11 exports", function () {
   const keys = Object.keys(normalize);
-  assert.strictEqual(keys.length, 8, `Expected 8 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 11, `Expected 11 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -126,19 +129,21 @@ const storage = require("../lib/storage");
 // Constants
 expectConst(storage, "GLOBAL_DIR");
 expectConst(storage, "GLOBAL_COMMANDS_FILE");
-expectConst(storage, "GLOBAL_VARIABLES_FILE");
+expectConst(storage, "GLOBAL_DATA_FILE");
 expectConst(storage, "GLOBAL_AUTO_VARIABLES_SETTINGS_FILE");
-expectConst(storage, "GLOBAL_FAVORITES_FILE");
 
 // Functions
 expectFn(storage, "fileExists");
 expectFn(storage, "getFirstWorkspaceFolderPath");
 expectFn(storage, "getAllWorkspaceFolders");
 expectFn(storage, "resolveActiveWorkspaceFolder");
-expectFn(storage, "getWorkspaceVariablesFilePath");
+expectFn(storage, "getWorkspaceDataFilePath");
 expectFn(storage, "ensureGlobalCommandsFile");
-expectFn(storage, "readGlobalCommandsData");
-expectFn(storage, "writeGlobalCommandsData");
+expectFn(storage, "readCommandsData");
+expectFn(storage, "writeCommandsData");
+expectFn(storage, "readDataFile");
+
+expectFn(storage, "writeDataFile");
 expectFn(storage, "readWorkspaceVariables");
 expectFn(storage, "writeWorkspaceVariables");
 expectFn(storage, "readGlobalVariables");
@@ -150,9 +155,9 @@ expectFn(storage, "readWorkspaceFavorites");
 expectFn(storage, "writeGlobalFavorites");
 expectFn(storage, "writeWorkspaceFavorites");
 
-test("has exactly 23 exports (5 constants + 18 functions)", function () {
+test("has exactly 24 exports (4 constants + 20 functions)", function () {
   const keys = Object.keys(storage);
-  assert.strictEqual(keys.length, 23, `Expected 23 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 24, `Expected 24 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // Spot-check path constant values
@@ -167,18 +172,8 @@ test("GLOBAL_COMMANDS_FILE ends with 'commands.json'", function () {
   );
 });
 
-test("GLOBAL_VARIABLES_FILE ends with 'variables.json'", function () {
-  assert.ok(
-    storage.GLOBAL_VARIABLES_FILE.endsWith("variables.json"),
-    `GLOBAL_VARIABLES_FILE = "${storage.GLOBAL_VARIABLES_FILE}"`
-  );
-});
-
-test("GLOBAL_FAVORITES_FILE ends with 'favorites.json'", function () {
-  assert.ok(
-    storage.GLOBAL_FAVORITES_FILE.endsWith("favorites.json"),
-    `GLOBAL_FAVORITES_FILE = "${storage.GLOBAL_FAVORITES_FILE}"`
-  );
+test("GLOBAL_DATA_FILE ends with 'data.json'", function () {
+  assert.ok(storage.GLOBAL_DATA_FILE.endsWith("data.json"), `GLOBAL_DATA_FILE = "${storage.GLOBAL_DATA_FILE}"`);
 });
 
 // ---------------------------------------------------------------------------
@@ -189,13 +184,15 @@ section("lib/handlers.js");
 
 const handlers = require("../lib/handlers");
 
-expectFn(handlers, "handleSaveData");
+expectFn(handlers, "handleSaveCommandsData");
 expectFn(handlers, "handleSaveCommandVariables");
+
 expectFn(handlers, "handlePerformAction");
 expectFn(handlers, "handleOpenExternalUrl");
 expectFn(handlers, "openGlobalCommandsFile");
-expectFn(handlers, "openGlobalVariablesFile");
-expectFn(handlers, "openLocalVariablesFile");
+expectFn(handlers, "openGlobalDataFile");
+expectFn(handlers, "openLocalDataFile");
+
 expectFn(handlers, "handleAiGetSettings");
 expectFn(handlers, "handleAiSaveSettings");
 expectFn(handlers, "handleAiGenerate");
