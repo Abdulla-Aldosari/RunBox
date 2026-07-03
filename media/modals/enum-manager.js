@@ -46,7 +46,7 @@ function renderEnumManagerModal() {
         <label class="enum-form-desc">Description<input id="enum-input-desc" class="input" placeholder="What this option does..." value="${escapeAttr(s.editDescription)}" autocomplete="off" /></label>
       </div>
       <div class="row justify-content-flex-end">
-        <button type="button" class="btn small primary" id="btn-enum-add-confirm">${s.editIndex !== null ? "Update" : "+ Add"}</button>
+        <button type="button" class="btn small primary" id="btn-enum-add-confirm" ${!s.editTitle.trim() || !s.editValue.trim() ? "disabled" : ""}>${s.editIndex !== null ? "Update" : "+ Add"}</button>
         ${s.editIndex !== null ? '<button type="button" class="btn small secondary action" id="btn-enum-edit-cancel">Cancel Edit</button>' : ""}
       </div>
     </div>
@@ -223,14 +223,23 @@ function bindEnumManagerEvents() {
   const valueInput = document.getElementById("enum-input-value");
   const descInput = document.getElementById("enum-input-desc");
 
+  function validateEnumForm() {
+    const isValid = !!titleInput?.value.trim() && !!valueInput?.value.trim();
+    confirmBtn.disabled = !isValid;
+    titleInput?.classList.toggle("invalid", !titleInput.value.trim());
+    valueInput?.classList.toggle("invalid", !valueInput.value.trim());
+  }
+
   if (titleInput) {
     titleInput.addEventListener("input", function () {
       enumManagerState.editTitle = titleInput.value;
+      validateEnumForm();
     });
   }
   if (valueInput) {
     valueInput.addEventListener("input", function () {
       enumManagerState.editValue = valueInput.value;
+      validateEnumForm();
     });
   }
   if (descInput) {
@@ -238,4 +247,7 @@ function bindEnumManagerEvents() {
       enumManagerState.editDescription = descInput.value;
     });
   }
+
+  // Initial validation
+  validateEnumForm();
 }
