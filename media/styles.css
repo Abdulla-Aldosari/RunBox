@@ -2128,6 +2128,177 @@ tr.row-highlight td {
   width: min(560px, 100%);
 }
 
+.ai-check-status-box {
+  width: min(520px, 100%);
+}
+
+/* ── Status banner (Connection check) ──────────────────────────────────── */
+
+.ai-check-status-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 5px;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.ai-check-status-banner.ok {
+  background: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 12%, var(--recipes-editor-background));
+  border: 1px solid color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 35%, transparent);
+  color: var(--vscode-testing-iconPassed, #4caf50);
+}
+
+/* ── Two-column data grid ──────────────────────────────────────────────── */
+
+.ai-check-status-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.ai-check-status-card {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--recipes-panel-border);
+  border-radius: 5px;
+  background: var(--recipes-input-background);
+}
+
+.ai-check-status-card-full {
+  grid-column: 1 / -1;
+}
+
+.ai-check-status-card-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--recipes-descriptionForeground);
+}
+
+.ai-check-status-card-value {
+  font-size: 0.86rem;
+  color: var(--recipes-foreground);
+  word-break: break-word;
+}
+
+/* ── Rate limit progress bars ───────────────────────────────────────────── */
+
+.ai-check-status-limit-group {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--recipes-panel-border);
+  border-radius: 5px;
+  background: var(--recipes-input-background);
+}
+
+.ai-check-status-limit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.ai-check-status-limit-title {
+  font-weight: 600;
+  color: var(--recipes-foreground);
+}
+
+.ai-check-status-limit-values {
+  color: var(--recipes-descriptionForeground);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.ai-check-status-progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--recipes-panel-border);
+  overflow: hidden;
+}
+
+.ai-check-status-progress-fill {
+  height: 100%;
+  width: var(--limit-percent, 0%);
+  border-radius: 3px;
+  transition: width 0.25s ease;
+}
+
+.ai-check-status-progress-fill.level-ok {
+  background: var(--vscode-testing-iconPassed, #4caf50);
+}
+
+.ai-check-status-progress-fill.level-warning {
+  background: var(--recipes-charts-yellow, #e9b44c);
+}
+
+.ai-check-status-progress-fill.level-danger {
+  background: var(--vscode-errorForeground, #e05252);
+}
+
+.ai-check-status-limit-reset {
+  font-size: 0.76rem;
+  color: var(--recipes-descriptionForeground);
+  opacity: 0.85;
+}
+
+/* ── Unsupported provider card ──────────────────────────────────────────── */
+
+.ai-check-status-unsupported-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--recipes-panel-border);
+  border-radius: 5px;
+  background: var(--recipes-input-background);
+  font-size: 0.85rem;
+}
+
+.ai-check-status-unsupported-card svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+  color: var(--recipes-charts-yellow, #e9b44c);
+}
+
+.ai-check-status-unsupported-hint {
+  color: var(--recipes-descriptionForeground);
+  font-size: 0.8rem;
+}
+
+.ai-check-status-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: 1px solid var(--recipes-panel-border);
+  border-radius: 5px;
+  color: var(--recipes-textLink-foreground);
+  text-decoration: none;
+  font-size: 0.83rem;
+  width: fit-content;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+}
+
+.ai-check-status-link-btn:hover {
+  background: var(--recipes-list-hoverBackground);
+  border-color: var(--recipes-textLink-foreground);
+}
+
+/* ── Footer divider ──────────────────────────────────────────────────────── */
+
+.ai-check-status-footer {
+  border-top: 1px solid var(--recipes-panel-border);
+  padding-top: 10px;
+}
+
 .ai-setup-steps {
   display: grid;
   gap: 10px;

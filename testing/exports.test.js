@@ -203,10 +203,12 @@ expectFn(handlers, "handleAiListModels");
 expectFn(handlers, "handleAiRefreshAllModels");
 expectFn(handlers, "handleAiDeleteKey");
 expectFn(handlers, "handleAiExplain");
+expectFn(handlers, "handleAiCheckConnection");
+expectFn(handlers, "handleAiCheckRateLimits");
 
-test("has exactly 17 exports", function () {
+test("has exactly 19 exports", function () {
   const keys = Object.keys(handlers);
-  assert.strictEqual(keys.length, 17, `Expected 17 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 19, `Expected 19 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

@@ -261,6 +261,18 @@ function activate(context) {
           return;
         }
 
+        // Verifies API key validity and connectivity for the given AI provider.
+        if (message.type === "aiCheckConnection") {
+          await H.handleAiCheckConnection(panel, context, message.payload);
+          return;
+        }
+
+        // Retrieves rate limit information for the given AI provider, if supported.
+        if (message.type === "aiCheckRateLimits") {
+          await H.handleAiCheckRateLimits(panel, context, message.payload);
+          return;
+        }
+
         // User selected a different folder from the header dropdown.
         // Persist the choice in workspaceState and refresh the panel state.
         if (message.type === "setActiveWorkspaceFolder") {
@@ -344,6 +356,9 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   const modalsAiExplainUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-explain.js")
   );
+  const modalsAiCheckStatusUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-check-status.js")
+  );
   const modalsEnumManagerUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, "media", "modals", "enum-manager.js")
   );
@@ -394,7 +409,9 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   <script nonce="${nonce}" src="${modalsAiSettingsUri}"></script>
   <script nonce="${nonce}" src="${modalsAiGenerateUri}"></script>
   <script nonce="${nonce}" src="${modalsAiExplainUri}"></script>
+  <script nonce="${nonce}" src="${modalsAiCheckStatusUri}"></script>
   <script nonce="${nonce}" src="${modalsEnumManagerUri}"></script>
+
 
   <!-- 3. Tabs -->
   <script nonce="${nonce}" src="${tabsRecentUri}"></script>

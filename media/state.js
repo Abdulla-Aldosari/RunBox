@@ -207,6 +207,15 @@ let aiExplainState = {
   error: "",
 };
 
+// AI Check Status modal state (shared by "Check Connection" and "Check Rate Limits")
+let aiCheckStatusState = {
+  visible: false,
+  mode: null, // 'connection' | 'rateLimits'
+  loading: false,
+  result: null, // raw payload received from the extension (shape depends on mode)
+  error: "",
+};
+
 const state = {
   data: {
     version: 1,

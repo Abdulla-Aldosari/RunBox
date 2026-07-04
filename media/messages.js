@@ -244,4 +244,14 @@ window.addEventListener("message", function (event) {
     handleAiExplainResult(message.payload);
     return;
   }
+
+  if (message.type === "aiCheckConnectionResult") {
+    handleAiCheckConnectionResult(message.payload);
+    return;
+  }
+
+  if (message.type === "aiCheckRateLimitsResult") {
+    handleAiCheckRateLimitsResult(message.payload);
+    return;
+  }
 });

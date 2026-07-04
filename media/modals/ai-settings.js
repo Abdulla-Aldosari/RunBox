@@ -337,12 +337,12 @@ function renderAiSettingsModal() {
           </div>
         </div>
         ${providerLinksHtml}
-        <div class="row between mt-20">
+        <div class="row justify-content-flex-end mt-20">
           <button class="btn small secondary ai-models-refresh-btn" id="btn-ai-refresh-models" type="button"${!hasKey ? " disabled" : ""} data-tooltip="${escapeAttr(refreshTooltip)}">↻ Refresh models</button>
-          <div class="row">
-            <button class="btn small primary min-w65" id="btn-ai-settings-save">Save</button>
-            <button class="btn small secondary action min-w65" id="btn-ai-settings-cancel">Close</button>
-          </div>
+          <button class="btn small secondary action" id="btn-ai-check-connection" type="button"${!hasKey ? " disabled" : ""} data-tooltip="${hasKey ? "Verify API key and connectivity" : "Add an API key first"}">Check Connection</button>
+          <button class="btn small secondary action" id="btn-ai-check-rate-limits" type="button"${!hasKey ? " disabled" : ""} data-tooltip="${hasKey ? "Check current rate limit usage" : "Add an API key first"}">Check Rate Limits</button>
+          <button class="btn small primary min-w65 ml-auto" id="btn-ai-settings-save">Save</button>
+          <button class="btn small secondary action min-w65" id="btn-ai-settings-cancel">Close</button>
         </div>
       </div>
     </div>
@@ -498,6 +498,30 @@ function bindAiSettingsEvents() {
       deleteApiKeyBtn.addEventListener("click", function () {
         clearModelsCache(aiState.settingsProviderName);
         vscode.postMessage({ type: "aiDeleteKey", payload: { providerName: aiState.settingsProviderName } });
+      });
+    }
+
+    // "Check Connection" button — verifies API key validity and connectivity
+    const checkConnectionBtn = document.getElementById("btn-ai-check-connection");
+    if (checkConnectionBtn) {
+      checkConnectionBtn.addEventListener("click", function () {
+        if (!aiState.keyStatus[aiState.settingsProviderName]) {
+          return;
+        }
+        const modelId = resolveSettingsModelId(aiState.settingsProviderName);
+        openAiCheckConnectionModal(aiState.settingsProviderName, modelId);
+      });
+    }
+
+    // "Check Rate Limits" button — retrieves rate limit info, or a link if unsupported
+    const checkRateLimitsBtn = document.getElementById("btn-ai-check-rate-limits");
+    if (checkRateLimitsBtn) {
+      checkRateLimitsBtn.addEventListener("click", function () {
+        if (!aiState.keyStatus[aiState.settingsProviderName]) {
+          return;
+        }
+        const modelId = resolveSettingsModelId(aiState.settingsProviderName);
+        openAiCheckRateLimitsModal(aiState.settingsProviderName, modelId);
       });
     }
 
