@@ -120,8 +120,7 @@ function renderVariableInputModal() {
               const rememberValue =
                 variableInputState.rememberFlags[name] !== undefined
                   ? variableInputState.rememberFlags[name]
-                  : getCommandRemember(variableInputState.commandId)[name] ||
-                    (state.workspaceFolder ? "local" : "global");
+                  : getCommandRemember(variableInputState.commandId)[name] || "off";
               // Show the value for the currently selected scope
               const currentValue =
                 variableInputState.inputValues[name] !== undefined ? variableInputState.inputValues[name] : "";

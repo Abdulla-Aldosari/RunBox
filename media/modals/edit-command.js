@@ -201,7 +201,7 @@ function renderEditTab() {
             </div>
             ${variables
               .map(function (name) {
-                const pref = commandRemember[name] || (state.workspaceFolder ? "local" : "global");
+                const pref = commandRemember[name] || "off";
                 let rawVal;
                 if (pref === "local") {
                   rawVal = editCommandBuffer.local[name];

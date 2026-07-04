@@ -308,7 +308,7 @@ function getCommandDraft(commandId) {
  * Returns (and lazily initializes) the scope preference map for a command.
  * Keys are variable names; values are "local" | "global" | "off".
  * Initialization logic: prefer "local" if local has a value, otherwise "global"
- * if global has a value, otherwise workspace-appropriate default.
+ * if global has a value, otherwise "off" (no scope is active by default).
  * @param {string} commandId
  * @returns {object} mutable remember map { [varName]: "local"|"global"|"off" }
  */
@@ -337,8 +337,8 @@ function getCommandRemember(commandId) {
       } else if (globalVars[key]) {
         remembered[key] = "global";
       } else {
-        // Default: prefer local if workspace is open, otherwise global
-        remembered[key] = state.workspaceFolder ? "local" : "global";
+        // Default: no scope is active until the user explicitly opts in
+        remembered[key] = "off";
       }
     });
 

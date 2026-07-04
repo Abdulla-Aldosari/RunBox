@@ -481,7 +481,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
     const globalScopeBuffer = {};
     const sessionScopeBuffer = {};
     allVars.forEach(function (name) {
-      const pref = rememberMap[name] || (state.workspaceFolder ? "local" : "global");
+      const pref = rememberMap[name] || "off";
       var lv = getCommandLocalDraft(commandId)[name];
       var gv = getCommandGlobalDraft(commandId)[name];
       var sv = getCommandSessionDraft(commandId)[name];
@@ -522,7 +522,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
     const globalScopeBuffer = {};
     const sessionScopeBuffer = {};
     allVars.forEach(function (name) {
-      const pref = rememberMap[name] || (state.workspaceFolder ? "local" : "global");
+      const pref = rememberMap[name] || "off";
       var lv = getCommandLocalDraft(commandId)[name];
       var gv = getCommandGlobalDraft(commandId)[name];
       var sv = getCommandSessionDraft(commandId)[name];
@@ -607,7 +607,7 @@ function bindCommandActionButtons() {
         const globalScopeBuffer = {};
         const sessionScopeBuffer = {};
         allVars.forEach(function (name) {
-          const pref = rememberMap[name] || (state.workspaceFolder ? "local" : "global");
+          const pref = rememberMap[name] || "off";
           var lv = getCommandLocalDraft(commandId)[name];
           var gv = getCommandGlobalDraft(commandId)[name];
           var sv = getCommandSessionDraft(commandId)[name];
@@ -944,7 +944,7 @@ function bindCommandActionButtons() {
       const sessionScopeBuffer = {};
 
       allVars.forEach(function (name) {
-        const pref = rememberMap[name] || (state.workspaceFolder ? "local" : "global");
+        const pref = rememberMap[name] || "off";
         var lv = getCommandLocalDraft(commandId)[name];
         var gv = getCommandGlobalDraft(commandId)[name];
         var sv = getCommandSessionDraft(commandId)[name];

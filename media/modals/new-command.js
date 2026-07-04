@@ -82,7 +82,7 @@ function renderAddCommandTab(selectedCategory) {
             </div>
             ${detectedVars
               .map(function (name) {
-                const pref = newCommandRemember[name] || (state.workspaceFolder ? "local" : "global");
+                const pref = newCommandRemember[name] || "off";
                 const localDraftV = getCommandLocalDraft("__new__");
                 const globalDraftV = getCommandGlobalDraft("__new__");
                 const sessionDraftV = getCommandSessionDraft("__new__");

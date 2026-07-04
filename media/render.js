@@ -81,7 +81,7 @@ function hydrateState(payload) {
         } else if (globalVars[key]) {
           remembered[key] = "global"; // prefer global if only global has a value
         } else {
-          remembered[key] = state.workspaceFolder ? "local" : "global";
+          remembered[key] = "off";
         }
       });
       uiState.commandRemember[commandId] = remembered;
