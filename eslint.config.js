@@ -15,6 +15,7 @@ const nodeGlobals = {
   clearTimeout: "readonly",
   setInterval: "readonly",
   clearInterval: "readonly",
+  fetch: "readonly",
 };
 
 const browserGlobals = {
@@ -136,6 +137,13 @@ const browserGlobals = {
   aiState: "writable",
   aiExplainState: "writable",
   aiProviderSetupModalState: "writable",
+  aiCheckStatusState: "writable",
+  handleAiCheckConnectionResult: "readonly",
+  handleAiCheckRateLimitsResult: "readonly",
+  openAiCheckConnectionModal: "readonly",
+  openAiCheckRateLimitsModal: "readonly",
+  TARGET_SHELL_OPTIONS: "readonly",
+  findMatchingShellProfile: "readonly",
 };
 
 module.exports = [
@@ -148,7 +156,9 @@ module.exports = [
       globals: nodeGlobals,
     },
     rules: {
-      "no-unused-vars": "warn",
+      // varsIgnorePattern allows intentionally-unused bindings prefixed with "_"
+      // (e.g. async iterator loop vars used only to advance the iterator)
+      "no-unused-vars": ["warn", { varsIgnorePattern: "^_" }],
       // Allow empty catch blocks — intentional silent error handling
       "no-empty": ["error", { allowEmptyCatch: true }],
       // Disable — flags valid initializer patterns (e.g. var x = ""; then reassign in if/else)
@@ -178,7 +188,7 @@ module.exports = [
       globals: nodeGlobals,
     },
     rules: {
-      "no-unused-vars": "warn",
+      "no-unused-vars": ["warn", { varsIgnorePattern: "^_" }],
       "no-empty": ["error", { allowEmptyCatch: true }],
       "no-useless-assignment": "off",
     },
