@@ -822,6 +822,36 @@ td.actions-cell {
   font-size: 0.95rem;
 }
 
+/* ===== AI Provider Setup Steps Styling ===== */
+.ai-setup-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ai-setup-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--recipes-panel-border);
+}
+
+.ai-setup-step-number {
+  font-weight: bold;
+  color: var(--recipes-textLink-foreground);
+  min-width: 24px;
+  text-align: center;
+  background-color: color-mix(in srgb, var(--recipes-editor-background) 25%, var(--recipes-panel-border));
+  border-radius: 20%;
+  padding: 3px 4px 4px 3px;
+  margin-right: 8px;
+}
+.ai-setup-step-text {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--recipes-editor-foreground);
+}
+
 /* ===== Modal Border Flash (dismiss=false feedback) ===== */
 @keyframes modalBorderFlash {
   0% {
@@ -2299,23 +2329,6 @@ tr.row-highlight td {
   padding-top: 10px;
 }
 
-.ai-setup-steps {
-  display: grid;
-  gap: 10px;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.ai-setup-step {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  color: var(--recipes-descriptionForeground);
-}
-
 .ai-setup-step-num {
   display: inline-flex;
   align-items: center;
@@ -2330,11 +2343,6 @@ tr.row-highlight td {
   font-weight: 600;
   margin-top: 1px;
   padding-bottom: 3px;
-}
-
-.ai-setup-footer {
-  padding-top: 10px;
-  border-top: 1px solid var(--recipes-panel-border);
 }
 
 @media (max-width: 920px) {

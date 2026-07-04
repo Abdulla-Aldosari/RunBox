@@ -573,7 +573,10 @@ function renderAiProviderSetupModal() {
 
   const stepsHtml = setup.steps
     .map(function (step, idx) {
-      return `<li class="ai-setup-step"><span class="ai-setup-step-num">${idx + 1}</span><span>${step}</span></li>`;
+      return `<li class="ai-setup-step">
+                <div class="ai-setup-step-number">${idx + 1}</div>
+                <div class="ai-setup-step-text">${step}</div>
+              </li>`;
     })
     .join("");
 
@@ -584,11 +587,9 @@ function renderAiProviderSetupModal() {
         <ol class="ai-setup-steps">
           ${stepsHtml}
         </ol>
-        <div class="ai-setup-footer">
-          <a class="ai-provider-link" id="btn-ai-setup-open-url" data-url="${escapeAttr(setup.apiKeyUrl)}" href="#" data-tooltip="Open ${escapeAttr(setup.apiKeyUrlLabel)} in browser">
-            ${icons.externalLink}  Open ${escapeHtml(setup.apiKeyUrlLabel)}
-          </a>
-        </div>
+        <a class="ai-provider-link" id="btn-ai-setup-open-url" data-url="${escapeAttr(setup.apiKeyUrl)}" href="#" data-tooltip="Open ${escapeAttr(setup.apiKeyUrlLabel)} API keys Page in browser">
+          ${icons.externalLink}  Open ${escapeHtml(setup.apiKeyUrlLabel)} API keys Page
+        </a>
         <div class="row justify-content-flex-end">
           <button class="btn small secondary action min-w65" id="btn-ai-setup-close">Close</button>
         </div>
