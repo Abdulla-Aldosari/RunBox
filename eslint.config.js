@@ -39,7 +39,7 @@ const browserGlobals = {
   uiState: "readonly",
   icons: "readonly",
   render: "readonly",
-  RECIPES_EMPTY_VALUE: "readonly",
+  RUNBOX_EMPTY_VALUE: "readonly",
   PERSISTABLE_TABS: "readonly",
   noticeTimer: "writable",
   hydrateState: "readonly",

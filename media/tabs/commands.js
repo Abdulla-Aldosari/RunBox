@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -995,7 +995,7 @@ function bindCommandActionButtons() {
           input.readOnly = true;
           input.setAttribute("data-is-empty-value", "true");
           input.value = "[EmptyValue]";
-          variableInputState.inputValues[varName] = RECIPES_EMPTY_VALUE;
+          variableInputState.inputValues[varName] = RUNBOX_EMPTY_VALUE;
         }
       }
     });
@@ -1054,7 +1054,7 @@ function bindCommandActionButtons() {
           customInput.readOnly = true;
           customInput.setAttribute("data-is-empty-value", "true");
           customInput.value = "[EmptyValue]";
-          variableInputState.inputValues[varName] = RECIPES_EMPTY_VALUE;
+          variableInputState.inputValues[varName] = RUNBOX_EMPTY_VALUE;
         }
       }
     });
@@ -1113,7 +1113,7 @@ function bindCommandActionButtons() {
         // Determine the current value from the modal (enum dropdown or text input)
         var currentActiveVal = variableInputState.inputValues[varName] || "";
         if (inputEl && !inputEl.classList.contains("hidden")) {
-          currentActiveVal = inputEl.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : inputEl.value;
+          currentActiveVal = inputEl.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : inputEl.value;
         }
 
         // Step 1: Save current value to current scope BUFFER (not scope draft)
@@ -1149,7 +1149,7 @@ function bindCommandActionButtons() {
 
         // Step 5a: Update text input (for non-enum or enum custom input)
         if (inputEl) {
-          const isEmptyValue = newVal === RECIPES_EMPTY_VALUE;
+          const isEmptyValue = newVal === RUNBOX_EMPTY_VALUE;
           inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;
           inputEl.readOnly = isEmptyValue;
           if (isEmptyValue) {
@@ -1168,7 +1168,7 @@ function bindCommandActionButtons() {
           const enumMeta = command && command.variableMeta && command.variableMeta[varName];
           const isEnum = enumMeta && enumMeta.type === "enum" && enumMeta.enumValues && enumMeta.enumValues.length > 0;
           if (isEnum) {
-            const displayVal = newVal === RECIPES_EMPTY_VALUE ? "" : newVal;
+            const displayVal = newVal === RUNBOX_EMPTY_VALUE ? "" : newVal;
             const isInEnum = enumMeta.enumValues.some(function (ev) {
               return ev.value === displayVal;
             });
@@ -1214,16 +1214,16 @@ function bindCommandActionButtons() {
                   }
                 });
               }
-              // When newVal is RECIPES_EMPTY_VALUE, Step 5a already set the correct "[EmptyValue]" readonly state — don't overwrite
+              // When newVal is RUNBOX_EMPTY_VALUE, Step 5a already set the correct "[EmptyValue]" readonly state — don't overwrite
               if (customEl) {
                 customEl.classList.remove("hidden");
-                if (newVal !== RECIPES_EMPTY_VALUE) {
+                if (newVal !== RUNBOX_EMPTY_VALUE) {
                   customEl.value = displayVal;
                 }
               }
               if (inputEl) {
                 inputEl.classList.remove("hidden");
-                if (newVal !== RECIPES_EMPTY_VALUE) {
+                if (newVal !== RUNBOX_EMPTY_VALUE) {
                   inputEl.value = displayVal;
                 }
               }
@@ -1269,7 +1269,7 @@ function bindCommandActionButtons() {
       document.querySelectorAll(".variable-modal-input").forEach(function (input) {
         const varName = input.dataset.variableName;
         if (!varName) return;
-        const val = input.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : input.value;
+        const val = input.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : input.value;
         variableInputState.inputValues[varName] = val;
         const scope = variableInputState.rememberFlags[varName] || "off";
         if (scope === "local" && variableInputState.localScopeBuffer) {

@@ -13,7 +13,7 @@ We provide security updates exclusively for the latest version of the project. O
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Use [GitHub Private Vulnerability Reporting](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/security/advisories/new) to submit a report confidentially.
+Use [GitHub Private Vulnerability Reporting](https://github.com/Abdulla-Aldosari/runbox/security/advisories/new) to submit a report confidentially.
 
 Include as much of the following as possible:
 

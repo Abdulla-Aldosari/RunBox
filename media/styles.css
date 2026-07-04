@@ -1,61 +1,61 @@
 :root {
   color-scheme: light dark;
-  --recipes-auto-resolved-variables: #92a781;
-  --recipes-user-defined-variables: #3d97bf;
-  --recipes-button-background: var(--vscode-button-background);
-  --recipes-button-border: var(--vscode-button-border);
-  --recipes-button-secondaryBorder: var(--vscode-button-secondaryBorder);
-  --recipes-button-foreground: var(--vscode-button-foreground);
-  --recipes-button-hoverBackground: var(--vscode-button-hoverBackground);
-  --recipes-button-secondaryBackground: var(--vscode-button-secondaryBackground);
-  --recipes-button-secondaryForeground: var(--vscode-button-secondaryForeground);
-  --recipes-button-secondaryHoverBackground: var(--vscode-button-secondaryHoverBackground);
-  --recipes-charts-blue: var(--vscode-charts-blue);
-  --recipes-charts-yellow: var(--vscode-charts-yellow);
-  --recipes-checkbox-selectBorder: var(--vscode-checkbox-selectBorder);
-  --recipes-descriptionForeground: var(--vscode-descriptionForeground);
-  --recipes-editor-background: var(--vscode-editor-background);
-  --recipes-editor-font-family: var(--vscode-editor-font-family);
-  --recipes-editor-foreground: var(--vscode-editor-foreground);
-  --recipes-editorHoverWidget-background: var(--vscode-editorHoverWidget-background);
-  --recipes-editorHoverWidget-border: var(--vscode-editorHoverWidget-border);
-  --recipes-editorHoverWidget-foreground: var(--vscode-editorHoverWidget-foreground);
-  --recipes-focusBorder: var(--vscode-focusBorder);
-  --recipes-font-family: var(--vscode-font-family);
-  --recipes-foreground: var(--vscode-foreground);
-  --recipes-input-background: var(--vscode-input-background);
-  --recipes-input-border: var(--vscode-input-border, var(--vscode-contrastBorder, transparent));
-  --recipes-input-placeholderForeground: var(--vscode-input-placeholderForeground);
-  --recipes-list-hoverBackground: var(--vscode-list-hoverBackground);
-  --recipes-list-hoverForeground: var(--vscode-list-hoverForeground);
-  --recipes-panel-border: var(--vscode-panel-border);
-  --recipes-quickInputList-focusBackground: var(--vscode-quickInputList-focusBackground);
-  --recipes-quickInputList-focusForeground: var(--vscode-quickInputList-focusForeground);
-  --recipes-dropdown-listBackground: var(--vscode-dropdown-listBackground);
-  --recipes-textLink-foreground: var(--vscode-textLink-foreground);
-  --recipes-textPreformat-background: var(--vscode-textPreformat-background);
-  --recipes-textPreformat-foreground: var(--vscode-textPreformat-foreground);
-  --recipes-widget-shadow: var(--vscode-widget-shadow);
+  --runbox-auto-resolved-variables: #92a781;
+  --runbox-user-defined-variables: #3d97bf;
+  --runbox-button-background: var(--vscode-button-background);
+  --runbox-button-border: var(--vscode-button-border);
+  --runbox-button-secondaryBorder: var(--vscode-button-secondaryBorder);
+  --runbox-button-foreground: var(--vscode-button-foreground);
+  --runbox-button-hoverBackground: var(--vscode-button-hoverBackground);
+  --runbox-button-secondaryBackground: var(--vscode-button-secondaryBackground);
+  --runbox-button-secondaryForeground: var(--vscode-button-secondaryForeground);
+  --runbox-button-secondaryHoverBackground: var(--vscode-button-secondaryHoverBackground);
+  --runbox-charts-blue: var(--vscode-charts-blue);
+  --runbox-charts-yellow: var(--vscode-charts-yellow);
+  --runbox-checkbox-selectBorder: var(--vscode-checkbox-selectBorder);
+  --runbox-descriptionForeground: var(--vscode-descriptionForeground);
+  --runbox-editor-background: var(--vscode-editor-background);
+  --runbox-editor-font-family: var(--vscode-editor-font-family);
+  --runbox-editor-foreground: var(--vscode-editor-foreground);
+  --runbox-editorHoverWidget-background: var(--vscode-editorHoverWidget-background);
+  --runbox-editorHoverWidget-border: var(--vscode-editorHoverWidget-border);
+  --runbox-editorHoverWidget-foreground: var(--vscode-editorHoverWidget-foreground);
+  --runbox-focusBorder: var(--vscode-focusBorder);
+  --runbox-font-family: var(--vscode-font-family);
+  --runbox-foreground: var(--vscode-foreground);
+  --runbox-input-background: var(--vscode-input-background);
+  --runbox-input-border: var(--vscode-input-border, var(--vscode-contrastBorder, transparent));
+  --runbox-input-placeholderForeground: var(--vscode-input-placeholderForeground);
+  --runbox-list-hoverBackground: var(--vscode-list-hoverBackground);
+  --runbox-list-hoverForeground: var(--vscode-list-hoverForeground);
+  --runbox-panel-border: var(--vscode-panel-border);
+  --runbox-quickInputList-focusBackground: var(--vscode-quickInputList-focusBackground);
+  --runbox-quickInputList-focusForeground: var(--vscode-quickInputList-focusForeground);
+  --runbox-dropdown-listBackground: var(--vscode-dropdown-listBackground);
+  --runbox-textLink-foreground: var(--vscode-textLink-foreground);
+  --runbox-textPreformat-background: var(--vscode-textPreformat-background);
+  --runbox-textPreformat-foreground: var(--vscode-textPreformat-foreground);
+  --runbox-widget-shadow: var(--vscode-widget-shadow);
 
-  --recipes-settings-checkboxBackground: var(--vscode-settings-checkboxBackground);
-  --recipes-settings-checkboxBorder: var(--vscode-settings-checkboxBorder);
-  --recipes-settings-dropdownBackground: var(--vscode-settings-dropdownBackground);
-  --recipes-settings-dropdownBorder: var(--vscode-settings-dropdownBorder);
-  --recipes-settings-dropdownForeground: var(--vscode-settings-dropdownForeground);
-  --recipes-settings-textInputForeground: var(--vscode-settings-textInputForeground);
-  --recipes-settings-textInputBorder: var(--vscode-settings-textInputBorder, transparent);
-  --recipes-settings-textInputBackground: var(--vscode-settings-textInputBackground);
-  --recipes-settings-placeholderForeground: color-mix(
+  --runbox-settings-checkboxBackground: var(--vscode-settings-checkboxBackground);
+  --runbox-settings-checkboxBorder: var(--vscode-settings-checkboxBorder);
+  --runbox-settings-dropdownBackground: var(--vscode-settings-dropdownBackground);
+  --runbox-settings-dropdownBorder: var(--vscode-settings-dropdownBorder);
+  --runbox-settings-dropdownForeground: var(--vscode-settings-dropdownForeground);
+  --runbox-settings-textInputForeground: var(--vscode-settings-textInputForeground);
+  --runbox-settings-textInputBorder: var(--vscode-settings-textInputBorder, transparent);
+  --runbox-settings-textInputBackground: var(--vscode-settings-textInputBackground);
+  --runbox-settings-placeholderForeground: color-mix(
     in srgb,
-    var(--recipes-settings-textInputForeground) 56%,
-    var(--recipes-settings-textInputBackground)
+    var(--runbox-settings-textInputForeground) 56%,
+    var(--runbox-settings-textInputBackground)
   );
 
-  --recipes-cornerRadius-xSmall: var(--vscode-cornerRadius-xSmall); /* 2px or 0px depending on theme */
-  --recipes-cornerRadius-small: var(--vscode-cornerRadius-small); /*   4px or 0px depending on theme */
-  --recipes-cornerRadius-medium: var(--vscode-cornerRadius-medium); /* 6px or 0px depending on theme */
-  --recipes-cornerRadius-large: var(--vscode-cornerRadius-large); /*   8px or 0px depending on theme */
-  --recipes-cornerRadius-xLarge: var(--vscode-cornerRadius-xLarge); /* 10px or 0px depending on theme */
+  --runbox-cornerRadius-xSmall: var(--vscode-cornerRadius-xSmall); /* 2px or 0px depending on theme */
+  --runbox-cornerRadius-small: var(--vscode-cornerRadius-small); /*   4px or 0px depending on theme */
+  --runbox-cornerRadius-medium: var(--vscode-cornerRadius-medium); /* 6px or 0px depending on theme */
+  --runbox-cornerRadius-large: var(--vscode-cornerRadius-large); /*   8px or 0px depending on theme */
+  --runbox-cornerRadius-xLarge: var(--vscode-cornerRadius-xLarge); /* 10px or 0px depending on theme */
 }
 
 body[data-vscode-theme-id="Abyss"],
@@ -67,9 +67,9 @@ body[data-vscode-theme-id="Monokai Dimmed"],
 body[data-vscode-theme-id="Red"],
 body[data-vscode-theme-id="Solarized Dark"],
 body[data-vscode-theme-id="Dark 2026"] {
-  --recipes-input-border: color-mix(
+  --runbox-input-border: color-mix(
     in srgb,
-    var(--recipes-panel-border, var(--recipes-settings-checkboxBorder)) 75%,
+    var(--runbox-panel-border, var(--runbox-settings-checkboxBorder)) 75%,
     transparent
   );
 }
@@ -78,16 +78,16 @@ body[data-vscode-theme-id="Visual Studio Light"],
 body[data-vscode-theme-id="Light+"],
 body[data-vscode-theme-id="Quiet Light"],
 body[data-vscode-theme-id="Light 2026"] {
-  --recipes-input-border: var(--recipes-panel-border, var(--recipes-settings-checkboxBorder));
-  --recipes-card-form-editor-background: color-mix(
+  --runbox-input-border: var(--runbox-panel-border, var(--runbox-settings-checkboxBorder));
+  --runbox-card-form-editor-background: color-mix(
     in srgb,
-    var(--recipes-editor-background) 98%,
-    var(--recipes-foreground)
+    var(--runbox-editor-background) 98%,
+    var(--runbox-foreground)
   );
 }
 
 .card.recipe-editor {
-  background-color: var(--recipes-card-form-editor-background, transparent);
+  background-color: var(--runbox-card-form-editor-background, transparent);
 }
 
 * {
@@ -96,9 +96,9 @@ body[data-vscode-theme-id="Light 2026"] {
 
 body {
   margin: 0;
-  font-family: var(--recipes-font-family, Segoe UI, sans-serif);
-  color: var(--recipes-foreground);
-  background: var(--recipes-editor-background);
+  font-family: var(--runbox-font-family, Segoe UI, sans-serif);
+  color: var(--runbox-foreground);
+  background: var(--runbox-editor-background);
 }
 
 a:focus {
@@ -111,7 +111,7 @@ button:focus:not(.d-focus) {
   outline-width: 1px;
   outline-style: solid;
   outline-offset: -1px;
-  outline-color: var(--recipes-focusBorder);
+  outline-color: var(--runbox-focusBorder);
   opacity: 1;
 }
 
@@ -148,11 +148,11 @@ button:focus:not(.d-focus) {
   max-width: min(420px, calc(100vw - 24px));
   padding: 14px 20px 10px 11px;
   border: 1px solid;
-  border-color: color-mix(in srgb, var(--recipes-editor-background) 70%, #828282);
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  background: color-mix(in srgb, var(--recipes-editor-background) 88%, #828282);
+  border-color: color-mix(in srgb, var(--runbox-editor-background) 70%, #828282);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  background: color-mix(in srgb, var(--runbox-editor-background) 88%, #828282);
   box-shadow: 0px 0px 5px 2px rgb(0 0 0 / 7%);
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
   display: flex;
   align-items: flex-start;
   gap: 5px;
@@ -198,27 +198,27 @@ button:focus:not(.d-focus) {
 .notice.notice-error {
   --msg-notice-color: #9f3a41;
   --msg-type-current-border-color: color-mix(in srgb, var(--msg-notice-color) 32%, transparent);
-  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--recipes-editor-background)) !important;
+  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--runbox-editor-background)) !important;
   border-color: var(--msg-type-current-border-color) !important;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   font-weight: 500;
 }
 
 .notice.notice-warning {
   --msg-notice-color: #e7d23f;
   --msg-type-current-border-color: color-mix(in srgb, var(--msg-notice-color) 32%, transparent);
-  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--recipes-editor-background)) !important;
+  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--runbox-editor-background)) !important;
   border-color: var(--msg-type-current-border-color) !important;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   font-weight: 500;
 }
 
 .notice.notice-success {
   --msg-notice-color: #6fc951;
   --msg-type-current-border-color: color-mix(in srgb, var(--msg-notice-color) 32%, transparent);
-  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--recipes-editor-background)) !important;
+  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--runbox-editor-background)) !important;
   border-color: var(--msg-type-current-border-color) !important;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   font-weight: 500;
   border-left-color: var(--msg-notice-color) !important;
 }
@@ -226,9 +226,9 @@ button:focus:not(.d-focus) {
 .notice.notice-info {
   --msg-notice-color: #56ccff;
   --msg-type-current-border-color: color-mix(in srgb, var(--msg-notice-color) 32%, transparent);
-  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--recipes-editor-background)) !important;
+  background: color-mix(in srgb, var(--msg-notice-color) 18%, var(--runbox-editor-background)) !important;
   border-color: var(--msg-type-current-border-color) !important;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   font-weight: 500;
 }
 
@@ -260,7 +260,7 @@ button:focus:not(.d-focus) {
 }
 
 .card {
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
   padding: 12px;
   display: grid;
@@ -287,13 +287,13 @@ button:focus:not(.d-focus) {
   display: flex;
   flex-wrap: wrap;
   gap: 0;
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
   padding-bottom: 0;
 }
 
 .tab {
   background: transparent;
-  color: var(--recipes-foreground, var(--recipes-editor-foreground));
+  color: var(--runbox-foreground, var(--runbox-editor-foreground));
   border: none;
   border-bottom: 2px solid transparent;
   border-radius: 0;
@@ -309,12 +309,12 @@ button:focus:not(.d-focus) {
 
 .tab:hover:not(:disabled):not(.active) {
   opacity: 0.85;
-  background: color-mix(in srgb, var(--recipes-editor-background) 90%, var(--recipes-foreground));
+  background: color-mix(in srgb, var(--runbox-editor-background) 90%, var(--runbox-foreground));
 }
 
 .tab.active {
-  background: color-mix(in srgb, var(--recipes-editor-background) 85%, var(--recipes-foreground));
-  border-bottom: 2px solid var(--recipes-editor-foreground);
+  background: color-mix(in srgb, var(--runbox-editor-background) 85%, var(--runbox-foreground));
+  border-bottom: 2px solid var(--runbox-editor-foreground);
   opacity: 1;
 }
 
@@ -325,21 +325,21 @@ button:focus:not(.d-focus) {
 .tab-push-right {
   margin-left: auto;
   /* Restore button style for "Add New Command" */
-  background: var(--recipes-button-secondaryBackground) !important;
-  color: var(--recipes-button-secondaryForeground) !important;
+  background: var(--runbox-button-secondaryBackground) !important;
+  color: var(--runbox-button-secondaryForeground) !important;
   opacity: 1 !important;
   align-self: center;
 }
 
 .tab-push-right.active {
-  background: color-mix(in srgb, var(--recipes-editor-background) 85%, var(--recipes-foreground));
-  color: var(--recipes-editor-foreground) !important;
-  border-color: var(--recipes-button-background) !important;
-  border-bottom: 2px solid var(--recipes-button-background) !important;
+  background: color-mix(in srgb, var(--runbox-editor-background) 85%, var(--runbox-foreground));
+  color: var(--runbox-editor-foreground) !important;
+  border-color: var(--runbox-button-background) !important;
+  border-bottom: 2px solid var(--runbox-button-background) !important;
 }
 
 .tab-push-right:hover:not(:disabled) {
-  background: var(--recipes-button-secondaryHoverBackground) !important;
+  background: var(--runbox-button-secondaryHoverBackground) !important;
   opacity: 1 !important;
 }
 
@@ -386,9 +386,9 @@ label {
 .input {
   width: 100%;
   border-radius: var(--vscode-cornerRadius-small, 4px);
-  border: 1px solid var(--recipes-settings-textInputBorder);
-  background: var(--recipes-settings-textInputBackground);
-  color: var(--recipes-settings-textInputForeground);
+  border: 1px solid var(--runbox-settings-textInputBorder);
+  background: var(--runbox-settings-textInputBackground);
+  color: var(--runbox-settings-textInputForeground);
   padding: 4.7px 4px;
   font-size: 0.8rem;
   min-height: 27px;
@@ -399,12 +399,12 @@ label {
   outline-width: 1px;
   outline-style: solid;
   outline-offset: -1px;
-  outline-color: var(--recipes-focusBorder);
+  outline-color: var(--runbox-focusBorder);
   opacity: 1;
 }
 
 .input::placeholder {
-  color: var(--recipes-settings-placeholderForeground);
+  color: var(--runbox-settings-placeholderForeground);
   /* Changes the text color */
   opacity: 1;
   /* Ensures Firefox overrides its default translucent style */
@@ -420,7 +420,7 @@ textarea {
 .template-textarea {
   resize: none;
   overflow-y: hidden;
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
   line-height: 1.4;
   min-height: unset !important;
   max-height: unset !important;
@@ -457,12 +457,12 @@ textarea {
   overflow: hidden;
   white-space: pre-wrap;
   word-break: break-word;
-  background: var(--recipes-input-background);
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  background: var(--runbox-input-background);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
   font-size: 0.8rem;
   line-height: 1.4;
   padding: 4.7px 4px;
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   /* height synced to textarea via --tr-highlight-h set by autoResizeTextarea() */
   height: var(--tr-highlight-h, auto);
 }
@@ -473,7 +473,7 @@ textarea {
   z-index: 1;
   background: transparent !important;
   color: transparent !important;
-  caret-color: var(--recipes-descriptionForeground);
+  caret-color: var(--runbox-descriptionForeground);
   scrollbar-width: none;
   /* Firefox / Linux */
 }
@@ -486,19 +486,19 @@ textarea {
 
 /* Restore placeholder visibility (inherits color:transparent otherwise) */
 .input.template-textarea::placeholder {
-  color: var(--recipes-settings-placeholderForeground);
+  color: var(--runbox-settings-placeholderForeground);
   opacity: 1;
 }
 
 /* Reserved/auto variables, indicating auto-resolved */
 .var-auto {
   opacity: 0.9;
-  color: var(--recipes-auto-resolved-variables);
+  color: var(--runbox-auto-resolved-variables);
 }
 
 /* User-defined variables, indicating needs input */
 .var-user {
-  color: var(--recipes-user-defined-variables);
+  color: var(--runbox-user-defined-variables);
   opacity: 0.9;
 }
 
@@ -533,19 +533,19 @@ textarea {
 }
 
 .legend-auto {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
 }
 
 .legend-auto .legend-dot {
-  background: var(--recipes-auto-resolved-variables);
+  background: var(--runbox-auto-resolved-variables);
 }
 
 .legend-user {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
 }
 
 .legend-user .legend-dot {
-  background: var(--recipes-user-defined-variables);
+  background: var(--runbox-user-defined-variables);
 }
 
 .btn {
@@ -566,70 +566,70 @@ textarea {
 }
 
 .btn.primary {
-  background: var(--recipes-button-background);
-  color: var(--recipes-button-foreground);
+  background: var(--runbox-button-background);
+  color: var(--runbox-button-foreground);
 }
 
 .btn.secondary {
-  background: var(--recipes-button-secondaryBackground);
-  color: var(--recipes-button-secondaryForeground);
-  border-color: var(--recipes-button-secondaryBorder);
+  background: var(--runbox-button-secondaryBackground);
+  color: var(--runbox-button-secondaryForeground);
+  border-color: var(--runbox-button-secondaryBorder);
 }
 
 .btn.success {
-  background: color-mix(in srgb, #2ea043 72%, var(--recipes-editor-background));
+  background: color-mix(in srgb, #2ea043 72%, var(--runbox-editor-background));
   color: #fff;
 }
 
 .btn.danger {
-  background: color-mix(in srgb, #d1242f 72%, var(--recipes-editor-background));
+  background: color-mix(in srgb, #d1242f 72%, var(--runbox-editor-background));
   color: #fff;
 }
 
 .btn.action {
-  background: var(--recipes-button-secondaryBackground);
-  color: var(--recipes-button-secondaryForeground);
+  background: var(--runbox-button-secondaryBackground);
+  color: var(--runbox-button-secondaryForeground);
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: var(--recipes-button-hoverBackground);
-  color: var(--recipes-button-foreground);
+  background: var(--runbox-button-hoverBackground);
+  color: var(--runbox-button-foreground);
 }
 
 .btn.secondary:hover:not(:disabled) {
-  background: var(--recipes-button-secondaryHoverBackground);
-  color: var(--recipes-button-secondaryForeground);
+  background: var(--runbox-button-secondaryHoverBackground);
+  color: var(--runbox-button-secondaryForeground);
 }
 
 .btn.success:hover:not(:disabled) {
-  background: color-mix(in srgb, #2ea043 92%, var(--recipes-editor-background));
+  background: color-mix(in srgb, #2ea043 92%, var(--runbox-editor-background));
   color: #fff;
 }
 
 .btn.danger:hover:not(:disabled) {
-  background: color-mix(in srgb, #d1242f 92%, var(--recipes-editor-background));
+  background: color-mix(in srgb, #d1242f 92%, var(--runbox-editor-background));
   color: #fff;
 }
 
 .btn.action:hover:not(:disabled) {
-  background: var(--recipes-button-secondaryHoverBackground);
-  color: var(--recipes-button-secondaryForeground);
+  background: var(--runbox-button-secondaryHoverBackground);
+  color: var(--runbox-button-secondaryForeground);
 }
 
 #btn-confirm-run-variables {
-  background: var(--recipes-button-secondaryBackground);
-  color: var(--recipes-button-secondaryForeground);
-  border: 1px solid var(--recipes-input-border);
+  background: var(--runbox-button-secondaryBackground);
+  color: var(--runbox-button-secondaryForeground);
+  border: 1px solid var(--runbox-input-border);
   margin-right: auto;
 }
 
 #btn-confirm-run-variables:hover:not(:disabled) {
-  background: var(--recipes-button-secondaryHoverBackground);
+  background: var(--runbox-button-secondaryHoverBackground);
 }
 
 .delete-confirm-command-name {
   font-size: 1rem;
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
   margin: 0;
 }
 
@@ -688,7 +688,7 @@ textarea {
 }
 
 .tags-panel {
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
   padding: 10px;
   display: grid;
@@ -697,10 +697,10 @@ textarea {
 }
 
 .tag {
-  border: 1px solid var(--recipes-panel-border);
-  border-radius: var(--recipes-cornerRadius-small, 4px);
+  border: 1px solid var(--runbox-panel-border);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
   background: transparent;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   padding: 4px 7px;
   text-align: left;
   cursor: pointer;
@@ -708,8 +708,8 @@ textarea {
 }
 
 .tag.active {
-  background: color-mix(in srgb, var(--recipes-editor-background) 83%, var(--recipes-foreground));
-  color: var(--recipes-editor-foreground);
+  background: color-mix(in srgb, var(--runbox-editor-background) 83%, var(--runbox-foreground));
+  color: var(--runbox-editor-foreground);
   border-color: transparent;
 }
 
@@ -724,7 +724,7 @@ table {
 
 th,
 td {
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
   text-align: left;
   vertical-align: top;
   padding: 8px;
@@ -744,7 +744,7 @@ td.actions-cell {
 }
 
 .cmds-table tr:hover {
-  background-color: color-mix(in srgb, var(--recipes-editor-background) 97%, var(--recipes-foreground)) !important;
+  background-color: color-mix(in srgb, var(--runbox-editor-background) 97%, var(--runbox-foreground)) !important;
   transition: none;
 }
 
@@ -752,9 +752,9 @@ td.actions-cell {
   white-space: pre-wrap;
   padding: 6px 8px;
   margin-block: auto;
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  background-color: var(--recipes-textPreformat-background);
-  color: var(--recipes-textPreformat-foreground);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  background-color: var(--runbox-textPreformat-background);
+  color: var(--runbox-textPreformat-foreground);
 }
 
 .template-cell::before {
@@ -804,9 +804,9 @@ td.actions-cell {
 
 .modal-box {
   width: min(640px, 100%);
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  background: var(--recipes-editor-background);
+  background: var(--runbox-editor-background);
   padding: 14px;
   display: grid;
   gap: 12px;
@@ -833,15 +833,15 @@ td.actions-cell {
   align-items: center;
   gap: 8px;
   padding: 8px 0;
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
 }
 
 .ai-setup-step-number {
   font-weight: bold;
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
   min-width: 24px;
   text-align: center;
-  background-color: color-mix(in srgb, var(--recipes-editor-background) 25%, var(--recipes-panel-border));
+  background-color: color-mix(in srgb, var(--runbox-editor-background) 25%, var(--runbox-panel-border));
   border-radius: 20%;
   padding: 3px 4px 4px 3px;
   margin-right: 8px;
@@ -849,21 +849,21 @@ td.actions-cell {
 .ai-setup-step-text {
   flex: 1;
   font-size: 0.9rem;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
 }
 
 /* ===== Modal Border Flash (dismiss=false feedback) ===== */
 @keyframes modalBorderFlash {
   0% {
-    border-color: var(--recipes-panel-border);
+    border-color: var(--runbox-panel-border);
   }
 
   50% {
-    border-color: color-mix(in srgb, var(--recipes-charts-blue) 50%, var(--recipes-panel-border));
+    border-color: color-mix(in srgb, var(--runbox-charts-blue) 50%, var(--runbox-panel-border));
   }
 
   100% {
-    border-color: var(--recipes-panel-border);
+    border-color: var(--runbox-panel-border);
   }
 }
 
@@ -873,10 +873,10 @@ td.actions-cell {
 
 .modal-command-preview {
   margin: 0;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  background: var(--recipes-input-background);
-  color: var(--recipes-textPreformat-foreground);
+  background: var(--runbox-input-background);
+  color: var(--runbox-textPreformat-foreground);
   padding: 10px;
   white-space: pre-wrap;
   word-break: break-word;
@@ -979,7 +979,7 @@ td.actions-cell {
 
 .recent-commands th {
   white-space: nowrap;
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
 }
 
 .recent-commands td {
@@ -1023,9 +1023,9 @@ td.actions-cell {
 
 .toggle-switch-3 {
   display: inline-flex;
-  border: 1px solid var(--recipes-settings-textInputBorder);
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  background: var(--recipes-input-background);
+  border: 1px solid var(--runbox-settings-textInputBorder);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  background: var(--runbox-input-background);
   overflow: hidden;
   min-width: 129px;
   min-height: 27px;
@@ -1036,7 +1036,7 @@ td.actions-cell {
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   padding: 0px 7px;
   font-size: 0.8rem;
   cursor: pointer;
@@ -1046,17 +1046,17 @@ td.actions-cell {
 }
 
 .toggle-option-3:not(:last-child) {
-  border-right: 1px solid var(--recipes-input-border);
+  border-right: 1px solid var(--runbox-input-border);
 }
 
 .toggle-option-3.active {
-  background: color-mix(in srgb, var(--recipes-editor-background) 83%, var(--recipes-foreground));
-  color: var(--recipes-button-secondaryForeground);
+  background: color-mix(in srgb, var(--runbox-editor-background) 83%, var(--runbox-foreground));
+  color: var(--runbox-button-secondaryForeground);
   opacity: 1;
 }
 
 .toggle-option-3:hover:not(.active):not(:disabled) {
-  background: color-mix(in srgb, var(--recipes-button-secondaryBackground) 50%, transparent);
+  background: color-mix(in srgb, var(--runbox-button-secondaryBackground) 50%, transparent);
   opacity: 0.85;
 }
 
@@ -1074,7 +1074,7 @@ td.actions-cell {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--recipes-foreground, currentColor);
+  background: var(--runbox-foreground, currentColor);
   opacity: 0.18;
   margin-left: 4px;
   vertical-align: middle;
@@ -1087,7 +1087,7 @@ td.actions-cell {
 }
 
 .scope-value-dot.has-value {
-  background: var(--recipes-charts-blue, var(--vscode-charts-blue, #3794ff));
+  background: var(--runbox-charts-blue, var(--vscode-charts-blue, #3794ff));
   opacity: 1;
 }
 
@@ -1107,10 +1107,10 @@ code {
   align-items: center;
   gap: 6px;
   padding: 4px 8px;
-  border: 1px solid var(--recipes-settings-dropdownBorder);
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  background: var(--recipes-settings-dropdownBackground);
-  color: var(--recipes-settings-dropdownForeground);
+  border: 1px solid var(--runbox-settings-dropdownBorder);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  background: var(--runbox-settings-dropdownBackground);
+  color: var(--runbox-settings-dropdownForeground);
   font-size: 0.82rem;
   cursor: pointer;
   white-space: nowrap;
@@ -1123,8 +1123,8 @@ code {
 }
 
 /* .cs-btn:hover {
-  background: color-mix(in srgb, var(--recipes-editor-background) 88%, var(--recipes-foreground));
-  border-color: color-mix(in srgb, var(--recipes-panel-border) 100%, transparent);
+  background: color-mix(in srgb, var(--runbox-editor-background) 88%, var(--runbox-foreground));
+  border-color: color-mix(in srgb, var(--runbox-panel-border) 100%, transparent);
 } */
 
 .cs-btn-label {
@@ -1145,17 +1145,17 @@ code {
   left: 0;
   z-index: 200;
   min-width: max(100%, 160px);
-  background: var(--recipes-dropdown-listBackground, var(--recipes-settings-dropdownBackground));
-  border: 1px solid var(--recipes-settings-dropdownBorder, var(--recipes-panel-border));
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  /* padding: var(--recipes-cornerRadius-small, 4px); */
+  background: var(--runbox-dropdown-listBackground, var(--runbox-settings-dropdownBackground));
+  border: 1px solid var(--runbox-settings-dropdownBorder, var(--runbox-panel-border));
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  /* padding: var(--runbox-cornerRadius-small, 4px); */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .cs-menu-items-wrapper {
   overflow-y: auto;
   max-height: 300px;
-  padding: var(--recipes-cornerRadius-small, 4px);
+  padding: var(--runbox-cornerRadius-small, 4px);
 }
 
 .cs-item {
@@ -1164,17 +1164,17 @@ code {
   justify-content: space-between;
   gap: 8px;
   padding: 4px 8px;
-  border-radius: var(--recipes-cornerRadius-small, 4px);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
   font-size: 0.82rem;
   cursor: pointer;
 }
 
 .cs-item[data-highlighted] {
   background: var(
-    --recipes-quickInputList-focusBackground,
-    color-mix(in srgb, var(--recipes-editor-background) 80%, var(--recipes-foreground))
+    --runbox-quickInputList-focusBackground,
+    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
   );
-  color: var(--recipes-quickInputList-focusForeground, var(--recipes-editor-foreground));
+  color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground));
 }
 
 .cs-item-label-group {
@@ -1262,7 +1262,7 @@ code {
 }
 
 .manage-panel {
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
   overflow: hidden;
   display: flex;
@@ -1274,8 +1274,8 @@ code {
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--recipes-panel-border);
-  background: color-mix(in srgb, var(--recipes-editor-background) 92%, var(--recipes-foreground));
+  border-bottom: 1px solid var(--runbox-panel-border);
+  background: color-mix(in srgb, var(--runbox-editor-background) 92%, var(--runbox-foreground));
   gap: 8px;
 }
 
@@ -1306,7 +1306,7 @@ code {
   padding: 8px 10px;
   gap: 8px;
   cursor: pointer;
-  border-bottom: 1px solid color-mix(in srgb, var(--recipes-panel-border) 50%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--runbox-panel-border) 50%, transparent);
   transition: background 0.12s;
 }
 
@@ -1315,12 +1315,12 @@ code {
 }
 
 .manage-item:hover:not(.active) {
-  background-color: color-mix(in srgb, var(--recipes-editor-background) 95%, var(--recipes-foreground)) !important;
+  background-color: color-mix(in srgb, var(--runbox-editor-background) 95%, var(--runbox-foreground)) !important;
 }
 
 .manage-item.active {
-  background: color-mix(in srgb, var(--recipes-button-background) 18%, var(--recipes-editor-background));
-  border-left: 3px solid var(--recipes-button-background);
+  background: color-mix(in srgb, var(--runbox-button-background) 18%, var(--runbox-editor-background));
+  border-left: 3px solid var(--runbox-button-background);
 }
 
 .manage-item-info {
@@ -1427,7 +1427,7 @@ code {
 /* Description Column */
 .commands-table .main-t-description-column,
 .favorites-table .main-t-description-column {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   min-width: 250px;
 }
 
@@ -1495,7 +1495,7 @@ code {
   padding: 4px 8px 6px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  border-bottom: 1px solid color-mix(in srgb, var(--recipes-panel-border) 60%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--runbox-panel-border) 60%, transparent);
   margin-bottom: 2px;
   user-select: none;
 }
@@ -1505,7 +1505,7 @@ code {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  border-radius: var(--recipes-cornerRadius-small, 4px);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
   font-size: 0.82rem;
   cursor: pointer;
   user-select: none;
@@ -1513,11 +1513,11 @@ code {
 
 .col-toggle-item:hover {
   background: var(
-    --recipes-list-hoverBackground,
-    color-mix(in srgb, var(--recipes-editor-background) 80%, var(--recipes-foreground))
+    --runbox-list-hoverBackground,
+    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
   );
-  /* background: var(--recipes-quickInputList-focusBackground, color-mix(in srgb, var(--recipes-editor-background) 80%, var(--recipes-foreground))); */
-  /* color: var(--recipes-quickInputList-focusForeground, var(--recipes-editor-foreground)); */
+  /* background: var(--runbox-quickInputList-focusBackground, color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))); */
+  /* color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground)); */
 }
 
 /* ===== Custom Checkbox (VS Code style) ===== */
@@ -1529,9 +1529,9 @@ input[type="checkbox"] {
   height: 18px;
   flex-shrink: 0;
   cursor: pointer;
-  border: 1px solid var(--recipes-settings-checkboxBorder, var(--recipes-input-border));
+  border: 1px solid var(--runbox-settings-checkboxBorder, var(--runbox-input-border));
   border-radius: 3px;
-  background: var(--recipes-settings-checkboxBackground, var(--recipes-input-background));
+  background: var(--runbox-settings-checkboxBackground, var(--runbox-input-background));
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -1543,13 +1543,13 @@ input[type="checkbox"] {
 }
 
 input[type="checkbox"]:focus {
-  outline: 1px solid var(--recipes-focusBorder);
+  outline: 1px solid var(--runbox-focusBorder);
   outline-offset: -1px;
 }
 
 /* input[type="checkbox"]:checked {
-  background: var(--recipes-settings-checkboxBackground, var(--recipes-button-background));
-  border-color: var(--recipes-checkbox-selectBorder, var(--recipes-button-background));
+  background: var(--runbox-settings-checkboxBackground, var(--runbox-button-background));
+  border-color: var(--runbox-checkbox-selectBorder, var(--runbox-button-background));
 } */
 
 input[type="checkbox"]:checked::after {
@@ -1557,8 +1557,8 @@ input[type="checkbox"]:checked::after {
   display: block;
   width: 10.6px;
   height: 5px;
-  border-left: 1.6px solid var(--recipes-foreground, var(--recipes-button-foreground));
-  border-bottom: 1.6px solid var(--recipes-foreground, var(--recipes-button-foreground));
+  border-left: 1.6px solid var(--runbox-foreground, var(--runbox-button-foreground));
+  border-bottom: 1.6px solid var(--runbox-foreground, var(--runbox-button-foreground));
   transform: rotate(-45deg) translateX(1.6px) translateY(-1.5px);
   position: absolute;
 }
@@ -1575,21 +1575,21 @@ input[type="checkbox"]:checked::after {
 /* ===== AI Feature Styles ===== */
 
 .ai-settings-btn {
-  border: 1px solid color-mix(in srgb, var(--recipes-button-background) 50%, transparent) !important;
+  border: 1px solid color-mix(in srgb, var(--runbox-button-background) 50%, transparent) !important;
 }
 
 .ai-create-btn {
   white-space: nowrap;
   flex-shrink: 0;
-  border: 1px solid color-mix(in srgb, var(--recipes-button-background) 50%, transparent) !important;
-  color: var(--recipes-button-secondaryForeground) !important;
+  border: 1px solid color-mix(in srgb, var(--runbox-button-background) 50%, transparent) !important;
+  color: var(--runbox-button-secondaryForeground) !important;
 }
 
 .ai-create-btn:hover:not(:disabled) {
   background: color-mix(
     in srgb,
-    var(--recipes-button-background) 15%,
-    var(--recipes-button-secondaryBackground)
+    var(--runbox-button-background) 15%,
+    var(--runbox-button-secondaryBackground)
   ) !important;
 }
 
@@ -1610,13 +1610,13 @@ input[type="checkbox"]:checked::after {
 }
 
 .ai-key-missing {
-  color: var(--recipes-charts-yellow, #e9b44c);
+  color: var(--runbox-charts-yellow, #e9b44c);
   opacity: 0.8;
 }
 
 .ai-SecretStorage-note {
   font-size: 0.78rem;
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   margin-top: 4px;
 }
 
@@ -1625,10 +1625,10 @@ input[type="checkbox"]:checked::after {
   margin: 0;
   padding: 8px 10px;
   border-radius: 5px;
-  background: color-mix(in srgb, #d1242f 12%, var(--recipes-editor-background));
+  background: color-mix(in srgb, #d1242f 12%, var(--runbox-editor-background));
   border: 1px solid color-mix(in srgb, #d1242f 35%, transparent);
   font-size: 0.83rem;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
 }
 
 /* AI Prompt modal */
@@ -1730,7 +1730,7 @@ input[type="checkbox"]:checked::after {
 .btn-close {
   background: none;
   border: none;
-  border-radius: var(--recipes-cornerRadius-small, 4px);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
   padding: 4px 4px 1px 4px;
   cursor: pointer;
   font-size: 1rem;
@@ -1771,10 +1771,10 @@ input[type="checkbox"]:checked::after {
 }
 .ai-history-item:hover {
   background: var(
-    --recipes-quickInputList-focusBackground,
-    color-mix(in srgb, var(--recipes-editor-background) 80%, var(--recipes-foreground))
+    --runbox-quickInputList-focusBackground,
+    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
   );
-  color: var(--recipes-quickInputList-focusForeground, var(--recipes-editor-foreground));
+  color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground));
 }
 
 /* Number prefix — fixed-width, right-aligned, muted */
@@ -1804,8 +1804,8 @@ input[type="checkbox"]:checked::after {
 .ai-spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid color-mix(in srgb, var(--recipes-button-background) 25%, transparent);
-  border-top-color: var(--recipes-button-background);
+  border: 3px solid color-mix(in srgb, var(--runbox-button-background) 25%, transparent);
+  border-top-color: var(--runbox-button-background);
   border-radius: 50%;
   animation: ai-spin 0.8s linear infinite;
   flex-shrink: 0;
@@ -1884,14 +1884,14 @@ table.commands-table.ai-results-table td:last-child {
 /*** Row Selection ***/
 
 .selected-command-row {
-  outline: 1px dashed var(--recipes-focusBorder);
+  outline: 1px dashed var(--runbox-focusBorder);
   outline-offset: -4px;
-  border-radius: var(--recipes-cornerRadius-large, 8px);
+  border-radius: var(--runbox-cornerRadius-large, 8px);
 }
 
 /* ===== Row Highlight (after Edit/Add, or goto-command) ===== */
 tr.row-highlight td {
-  background-color: color-mix(in srgb, #0096f4 30%, var(--recipes-editor-background)) !important;
+  background-color: color-mix(in srgb, #0096f4 30%, var(--runbox-editor-background)) !important;
   transition: background-color 0.3s ease;
 }
 
@@ -1912,7 +1912,7 @@ tr.row-highlight td {
 /* ===== Help Link (cmd-title-link) ===== */
 
 .cmd-title-link {
-  color: var(--recipes-textLink-foreground, var(--recipes-button-background));
+  color: var(--runbox-textLink-foreground, var(--runbox-button-background));
   text-decoration: none;
   font-weight: 600;
   cursor: pointer;
@@ -1959,7 +1959,7 @@ tr.row-highlight td {
 .enum-manager-box .table-wrap {
   flex-shrink: 1;
   min-height: 0;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -1973,8 +1973,8 @@ tr.row-highlight td {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: var(--recipes-editor-background);
-  box-shadow: inset 0 -1px 0 var(--recipes-panel-border);
+  background: var(--runbox-editor-background);
+  box-shadow: inset 0 -1px 0 var(--runbox-panel-border);
   border-bottom: unset;
 }
 
@@ -1990,7 +1990,7 @@ tr.row-highlight td {
 
 .enum-table th,
 .enum-table td {
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
   text-align: left;
   padding: 7px 8px;
   vertical-align: middle;
@@ -2008,7 +2008,7 @@ tr.row-highlight td {
 }
 
 .enum-cell-desc {
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   opacity: 0.85;
   width: 100%;
 }
@@ -2029,10 +2029,10 @@ tr.row-highlight td {
 /* ===== Enum Add/Edit Form ===== */
 
 .enum-add-form {
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
   padding: 10px 12px;
-  background: color-mix(in srgb, var(--recipes-editor-background) 97%, var(--recipes-foreground));
+  background: color-mix(in srgb, var(--runbox-editor-background) 97%, var(--runbox-foreground));
   margin-top: 8px;
 }
 
@@ -2055,7 +2055,7 @@ tr.row-highlight td {
 /* ===== Edit Command: Move Category Warning ===== */
 .move-category-warning {
   font-size: 0.8rem;
-  color: var(--recipes-charts-yellow, #e9b44c);
+  color: var(--runbox-charts-yellow, #e9b44c);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -2129,7 +2129,7 @@ tr.row-highlight td {
   align-items: center;
   gap: 4px;
   font-size: 0.8rem;
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
   text-decoration: none;
   cursor: pointer;
   opacity: 0.9;
@@ -2149,7 +2149,7 @@ tr.row-highlight td {
 }
 
 .ai-provider-help-item svg {
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
 }
 
 /* ===== AI Provider Setup Help Modal ===== */
@@ -2175,7 +2175,7 @@ tr.row-highlight td {
 }
 
 .ai-check-status-banner.ok {
-  background: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 12%, var(--recipes-editor-background));
+  background: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 12%, var(--runbox-editor-background));
   border: 1px solid color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 35%, transparent);
   color: var(--vscode-testing-iconPassed, #4caf50);
 }
@@ -2192,9 +2192,9 @@ tr.row-highlight td {
   display: grid;
   gap: 4px;
   padding: 8px 10px;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
 }
 
 .ai-check-status-card-full {
@@ -2206,12 +2206,12 @@ tr.row-highlight td {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
 }
 
 .ai-check-status-card-value {
   font-size: 0.86rem;
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
   word-break: break-word;
 }
 
@@ -2221,9 +2221,9 @@ tr.row-highlight td {
   display: grid;
   gap: 6px;
   padding: 10px 12px;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
 }
 
 .ai-check-status-limit-header {
@@ -2236,11 +2236,11 @@ tr.row-highlight td {
 
 .ai-check-status-limit-title {
   font-weight: 600;
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
 }
 
 .ai-check-status-limit-values {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   font-size: 0.78rem;
   white-space: nowrap;
 }
@@ -2249,7 +2249,7 @@ tr.row-highlight td {
   width: 100%;
   height: 6px;
   border-radius: 3px;
-  background: var(--recipes-panel-border);
+  background: var(--runbox-panel-border);
   overflow: hidden;
 }
 
@@ -2265,7 +2265,7 @@ tr.row-highlight td {
 }
 
 .ai-check-status-progress-fill.level-warning {
-  background: var(--recipes-charts-yellow, #e9b44c);
+  background: var(--runbox-charts-yellow, #e9b44c);
 }
 
 .ai-check-status-progress-fill.level-danger {
@@ -2274,7 +2274,7 @@ tr.row-highlight td {
 
 .ai-check-status-limit-reset {
   font-size: 0.76rem;
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   opacity: 0.85;
 }
 
@@ -2284,20 +2284,20 @@ tr.row-highlight td {
   display: grid;
   gap: 6px;
   padding: 10px 12px;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
   font-size: 0.85rem;
 }
 
 .ai-check-status-unsupported-card svg {
   vertical-align: -2px;
   margin-right: 4px;
-  color: var(--recipes-charts-yellow, #e9b44c);
+  color: var(--runbox-charts-yellow, #e9b44c);
 }
 
 .ai-check-status-unsupported-hint {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   font-size: 0.8rem;
 }
 
@@ -2306,9 +2306,9 @@ tr.row-highlight td {
   align-items: center;
   gap: 6px;
   padding: 7px 12px;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 5px;
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
   text-decoration: none;
   font-size: 0.83rem;
   width: fit-content;
@@ -2318,14 +2318,14 @@ tr.row-highlight td {
 }
 
 .ai-check-status-link-btn:hover {
-  background: var(--recipes-list-hoverBackground);
-  border-color: var(--recipes-textLink-foreground);
+  background: var(--runbox-list-hoverBackground);
+  border-color: var(--runbox-textLink-foreground);
 }
 
 /* ── Footer divider ──────────────────────────────────────────────────────── */
 
 .ai-check-status-footer {
-  border-top: 1px solid var(--recipes-panel-border);
+  border-top: 1px solid var(--runbox-panel-border);
   padding-top: 10px;
 }
 
@@ -2337,8 +2337,8 @@ tr.row-highlight td {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--recipes-button-background);
-  color: var(--recipes-button-foreground);
+  background: var(--runbox-button-background);
+  color: var(--runbox-button-foreground);
   font-size: 0.7rem;
   font-weight: 600;
   margin-top: 1px;
@@ -2382,9 +2382,9 @@ tr.row-highlight td {
   align-items: flex-start;
   gap: 12px;
   padding: 12px;
-  border: 1px solid var(--recipes-panel-border);
-  border-radius: var(--recipes-cornerRadius-medium, 6px);
-  background: var(--recipes-editor-background);
+  border: 1px solid var(--runbox-panel-border);
+  border-radius: var(--runbox-cornerRadius-medium, 6px);
+  background: var(--runbox-editor-background);
 }
 
 .auto-var-row.auto-var-disabled {
@@ -2431,7 +2431,7 @@ tr.row-highlight td {
 }
 
 .auto-var-value {
-  color: var(--recipes-textLink-foreground);
+  color: var(--runbox-textLink-foreground);
   padding: 2px 5px 2px 5px;
 }
 
@@ -2448,14 +2448,14 @@ tr.row-highlight td {
   visibility: var(--tr-tooltip-visibility, visible);
   z-index: 9999;
   padding: 4px 8px;
-  border-radius: var(--recipes-cornerRadius-xSmall, 2px);
+  border-radius: var(--runbox-cornerRadius-xSmall, 2px);
   /* No border here — drop-shadow traces the full combined shape (box + arrow) */
-  background-color: var(--recipes-editorHoverWidget-background);
-  color: var(--recipes-editorHoverWidget-foreground);
+  background-color: var(--runbox-editorHoverWidget-background);
+  color: var(--runbox-editorHoverWidget-foreground);
   filter: drop-shadow(0 0 0.6px var(--tooltip-border-color))
-    drop-shadow(0 0 0.5px var(--recipes-editorHoverWidget-border))
-    drop-shadow(0 2px 6px var(--recipes-widget-shadow, rgba(0, 0, 0, 0.36)));
-  font-family: var(--recipes-font-family);
+    drop-shadow(0 0 0.5px var(--runbox-editorHoverWidget-border))
+    drop-shadow(0 2px 6px var(--runbox-widget-shadow, rgba(0, 0, 0, 0.36)));
+  font-family: var(--runbox-font-family);
   font-size: 12px;
   line-height: 1.5em;
   pointer-events: none;
@@ -2466,7 +2466,7 @@ tr.row-highlight td {
 .tr-tooltip-header {
   font-size: 11px;
   font-weight: 400;
-  color: var(--recipes-editorHoverWidget-foreground);
+  color: var(--runbox-editorHoverWidget-foreground);
   opacity: 0.75;
   word-break: break-word;
   padding-bottom: 2px;
@@ -2485,7 +2485,7 @@ tr.row-highlight td {
 
 .tr-tooltip-footer {
   font-size: 11px;
-  color: var(--recipes-editorHoverWidget-foreground);
+  color: var(--runbox-editorHoverWidget-foreground);
   opacity: 0.65;
   word-break: break-word;
   padding-top: 2px;
@@ -2507,7 +2507,7 @@ tr.row-highlight td {
   bottom: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-bottom-color: var(--recipes-editorHoverWidget-background);
+  border-bottom-color: var(--runbox-editorHoverWidget-background);
   margin-bottom: -1px;
 }
 
@@ -2516,7 +2516,7 @@ tr.row-highlight td {
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border-top-color: var(--recipes-editorHoverWidget-background);
+  border-top-color: var(--runbox-editorHoverWidget-background);
   margin-top: -1px;
 }
 
@@ -2525,7 +2525,7 @@ tr.row-highlight td {
   right: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border-right-color: var(--recipes-editorHoverWidget-background);
+  border-right-color: var(--runbox-editorHoverWidget-background);
   margin-right: -1px;
 }
 
@@ -2534,7 +2534,7 @@ tr.row-highlight td {
   left: 100%;
   top: 50%;
   transform: translateY(-50%);
-  border-left-color: var(--recipes-editorHoverWidget-background);
+  border-left-color: var(--runbox-editorHoverWidget-background);
   margin-left: -1px;
 }
 
@@ -2549,9 +2549,9 @@ tr.row-highlight td {
 /* ===== Sort Button (active state) ===== */
 
 .sort-btn-active {
-  background: var(--recipes-button-background) !important;
-  color: var(--recipes-button-foreground) !important;
-  border-color: var(--recipes-button-background) !important;
+  background: var(--runbox-button-background) !important;
+  color: var(--runbox-button-foreground) !important;
+  border-color: var(--runbox-button-background) !important;
 }
 
 /* ===== Drag & Drop Sorting ===== */
@@ -2582,9 +2582,9 @@ tr.row-highlight td {
   cursor: grab;
   border-radius: 3px;
   transition: opacity 0.12s;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   opacity: 0.6;
-  background: color-mix(in srgb, var(--recipes-editor-background) 80%, var(--recipes-foreground));
+  background: color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground));
 }
 
 .drag-handle:active {
@@ -2595,9 +2595,9 @@ tr.row-highlight td {
 /* Row being dragged — hide content, show dashed placeholder */
 tr.row-dragging {
   opacity: 0.8;
-  outline: 2px dashed var(--recipes-button-background);
+  outline: 2px dashed var(--runbox-button-background);
   outline-offset: -4px;
-  border-radius: var(--recipes-cornerRadius-large, 8px);
+  border-radius: var(--runbox-cornerRadius-large, 8px);
   pointer-events: none;
   background: transparent !important;
 }
@@ -2623,7 +2623,7 @@ tr.row-dragging td {
 
 /* Subtle alternating rows to make sorting easier to read */
 .sorting-mode tbody tr:nth-child(even) {
-  background-color: color-mix(in srgb, var(--recipes-editor-background) 97%, var(--recipes-foreground));
+  background-color: color-mix(in srgb, var(--runbox-editor-background) 97%, var(--runbox-foreground));
 }
 
 /* ===== Favorites Feature ===== */
@@ -2636,7 +2636,7 @@ tr.row-dragging td {
   align-items: flex-start;
   gap: 6px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
   margin-bottom: 12px;
 }
 
@@ -2648,9 +2648,9 @@ tr.row-dragging td {
 
 .fav-scope-toggle {
   display: inline-flex;
-  border: 1px solid var(--recipes-input-border);
-  border-radius: var(--recipes-cornerRadius-small, 4px);
-  background: var(--recipes-input-background);
+  border: 1px solid var(--runbox-input-border);
+  border-radius: var(--runbox-cornerRadius-small, 4px);
+  background: var(--runbox-input-background);
   overflow: hidden;
   min-height: 32px;
   width: fit-content;
@@ -2660,7 +2660,7 @@ tr.row-dragging td {
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--recipes-editor-foreground);
+  color: var(--runbox-editor-foreground);
   padding: 5px 18px;
   font-size: 0.84rem;
   cursor: pointer;
@@ -2673,17 +2673,17 @@ tr.row-dragging td {
 }
 
 .fav-scope-btn:not(:last-child) {
-  border-right: 1px solid var(--recipes-input-border);
+  border-right: 1px solid var(--runbox-input-border);
 }
 
 .fav-scope-btn.active {
-  background: var(--recipes-button-background);
-  color: var(--recipes-button-foreground);
+  background: var(--runbox-button-background);
+  color: var(--runbox-button-foreground);
   opacity: 1;
 }
 
 .fav-scope-btn:hover:not(.active) {
-  background: color-mix(in srgb, var(--recipes-button-secondaryBackground) 50%, transparent);
+  background: color-mix(in srgb, var(--runbox-button-secondaryBackground) 50%, transparent);
   opacity: 0.8;
 }
 
@@ -2696,11 +2696,11 @@ tr.row-dragging td {
 /* Favorite active button (filled star) - used in Favorites tab (legacy, kept for backward compat) */
 .btn.icon-btn.fav-active {
   color: #d4a017;
-  background: color-mix(in srgb, #d4a017 12%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #d4a017 12%, var(--runbox-button-secondaryBackground));
 }
 
 .btn.icon-btn.fav-active:hover {
-  background: color-mix(in srgb, #d4a017 22%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #d4a017 22%, var(--runbox-button-secondaryBackground));
   color: #e0b020;
 }
 
@@ -2708,33 +2708,33 @@ tr.row-dragging td {
 /* Local Workspace only → blue */
 .btn.icon-btn.fav-state-local {
   color: #3d97bf;
-  background: color-mix(in srgb, #3d97bf 12%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #3d97bf 12%, var(--runbox-button-secondaryBackground));
 }
 
 .btn.icon-btn.fav-state-local:hover {
-  background: color-mix(in srgb, #3d97bf 22%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #3d97bf 22%, var(--runbox-button-secondaryBackground));
   color: #4aadd6;
 }
 
 /* Global only → golden */
 .btn.icon-btn.fav-state-global {
   color: #d4a017;
-  background: color-mix(in srgb, #d4a017 12%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #d4a017 12%, var(--runbox-button-secondaryBackground));
 }
 
 .btn.icon-btn.fav-state-global:hover {
-  background: color-mix(in srgb, #d4a017 22%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #d4a017 22%, var(--runbox-button-secondaryBackground));
   color: #e0b020;
 }
 
 /* Both Local & Global → purple */
 .btn.icon-btn.fav-state-both {
   color: #9d6fc7;
-  background: color-mix(in srgb, #9d6fc7 12%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #9d6fc7 12%, var(--runbox-button-secondaryBackground));
 }
 
 .btn.icon-btn.fav-state-both:hover {
-  background: color-mix(in srgb, #9d6fc7 22%, var(--recipes-button-secondaryBackground));
+  background: color-mix(in srgb, #9d6fc7 22%, var(--runbox-button-secondaryBackground));
   color: #b07fdf;
 }
 
@@ -2747,7 +2747,7 @@ tr.row-dragging td {
 }
 
 .fav-modal-hint {
-  color: var(--recipes-descriptionForeground);
+  color: var(--runbox-descriptionForeground);
   font-size: 0.78rem;
   margin-top: -4px;
 }
@@ -2816,7 +2816,7 @@ tr.row-dragging td {
 
 /* Input in empty-value state: readonly, styled with muted yellow italic */
 .input[data-is-empty-value="true"] {
-  color: color-mix(in srgb, var(--recipes-charts-yellow) 80%, var(--recipes-foreground));
+  color: color-mix(in srgb, var(--runbox-charts-yellow) 80%, var(--runbox-foreground));
   font-style: italic;
   cursor: default;
 }
@@ -2829,16 +2829,16 @@ tr.row-dragging td {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
 }
 
 /* <kbd> element styling */
 kbd {
   padding: 2px 8px;
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
-  background: var(--recipes-input-background);
-  color: var(--recipes-foreground);
-  box-shadow: 0 1px 0 var(--recipes-input-border);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
+  background: var(--runbox-input-background);
+  color: var(--runbox-foreground);
+  box-shadow: 0 1px 0 var(--runbox-input-border);
 }
 
 /* ─── AI Explain Modal ─────────────────────────────────────────────────────── */
@@ -2856,7 +2856,7 @@ kbd {
 
 .ai-explain-modal {
   background: var(--vscode-editor-background);
-  border: 1px solid var(--vscode-widget-border, var(--recipes-panel-border));
+  border: 1px solid var(--vscode-widget-border, var(--runbox-panel-border));
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -2871,7 +2871,7 @@ kbd {
   align-items: center;
   justify-content: space-between;
   padding: 10px 14px 10px 14px;
-  border-bottom: 1px solid var(--recipes-panel-border);
+  border-bottom: 1px solid var(--runbox-panel-border);
   gap: 8px;
   flex-shrink: 0;
 }
@@ -2895,16 +2895,16 @@ kbd {
 
 .ai-explain-command-bar {
   padding: 8px 14px;
-  background: var(--recipes-input-background);
-  border-bottom: 1px solid var(--recipes-panel-border);
+  background: var(--runbox-input-background);
+  border-bottom: 1px solid var(--runbox-panel-border);
   overflow-x: auto;
   flex-shrink: 0;
 }
 
 .ai-explain-command-text {
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
   font-size: 0.82rem;
-  color: var(--vscode-textPreformat-foreground, var(--recipes-foreground));
+  color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
   white-space: pre;
 }
 
@@ -2921,14 +2921,14 @@ kbd {
   align-items: center;
   gap: 10px;
   padding: 20px 0;
-  color: var(--recipes-muted-foreground);
+  color: var(--runbox-muted-foreground);
   font-size: 0.88rem;
 }
 
 .ai-explain-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid var(--recipes-panel-border);
+  border: 2px solid var(--runbox-panel-border);
   border-top-color: var(--vscode-textLink-foreground, #4fc3f7);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -2951,7 +2951,7 @@ kbd {
   background: var(--vscode-inputValidation-errorBackground, rgba(200, 0, 0, 0.1));
   border: 1px solid var(--vscode-inputValidation-errorBorder, rgba(200, 0, 0, 0.4));
   border-radius: 4px;
-  color: var(--vscode-errorForeground, var(--recipes-foreground));
+  color: var(--vscode-errorForeground, var(--runbox-foreground));
   font-size: 0.86rem;
 }
 
@@ -2960,7 +2960,7 @@ kbd {
 .md-body {
   font-size: 0.88rem;
   line-height: 1.6;
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
 }
 
 .md-body .md-h2 {
@@ -2968,8 +2968,8 @@ kbd {
   font-weight: 700;
   margin: 18px 0 8px 0;
   padding-bottom: 5px;
-  border-bottom: 1px solid var(--recipes-panel-border);
-  color: var(--recipes-foreground);
+  border-bottom: 1px solid var(--runbox-panel-border);
+  color: var(--runbox-foreground);
 }
 
 .md-body .md-h2:first-child {
@@ -2980,7 +2980,7 @@ kbd {
   font-size: 0.9rem;
   font-weight: 600;
   margin: 14px 0 6px 0;
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
 }
 
 .md-body .md-p {
@@ -2999,18 +2999,18 @@ kbd {
 }
 
 .md-body .md-code {
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
   font-size: 0.82em;
-  background: var(--recipes-input-background);
-  border: 1px solid var(--recipes-panel-border);
+  background: var(--runbox-input-background);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 3px;
   padding: 1px 5px;
-  color: var(--vscode-textPreformat-foreground, var(--recipes-foreground));
+  color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
 }
 
 .md-body .md-pre {
-  background: var(--recipes-input-background);
-  border: 1px solid var(--recipes-panel-border);
+  background: var(--runbox-input-background);
+  border: 1px solid var(--runbox-panel-border);
   border-radius: 4px;
   padding: 10px 12px;
   overflow-x: auto;
@@ -3018,21 +3018,21 @@ kbd {
 }
 
 .md-body .md-pre code {
-  font-family: var(--recipes-editor-font-family, Consolas, monospace);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
   font-size: 0.82em;
   background: none;
   border: none;
   padding: 0;
-  color: var(--vscode-textPreformat-foreground, var(--recipes-foreground));
+  color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
 }
 
 .md-body .md-blockquote {
   border-left: 3px solid var(--vscode-textLink-foreground, #4fc3f7);
   margin: 6px 0 10px 0;
   padding: 4px 12px;
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
   border-radius: 0 4px 4px 0;
-  color: var(--recipes-muted-foreground);
+  color: var(--runbox-muted-foreground);
   font-style: italic;
 }
 
@@ -3056,17 +3056,17 @@ kbd {
 .md-table th,
 .md-table td {
   padding: 6px 10px;
-  border: 1px solid var(--recipes-panel-border);
+  border: 1px solid var(--runbox-panel-border);
   text-align: left;
   vertical-align: top;
 }
 
 .md-table th {
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
   font-weight: 600;
-  color: var(--recipes-foreground);
+  color: var(--runbox-foreground);
 }
 
 .md-table tr:nth-child(even) td {
-  background: var(--recipes-input-background);
+  background: var(--runbox-input-background);
 }

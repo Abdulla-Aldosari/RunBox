@@ -1,10 +1,10 @@
 <div align="center">
 
-<picture><img src="media/icon.png" alt="Terminal Recipes" width="128" /></picture>
+<picture><img src="media/icon.png" alt="RunBox" width="128" /></picture>
 
-# Terminal Recipes
+# RunBox
 
-[![CodeQL](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/codeql.yml/badge.svg)](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/codeql.yml) [![Tests](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/test.yml/badge.svg)](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/test.yml) [![Lint](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/lint.yml/badge.svg)](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/lint.yml) [![Security Audit](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/audit.yml/badge.svg)](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/actions/workflows/audit.yml)
+[![CodeQL](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml) [![Tests](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml) [![Lint](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml) [![Security Audit](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml)
 
 **Organize, run, and generate terminal commands with variables, favorites, and a built-in AI assistant.**
 
@@ -12,7 +12,7 @@
 
 ---
 
-Terminal Recipes gives you a central panel inside VS Code to store and run your frequently used terminal commands. Organize them by category and group, define reusable variables, and execute them with a single click across every project you work on.
+RunBox gives you a central panel inside VS Code to store and run your frequently used terminal commands. Organize them by category and group, define reusable variables, and execute them with a single click across every project you work on.
 
 ---
 
@@ -44,8 +44,8 @@ Each variable can be saved in one of three independent scopes:
 
 | Scope      | Saved to                                    | Best for                               |
 | ---------- | ------------------------------------------- | -------------------------------------- |
-| **Local**  | `.vscode/terminal-recipes.data.json`        | Values that differ per project         |
-| **Global** | `~/.vscode-terminal-recipes/data.json`      | Values shared across all projects      |
+| **Local**  | `.vscode/runbox.data.json`                  | Values that differ per project         |
+| **Global** | `~/.runbox/data.json`                       | Values shared across all projects      |
 | **Off**    | Session memory only - never written to disk | One-time values you don't need to keep |
 
 Switching the scope toggle never deletes the value stored in the other scopes.
@@ -92,7 +92,7 @@ To check the full changelog [click here](CHANGELOG.md).
 
 1. Install the extension from the VS Code Marketplace.
 2. Open the panel:
-   - **Command Palette** → `Terminal Recipes: Open Panel`
+   - **Command Palette** → `RunBox: Open Panel`
    - **Keyboard shortcut** → `F4 F4` (press F4 twice)
 3. Create a category and optionally add groups.
 4. Add your first command with a template.
@@ -100,9 +100,9 @@ To check the full changelog [click here](CHANGELOG.md).
 
 ## Keyboard Shortcut
 
-| Shortcut | Action                          |
-| -------- | ------------------------------- |
-| `F4 F4`  | Open the Terminal Recipes panel |
+| Shortcut | Action                |
+| -------- | --------------------- |
+| `F4 F4`  | Open the RunBox panel |
 
 ---
 

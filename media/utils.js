@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -149,8 +149,8 @@ function getMissingVariables(command) {
     if (autoVarNames.includes(name)) {
       return false;
     }
-    // RECIPES_EMPTY_VALUE is an explicit empty value — it is NOT missing
-    if (draft[name] === RECIPES_EMPTY_VALUE) {
+    // RUNBOX_EMPTY_VALUE is an explicit empty value — it is NOT missing
+    if (draft[name] === RUNBOX_EMPTY_VALUE) {
       return false;
     }
     return !draft[name];
@@ -180,9 +180,9 @@ function resolveCommandTemplate(command) {
       return;
     }
     // Regular variables: from user draft
-    // RECIPES_EMPTY_VALUE means the user explicitly wants an empty string
+    // RUNBOX_EMPTY_VALUE means the user explicitly wants an empty string
     const rawVal = draft[name];
-    const value = rawVal === RECIPES_EMPTY_VALUE ? "" : rawVal || "";
+    const value = rawVal === RUNBOX_EMPTY_VALUE ? "" : rawVal || "";
     if (value === "") {
       // Remove " ${name} " (space on both sides) → single space to avoid extra gaps.
       // Then remove any remaining bare placeholder (no surrounding spaces).
@@ -555,7 +555,7 @@ function highlightResolvedHtml(command) {
     } else {
       // Regular variables: read from the user's command draft
       var rawVal = draft[name];
-      value = rawVal === RECIPES_EMPTY_VALUE ? "" : rawVal || "";
+      value = rawVal === RUNBOX_EMPTY_VALUE ? "" : rawVal || "";
     }
 
     if (value === "") {

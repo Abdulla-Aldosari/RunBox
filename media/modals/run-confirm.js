@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -136,7 +136,7 @@ function renderVariableInputModal() {
                 });
 
               if (isEnum) {
-                const isEnumEmptyValue = currentValue === RECIPES_EMPTY_VALUE;
+                const isEnumEmptyValue = currentValue === RUNBOX_EMPTY_VALUE;
                 const enumOptions = enumMeta.enumValues
                   .map(function (ev) {
                     var label;
@@ -185,7 +185,7 @@ function renderVariableInputModal() {
             `;
               }
 
-              const isEmptyValue = currentValue === RECIPES_EMPTY_VALUE;
+              const isEmptyValue = currentValue === RUNBOX_EMPTY_VALUE;
               return `
               <div class="variable-row">
                 <label class="variable-name">\${${escapeHtml(name)}}</label>

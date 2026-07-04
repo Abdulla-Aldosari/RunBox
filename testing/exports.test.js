@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -161,8 +161,8 @@ test("has exactly 24 exports (4 constants + 20 functions)", function () {
 });
 
 // Spot-check path constant values
-test("GLOBAL_DIR contains '.vscode-terminal-recipes'", function () {
-  assert.ok(storage.GLOBAL_DIR.includes(".vscode-terminal-recipes"), `GLOBAL_DIR = "${storage.GLOBAL_DIR}"`);
+test("GLOBAL_DIR contains '.runbox'", function () {
+  assert.ok(storage.GLOBAL_DIR.includes(".runbox"), `GLOBAL_DIR = "${storage.GLOBAL_DIR}"`);
 });
 
 test("GLOBAL_COMMANDS_FILE ends with 'commands.json'", function () {

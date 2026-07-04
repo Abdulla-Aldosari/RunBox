@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.

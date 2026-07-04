@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -95,7 +95,7 @@ function renderAddCommandTab(selectedCategory) {
                   rawVal = sessionDraftV[name];
                 }
                 rawVal = rawVal !== undefined ? rawVal : "";
-                const isEmptyVal = rawVal === RECIPES_EMPTY_VALUE;
+                const isEmptyVal = rawVal === RUNBOX_EMPTY_VALUE;
                 const displayVal = isEmptyVal ? "[EmptyValue]" : rawVal;
                 const meta = draft.variableMeta && draft.variableMeta[name];
                 const isEnum = meta && meta.type === "enum";
@@ -271,7 +271,7 @@ function bindAddCommandTabEvents() {
           input.readOnly = true;
           input.setAttribute("data-is-empty-value", "true");
           input.value = "[EmptyValue]";
-          scopeDraft[varName] = RECIPES_EMPTY_VALUE;
+          scopeDraft[varName] = RUNBOX_EMPTY_VALUE;
         }
       }
     });
@@ -297,7 +297,7 @@ function bindAddCommandTabEvents() {
         if (inputEl) {
           const currentActiveBtn = container.querySelector(".toggle-option-3.active");
           const currentScope = currentActiveBtn ? currentActiveBtn.dataset.value : "off";
-          const currentVal = inputEl.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : inputEl.value;
+          const currentVal = inputEl.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : inputEl.value;
           const currentScopeDraft =
             currentScope === "local"
               ? getCommandLocalDraft("__new__")
@@ -328,7 +328,7 @@ function bindAddCommandTabEvents() {
           } else {
             newVal = getCommandSessionDraft("__new__")[variableName] || "";
           }
-          const isEmptyValue = newVal === RECIPES_EMPTY_VALUE;
+          const isEmptyValue = newVal === RUNBOX_EMPTY_VALUE;
           inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;
           inputEl.readOnly = isEmptyValue;
           if (isEmptyValue) {
@@ -440,7 +440,7 @@ function bindAddCommandTabEvents() {
           return;
         }
         const scope = varInput.dataset.scope || getCommandRemember("__new__")[vname] || "off";
-        const val = varInput.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : varInput.value;
+        const val = varInput.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : varInput.value;
         if (scope === "local") {
           getCommandLocalDraft("__new__")[vname] = val;
         } else if (scope === "global") {

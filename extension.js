@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -28,7 +28,7 @@ const { initLogger } = require("./lib/logger");
 
 /**
  * Called by VS Code when the extension is activated.
- * Registers the 'terminalRecipes.openPanel' command and creates the webview panel
+ * Registers the 'runBox.openPanel' command and creates the webview panel
  * along with all message handlers for communication between the extension and the UI.
  * Also creates the status bar item that opens the panel on click.
  * @param {import('vscode').ExtensionContext} context
@@ -38,7 +38,7 @@ function activate(context) {
   let panel = null;
 
   // Output channel used by the logger to write structured JSON logs visible in the Output panel.
-  const loggerOutputChannel = vscode.window.createOutputChannel("Terminal Recipes", "json");
+  const loggerOutputChannel = vscode.window.createOutputChannel("RunBox", "json");
   context.subscriptions.push(loggerOutputChannel);
   initLogger(loggerOutputChannel);
 
@@ -90,8 +90,8 @@ function activate(context) {
   }
   // ─────────────────────────────────────────────────────────────────────────────
 
-  // Registers the primary command that opens (or focuses) the Terminal Recipes panel.
-  const openPanelCommand = vscode.commands.registerCommand("terminalRecipes.openPanel", async function () {
+  // Registers the primary command that opens (or focuses) the RunBox panel.
+  const openPanelCommand = vscode.commands.registerCommand("runBox.openPanel", async function () {
     // If the panel already exists, bring it to focus and refresh its state instead
     // of creating a duplicate panel.
     if (panel) {
@@ -100,7 +100,7 @@ function activate(context) {
       return;
     }
 
-    panel = vscode.window.createWebviewPanel("terminalRecipesPanel", "Terminal Recipes", vscode.ViewColumn.One, {
+    panel = vscode.window.createWebviewPanel("runBoxPanel", "RunBox", vscode.ViewColumn.One, {
       enableScripts: true,
       retainContextWhenHidden: true,
     });
@@ -302,11 +302,11 @@ function activate(context) {
   context.subscriptions.push(openPanelCommand);
 
   // Status bar item shown on the right side of the VS Code status bar.
-  // Clicking it triggers terminalRecipes.openPanel to open or focus the panel.
+  // Clicking it triggers runBox.openPanel to open or focus the panel.
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-  statusBarItem.text = "$(terminal) Recipes";
-  statusBarItem.tooltip = "Open Terminal Recipes";
-  statusBarItem.command = "terminalRecipes.openPanel";
+  statusBarItem.text = "$(terminal) RunBox";
+  statusBarItem.tooltip = "Open RunBox";
+  statusBarItem.command = "runBox.openPanel";
   statusBarItem.show();
   context.subscriptions.push(statusBarItem);
 }
@@ -391,7 +391,7 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
   <link rel="stylesheet" href="${styleUri}">
   ${isDev ? `<link rel="stylesheet" href="${webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "dev", "dev-styles.css"))}">` : ""}
-  <title>Terminal Recipes</title>
+  <title>RunBox</title>
 </head>
 <body>
   <div id="app"></div>

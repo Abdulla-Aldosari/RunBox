@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -13,7 +13,7 @@ const vscode = acquireVsCodeApi();
 
 // Special sentinel value stored in commandDraft to represent an explicitly empty variable.
 // When a variable holds this value it is passed as "" to the resolved command template.
-const RECIPES_EMPTY_VALUE = "__EMPTY_VALUE__";
+const RUNBOX_EMPTY_VALUE = "__EMPTY_VALUE__";
 
 // List of tabs whose selections can be saved in `localStorage`
 const PERSISTABLE_TABS = ["recent", "favorites", "categories", "commands", "variables"];

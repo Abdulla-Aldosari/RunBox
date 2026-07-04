@@ -1,8 +1,8 @@
 # Contributing
 
-Thank you for your interest in contributing to the [vscode-terminal-recipes](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes) VS Code extension.
+Thank you for your interest in contributing to the [runbox](https://github.com/Abdulla-Aldosari/runbox) VS Code extension.
 
-When contributing, please first discuss the change you wish to make via an [issue](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/issues) or any other method with the owner of this repository before making a change.
+When contributing, please first discuss the change you wish to make via an [issue](https://github.com/Abdulla-Aldosari/runbox/issues) or any other method with the owner of this repository before making a change.
 
 Note that we have a [Code of Conduct](./CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
 
@@ -22,8 +22,8 @@ Note that we have a [Code of Conduct](./CODE_OF_CONDUCT.md), please follow it in
 2. Clone your forked repository:
 
 ```sh
-git clone https://github.com/{username}/vscode-terminal-recipes.git
-cd vscode-terminal-recipes
+git clone https://github.com/{username}/runbox.git
+cd runbox
 ```
 
 3. Install dependencies:

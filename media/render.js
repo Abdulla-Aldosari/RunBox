@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -181,7 +181,7 @@ function render() {
   app.innerHTML = `
     <div class="layout">
       <header class="header">
-        <h1>Terminal Recipes</h1>
+        <h1>RunBox</h1>
         <div class="header-actions">
           ${typeof renderDevToolsOverlay === "function" ? `<button id="btn-open-dev-tools" class="btn small secondary" data-tooltip="Open Dev Tools">Dev Tools</button>` : ""}
           <button id="btn-open-local-data-file" class="btn small secondary" ${state.workspaceFolder ? "" : "disabled"} data-tooltip="${state.workspaceFolder ? "Open local data JSON file" : "No workspace open"}">Open Local Data JSON</button>

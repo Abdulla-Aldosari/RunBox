@@ -1,14 +1,14 @@
-# Manual Testing Checklist — Terminal Recipes
+# Manual Testing Checklist — RunBox
 
 **Purpose:** A step-by-step checklist for manually verifying every UI feature and runtime behaviour of the extension. Work through each section in order. Mark items with `[x]` as you confirm them.
 
-**How to run:** Press **F5** in VS Code to launch the Extension Development Host, then open the panel with **F4 F4** (or Command Palette → "Terminal Recipes: Open Panel").
+**How to run:** Press **F5** in VS Code to launch the Extension Development Host, then open the panel with **F4 F4** (or Command Palette → "RunBox: Open Panel").
 
 ---
 
 ## 0. Prerequisites
 
-- [ ] Extension launches without errors (check Output → "Terminal Recipes" channel)
+- [ ] Extension launches without errors (check Output → "RunBox" channel)
 - [ ] Panel opens and the webview renders without a blank screen or console errors
 - [ ] Open the browser DevTools inside the webview (**Ctrl+Shift+I** in the Extension Development Host) and confirm the Console is clean
 
@@ -77,7 +77,7 @@
 - [ ] Typing updates the resolved command in real time
 - [ ] **Remember checkbox** per variable: when checked and the command is run/used/copied, the value is saved to `commandDrafts` and pre-filled next time
 - [ ] **Enum variable**: renders as a custom dropdown (not a native `<select>`)
-- [ ] **"Empty" button** (`RECIPES_EMPTY_VALUE`): sets the variable to an explicitly empty string
+- [ ] **"Empty" button** (`RUNBOX_EMPTY_VALUE`): sets the variable to an explicitly empty string
 
 ### 3.5 Sort Mode
 
@@ -167,11 +167,11 @@
 - [ ] **Local Variables** section (workspace-scoped) is disabled / hidden when no workspace is open
 - [ ] **Global Variables** section is always visible
 - [ ] Saved variable values are pre-filled in the input fields
-- [ ] Editing a field and clicking **Save Local**: saves to `.vscode/terminal-recipes.data.json` → green notice
-- [ ] Editing a field and clicking **Save Global**: saves to `~/.vscode-terminal-recipes/data.json` → green notice
+- [ ] Editing a field and clicking **Save Local**: saves to `.vscode/runbox.data.json` → green notice
+- [ ] Editing a field and clicking **Save Global**: saves to `~/.runbox/data.json` → green notice
 - [ ] **Open Local Data JSON** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
 - [ ] **Open Global Data JSON** button: opens the file in VS Code editor; prompts to create it if it doesn't exist
-- [ ] The first time a local variable or local favorite is saved in a fresh workspace, a one-time notice appears: `Created file ".vscode/terminal-recipes.data.json". You can change this location anytime in workspace settings.` with an "Open Settings" action; saving again does not repeat the notice
+- [ ] The first time a local variable or local favorite is saved in a fresh workspace, a one-time notice appears: `Created file ".vscode/runbox.data.json". You can change this location anytime in workspace settings.` with an "Open Settings" action; saving again does not repeat the notice
 
 ### 9.1 Auto-Variables
 

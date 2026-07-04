@@ -1,4 +1,4 @@
-# Terminal Recipes — Frequently Asked Questions
+# RunBox — Frequently Asked Questions
 
 ---
 
@@ -9,26 +9,26 @@
 All commands and categories are stored globally in a single JSON file on your machine:
 
 ```
-~/.vscode-terminal-recipes/commands.json
+~/.runbox/commands.json
 ```
 
-This file is shared across all your VS Code workspaces, so your recipes are always available no matter which project you open. You can open and edit this file directly from the panel using the **Open Global JSON** button in the header.
+This file is shared across all your VS Code workspaces, so your commands are always available no matter which project you open. You can open and edit this file directly from the panel using the **Open Global JSON** button in the header.
 
 ---
 
-### Does Terminal Recipes support multi-root workspaces?
+### Does RunBox support multi-root workspaces?
 
 Yes. When you open a multi-root workspace (a `.code-workspace` file with multiple folders), a **workspace folder selector** dropdown appears below the panel header. You can switch between folders at any time — local variables, local favorites, and auto variables like `${workspaceFolder}` and `${workspaceName}` all update to reflect the selected folder.
 
 The **Run confirmation dialog** also includes a per-execution folder override so you can run a specific command against a different folder without changing the panel's active selection. The terminal will open in the chosen folder's directory.
 
-The folder resolution behavior when opening the panel is controlled by the `terminalRecipes.multiRootFolderResolution` setting. See the [Settings Reference](settings.md) for details.
+The folder resolution behavior when opening the panel is controlled by the `runBox.multiRootFolderResolution` setting. See the [Settings Reference](settings.md) for details.
 
 ---
 
 ### Can I back up my commands or share them with my team?
 
-Yes. Simply copy `~/.vscode-terminal-recipes/commands.json` to a safe location or commit it to a shared repository. To restore, replace the file at the same path. Anyone with this file can import your full set of commands by placing it at the same path on their machine.
+Yes. Simply copy `~/.runbox/commands.json` to a safe location or commit it to a shared repository. To restore, replace the file at the same path. Anyone with this file can import your full set of commands by placing it at the same path on their machine.
 
 ---
 
@@ -48,11 +48,11 @@ Yes. Simply copy `~/.vscode-terminal-recipes/commands.json` to a safe location o
 
 Every variable in a command can be saved in one of three independent scopes. The **Local / Off / Global** toggle on each variable row controls which scope is active for that variable:
 
-| Scope      | Where the value is saved                                                | When to use it                                                                                            |
-| ---------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Local**  | `.vscode/terminal-recipes.data.json` inside your current project folder | When the value is specific to this project (e.g. a database name, a port number that differs per project) |
-| **Global** | `~/.vscode-terminal-recipes/data.json` in your home directory           | When you use the same value across all your projects (e.g. your username, a shared server address)        |
-| **Off**    | In memory only — never written to disk                                  | When you want to fill in a value just for this session without saving it anywhere                         |
+| Scope      | Where the value is saved                                      | When to use it                                                                                            |
+| ---------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Local**  | `.vscode/runbox.data.json` inside your current project folder | When the value is specific to this project (e.g. a database name, a port number that differs per project) |
+| **Global** | `~/.runbox/data.json` in your home directory                  | When you use the same value across all your projects (e.g. your username, a shared server address)        |
+| **Off**    | In memory only — never written to disk                        | When you want to fill in a value just for this session without saving it anywhere                         |
 
 Switching the toggle does **not** delete the value stored in the other scopes — each scope stores its value independently.
 
@@ -125,7 +125,7 @@ By default, the extension uses your active VS Code terminal profile. If you need
 
 ### The panel is not opening
 
-Use the Command Palette (`Ctrl+Shift+P`) and run **Terminal Recipes: Open Panel**, or press `F4 F4` (two consecutive presses of the F4 key).
+Use the Command Palette (`Ctrl+Shift+P`) and run **RunBox: Open Panel**, or press `F4 F4` (two consecutive presses of the F4 key).
 
 ---
 

@@ -1,11 +1,11 @@
 {
-  "name": "terminal-recipes",
-  "displayName": "Terminal Recipes",
+  "name": "runbox",
+  "displayName": "RunBox",
   "description": "Manage categorized terminal commands and run, use, or copy them with variable support.",
   "version": "1.0.0",
   "publisher": "abdulla-aldosari",
   "icon": "media/icon.png",
-  "homepage": "https://github.com/Abdulla-Aldosari/vscode-terminal-recipes#readme",
+  "homepage": "https://github.com/Abdulla-Aldosari/runbox#readme",
   "license": "Apache-2.0",
   "engines": {
     "vscode": "^1.90.0"
@@ -41,21 +41,21 @@
   "contributes": {
     "commands": [
       {
-        "command": "terminalRecipes.openPanel",
-        "title": "Terminal Recipes: Open Panel"
+        "command": "runBox.openPanel",
+        "title": "RunBox: Open Panel"
       }
     ],
     "keybindings": [
       {
-        "command": "terminalRecipes.openPanel",
+        "command": "runBox.openPanel",
         "key": "f4 f4",
         "mac": "f4 f4"
       }
     ],
     "configuration": {
-      "title": "Terminal Recipes",
+      "title": "RunBox",
       "properties": {
-        "terminalRecipes.aiProvider": {
+        "runBox.aiProvider": {
           "type": "string",
           "enum": [
             "gemini",
@@ -80,23 +80,23 @@
           "default": "gemini",
           "description": "The AI provider to use for generating terminal commands."
         },
-        "terminalRecipes.aiModel": {
+        "runBox.aiModel": {
           "type": "string",
           "default": "",
           "description": "The model ID to use for the selected AI provider. Leave empty to use the provider's default model. This is set automatically when you select a model in AI Settings."
         },
-        "terminalRecipes.customSystemInstructions": {
+        "runBox.customSystemInstructions": {
           "type": "string",
           "default": "",
           "editPresentation": "multilineText",
           "description": "Custom system instructions for the AI command generator. Leave empty to use the default instructions."
         },
-        "terminalRecipes.debugOutput": {
+        "runBox.debugOutput": {
           "type": "boolean",
           "default": false,
-          "description": "Enable detailed debug output in the VS Code Output Channel (Terminal Recipes). Logs internal operations such as AI requests, model listings, and other extension events."
+          "description": "Enable detailed debug output in the VS Code Output Channel (RunBox). Logs internal operations such as AI requests, model listings, and other extension events."
         },
-        "terminalRecipes.multiRootFolderResolution": {
+        "runBox.multiRootFolderResolution": {
           "type": "string",
           "enum": [
             "remember",
@@ -111,10 +111,10 @@
           "default": "remember",
           "description": "Controls how the active workspace folder is determined when opening the panel in a multi-root workspace. Has no effect in single-folder workspaces."
         },
-        "terminalRecipes.localWorkspaceFilesPath": {
+        "runBox.localWorkspaceFilesPath": {
           "type": "string",
           "default": "",
-          "description": "Relative path from the workspace root for extension-local files (variables, favorites, etc.). When empty, files are stored in .vscode/. Example: '.temp' or '.temp/terminal-recipes'. Changing this setting does not move existing files: you must manually move them to the new path, otherwise new files are created there and the old ones are ignored."
+          "description": "Relative path from the workspace root for extension-local files (variables, favorites, etc.). When empty, files are stored in .vscode/. Example: '.temp' or '.temp/runbox'. Changing this setting does not move existing files: you must manually move them to the new path, otherwise new files are created there and the old ones are ignored."
         }
       }
     }
@@ -135,7 +135,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Abdulla-Aldosari/vscode-terminal-recipes"
+    "url": "https://github.com/Abdulla-Aldosari/runbox"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.2",

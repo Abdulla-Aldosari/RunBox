@@ -1,5 +1,5 @@
 /*-------------------------------------------------
- * Terminal Recipes — VS Code Extension
+ * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
  * Licensed under the Apache License, Version 2.0.
  * See LICENSE in the project root for details.
@@ -211,7 +211,7 @@ function renderEditTab() {
                   rawVal = editCommandBuffer.session[name];
                 }
                 rawVal = rawVal !== undefined ? rawVal : "";
-                const isEmptyVal = rawVal === RECIPES_EMPTY_VALUE;
+                const isEmptyVal = rawVal === RUNBOX_EMPTY_VALUE;
                 const displayVal = isEmptyVal ? "[EmptyValue]" : rawVal;
                 const meta = bufferVariableMeta[name];
                 const isEnum = meta && meta.type === "enum";
@@ -536,11 +536,11 @@ function bindEditTabEvents() {
           input.setAttribute("data-is-empty-value", "true");
           input.value = "[EmptyValue]";
           if (scope === "local") {
-            editCommandBuffer.local[varName] = RECIPES_EMPTY_VALUE;
+            editCommandBuffer.local[varName] = RUNBOX_EMPTY_VALUE;
           } else if (scope === "global") {
-            editCommandBuffer.global[varName] = RECIPES_EMPTY_VALUE;
+            editCommandBuffer.global[varName] = RUNBOX_EMPTY_VALUE;
           } else {
-            editCommandBuffer.session[varName] = RECIPES_EMPTY_VALUE;
+            editCommandBuffer.session[varName] = RUNBOX_EMPTY_VALUE;
           }
         }
       }
@@ -639,7 +639,7 @@ function bindEditTabEvents() {
         if (inputEl) {
           const currentActiveBtn = container.querySelector(".toggle-option-3.active");
           const currentScope = currentActiveBtn ? currentActiveBtn.dataset.value : "off";
-          const currentVal = inputEl.dataset.isEmptyValue === "true" ? RECIPES_EMPTY_VALUE : inputEl.value;
+          const currentVal = inputEl.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : inputEl.value;
           if (currentScope === "local") {
             editCommandBuffer.local[variableName] = currentVal;
           } else if (currentScope === "global") {
@@ -668,7 +668,7 @@ function bindEditTabEvents() {
           } else {
             newVal = editCommandBuffer.session[variableName] || "";
           }
-          const isEmptyValue = newVal === RECIPES_EMPTY_VALUE;
+          const isEmptyValue = newVal === RUNBOX_EMPTY_VALUE;
           inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;
           inputEl.readOnly = isEmptyValue;
           if (isEmptyValue) {

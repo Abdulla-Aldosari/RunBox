@@ -3,13 +3,13 @@
 
 [remote.github]
 owner = "Abdulla-Aldosari"
-repo = "vscode-terminal-recipes"
+repo = "runbox"
 
 [changelog]
 header = """
 # Changelog
 
-All notable changes to **Terminal Recipes** are documented here.<br>
+All notable changes to **RunBox** are documented here.<br>
 Versions follow [Semantic Versioning](https://semver.org/).
 
 ---
@@ -53,7 +53,7 @@ body = """
 trim = true
 footer = ""
 postprocessors = [
-  { pattern = "<REPO>", replace = "https://github.com/Abdulla-Aldosari/vscode-terminal-recipes" },
+  { pattern = "<REPO>", replace = "https://github.com/Abdulla-Aldosari/runbox" },
 ]
 
 [git]

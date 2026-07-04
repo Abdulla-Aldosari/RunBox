@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Run Terminal Recipes Extension",
+      "name": "Run RunBox Extension",
       "type": "extensionHost",
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],

@@ -33,7 +33,7 @@
 
 ## Checklist
 
-- [ ] I have read the [CONTRIBUTING](https://github.com/Abdulla-Aldosari/vscode-terminal-recipes/blob/main/CONTRIBUTING.md) guidelines
+- [ ] I have read the [CONTRIBUTING](https://github.com/Abdulla-Aldosari/runbox/blob/main/CONTRIBUTING.md) guidelines
 - [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/) format `type(scope): description`
 - [ ] Commits are `atomic` and have clear messages
 - [ ] My code follows the code style of this project (`npm run lint` passes)

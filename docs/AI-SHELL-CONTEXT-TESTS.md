@@ -1,12 +1,12 @@
 # AI Shell-Context Generation — Evaluation & Test Cases
 
-> A documentation of the shell-aware AI command generation feature in **Terminal Recipes**, including real-world stress tests designed to evaluate how accurately the AI model respects the target shell when generating commands.
+> A documentation of the shell-aware AI command generation feature in **RunBox**, including real-world stress tests designed to evaluate how accurately the AI model respects the target shell when generating commands.
 
 ---
 
 ## Overview
 
-Terminal Recipes supports AI-assisted command generation via the **"Add with AI"** and **"Create with AI"** buttons. When a user submits a natural-language prompt, the extension sends it to the configured AI provider alongside a **system instruction** that includes the target shell environment.
+RunBox supports AI-assisted command generation via the **"Add with AI"** and **"Create with AI"** buttons. When a user submits a natural-language prompt, the extension sends it to the configured AI provider alongside a **system instruction** that includes the target shell environment.
 
 The core premise of this feature is:
 
@@ -330,5 +330,5 @@ Key observations:
 
 ---
 
-_Generated as part of the Terminal Recipes extension development process._
+_Generated as part of the RunBox extension development process._
 _Shell-aware AI generation feature — `lib/ai/factory.js` · `lib/ai/systemInstruction.js`_
