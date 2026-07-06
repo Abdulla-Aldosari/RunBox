@@ -1,0 +1,18 @@
+# The version of the Dependabot configuration (always use version 2 here)
+version: 2
+
+# The list of updates we want Dependabot to handle
+updates:
+  
+  # 1. What package manager or programming language does the project use?
+  # (Here we used "npm" as an example for Node.js/JavaScript projects, change it based on yours)
+  - package-ecosystem: "npm" 
+    
+    # 2. Where are the package files located in your project?
+    # (The "/" means the files are in the main/root directory of the project)
+    directory: "/" 
+    
+    # 3. Schedule: How often do you want Dependabot to check for new updates?
+    schedule:
+      # We set "weekly" here, which means it will check once a week
+      interval: "weekly"
