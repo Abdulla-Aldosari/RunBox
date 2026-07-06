@@ -154,6 +154,6 @@
     "git-cliff": "^2.13.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.0.7",
-    "prettier": "^3.8.4"
+    "prettier": "^3.9.4"
   }
 }
