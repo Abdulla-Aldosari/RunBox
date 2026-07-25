@@ -138,7 +138,7 @@
     "url": "https://github.com/Abdulla-Aldosari/runbox"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.104.2",
+    "@anthropic-ai/sdk": "^0.111.0",
     "@google/generative-ai": "^0.24.1",
     "@mistralai/mistralai": "^2.4.1",
     "cohere-ai": "^8.0.0",
