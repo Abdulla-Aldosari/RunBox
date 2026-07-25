@@ -7,7 +7,7 @@
 
 // media/modals/ai-settings.js
 // AI Settings modal, AI Provider Setup Help modal, and settings bind events.
-// Loads after new-command.js.
+// Loads after command-form.js.
 
 // ─── AI Models Cache Helpers ──────────────────────────────────────────────────
 // Stores model lists per-provider in localStorage with a 7-day TTL.

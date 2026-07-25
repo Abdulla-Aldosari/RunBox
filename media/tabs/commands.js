@@ -11,11 +11,6 @@
 // Loads after recent.js.
 
 function renderCommandsTab(selectedCategory) {
-  // Show edit form inline when editing
-  if (uiState.editingCommandId) {
-    return renderEditTab();
-  }
-
   const groups = getSelectedCategoryGroups();
   const commands = getVisibleCommands();
 
@@ -366,9 +361,10 @@ function bindCommandsTabEvents() {
   var addNewCommandBtn = document.getElementById("btn-add-new-command");
   if (addNewCommandBtn) {
     addNewCommandBtn.addEventListener("click", function () {
-      if (uiState.selectedGroupId && uiState.selectedGroupId !== "all") {
-        uiState.newCommandDraft.groupId = uiState.selectedGroupId;
-      }
+      commandFormBuffer.captureNew(
+        getSelectedCategory(),
+        uiState.selectedGroupId && uiState.selectedGroupId !== "all" ? uiState.selectedGroupId : ""
+      );
       uiState.activeTab = "add";
       render();
     });
@@ -672,10 +668,10 @@ function bindCommandActionButtons() {
       uiState.editSourceTab = uiState.activeTab;
       uiState.editingCommandId = commandId;
 
-      // editCommandBuffer.capture(command) is called inside renderEditTab / bindEditTabEvents
-      // when editCommandBuffer.commandId !== command.id
+      // renderCommandForm / bindCommandFormEvents re-capture on their own when the
+      // buffer does not already hold this command
       if (command) {
-        editCommandBuffer.capture(command);
+        commandFormBuffer.capture(command);
       }
 
       // Do NOT change activeTab — keep it as-is, tabs will show no active selection
@@ -1232,7 +1228,10 @@ function bindCommandActionButtons() {
         }
 
         // Step 6: Update scope indicator dots
-        updateScopeIndicatorDots(container, commandId, varName, newScope);
+        updateScopeIndicatorDots(container, varName, {
+          local: getCommandLocalDraft(commandId),
+          global: getCommandGlobalDraft(commandId),
+        });
       });
     });
   });
@@ -1416,7 +1415,7 @@ function executeDeleteConfirm() {
       });
 
       if (!editCmd) {
-        editCommandBuffer.clear();
+        commandFormBuffer.clear();
         uiState.editingCommandId = null;
       }
     }
@@ -1471,7 +1470,7 @@ function executeDeleteConfirm() {
     }
 
     if (uiState.editingCommandId === id) {
-      editCommandBuffer.clear();
+      commandFormBuffer.clear();
       uiState.editingCommandId = null;
       runConfirmState = {
         commandId: null,

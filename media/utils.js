@@ -369,11 +369,6 @@ function buildCommandVariablesPayload() {
   });
 
   Object.keys(allCommandIds).forEach(function (commandId) {
-    // Skip the transient new-command context — it gets renamed to a real ID on save
-    if (commandId === "__new__") {
-      return;
-    }
-
     var localDraft = uiState.commandLocalDrafts[commandId] || {};
     var globalDraft = uiState.commandGlobalDrafts[commandId] || {};
     var localVars = {};
@@ -417,24 +412,27 @@ function buildCommandVariablesPayload() {
  *   - has-value  → bright color (scope has a stored value)
  *   - no class   → dim color   (scope has no stored value)
  * @param {Element} container - The .toggle-switch-3 container element
- * @param {string} commandId
  * @param {string} variableName
- * @param {string} activeScope - The currently active scope (unused, kept for API compat)
+ * @param {{ local: object, global: object }} scopeSource - Value maps to read from.
+ *   Pass the command form buffer while a form is open, or the persisted scope drafts otherwise.
  */
-function updateScopeIndicatorDots(container, commandId, variableName, activeScope) {
+function updateScopeIndicatorDots(container, variableName, scopeSource) {
   if (!container) {
     return;
   }
+  var localMap = (scopeSource && scopeSource.local) || {};
+  var globalMap = (scopeSource && scopeSource.global) || {};
+
   container.querySelectorAll(".toggle-option-3").forEach(function (scopeBtn) {
     var scopeVal = scopeBtn.dataset.value;
     var dot = scopeBtn.querySelector(".scope-value-dot");
     var hasScopeValue = false;
 
     if (scopeVal === "local") {
-      var lv = getCommandLocalDraft(commandId)[variableName];
+      var lv = localMap[variableName];
       hasScopeValue = lv !== undefined && lv !== "";
     } else if (scopeVal === "global") {
-      var gv = getCommandGlobalDraft(commandId)[variableName];
+      var gv = globalMap[variableName];
       hasScopeValue = gv !== undefined && gv !== "";
     }
     // "off" scope never has a value indicator (session values are ephemeral)

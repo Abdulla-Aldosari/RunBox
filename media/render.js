@@ -205,7 +205,7 @@ function render() {
 
       ${
         uiState.editingCommandId
-          ? renderEditTab()
+          ? renderCommandForm("edit")
           : uiState.activeTab === "recent"
             ? renderRecentCommandsTab()
             : uiState.activeTab === "favorites"
@@ -215,7 +215,7 @@ function render() {
                 : uiState.activeTab === "commands"
                   ? renderCommandsTab(selectedCategory)
                   : uiState.activeTab === "add"
-                    ? renderAddCommandTab(selectedCategory)
+                    ? renderCommandForm("add")
                     : uiState.activeTab === "variables"
                       ? renderVariablesTab()
                       : ""
@@ -279,7 +279,6 @@ const modalDismissHandlers = {
   "enum-manager-overlay": function () {
     enumManagerState = {
       visible: false,
-      commandId: null,
       varName: "",
       enumValues: [],
       editIndex: null,
@@ -385,9 +384,9 @@ function bindEvents() {
   bindTabs();
   bindModalDismiss();
 
-  // If currently editing, only bind edit tab events (regardless of activeTab)
+  // If currently editing, only bind the command form events (regardless of activeTab)
   if (uiState.editingCommandId) {
-    bindEditTabEvents();
+    bindCommandFormEvents("edit");
     bindCommandActionButtons();
     return;
   }
@@ -405,7 +404,7 @@ function bindEvents() {
   }
 
   if (uiState.activeTab === "add") {
-    bindAddCommandTabEvents();
+    bindCommandFormEvents("add");
   }
 
   if (uiState.activeTab === "favorites") {
@@ -488,7 +487,7 @@ function bindTabs() {
 
       // Switching tabs while editing → clear buffer and discard editing state
       if (uiState.editingCommandId && nextTab !== uiState.activeTab) {
-        editCommandBuffer.clear();
+        commandFormBuffer.clear();
         uiState.editingCommandId = null;
         uiState.editSourceTab = null;
       }

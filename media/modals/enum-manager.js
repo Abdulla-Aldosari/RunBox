@@ -6,9 +6,10 @@
  *-------------------------------------------------*/
 
 // media/modals/enum-manager.js
-// Enum Manager modal — used by both add-command and edit-command tabs to manage
+// Enum Manager modal - opened from the command form (Add and Edit) to manage
 // enum variable options (title/value/description triplets).
-// Loads after new-command.js.
+// Writes through commandFormBuffer.variableMeta.
+// Loads after command-form.js.
 
 // ─── Enum Manager Modal ────────────────────────────────────────────────────────
 
@@ -81,37 +82,22 @@ function renderEnumManagerModal() {
 }
 
 /**
- * Writes the current enumManagerState.enumValues to the correct target:
- * - newCommandDraft.variableMeta when commandId is null (Add Command context)
- * - editCommandBuffer.variableMeta when commandId is set (Edit Command context)
+ * Writes the current enumManagerState.enumValues into commandFormBuffer.variableMeta.
+ * The buffer is the single write target for both Add and Edit contexts; the form's
+ * Save button is what applies it to the command object.
  * Called after every add, update, or delete action so changes are live.
  */
 function flushEnumValuesToTarget() {
   const varName = enumManagerState.varName;
-  const commandId = enumManagerState.commandId;
   const enumValues = enumManagerState.enumValues.slice();
 
-  if (commandId === null) {
-    // New command context
-    if (!uiState.newCommandDraft.variableMeta) {
-      uiState.newCommandDraft.variableMeta = {};
-    }
-    if (enumValues.length > 0) {
-      uiState.newCommandDraft.variableMeta[varName] = { type: "enum", enumValues };
-    } else {
-      delete uiState.newCommandDraft.variableMeta[varName];
-    }
+  const currentMeta = commandFormBuffer.variableMeta ? JSON.parse(commandFormBuffer.variableMeta) : {};
+  if (enumValues.length > 0) {
+    currentMeta[varName] = { type: "enum", enumValues };
   } else {
-    // Edit command context — write ONLY to buffer, not to command directly.
-    // The main Save Changes button applies buffer.variableMeta to command on confirm.
-    const currentMeta = editCommandBuffer.variableMeta ? JSON.parse(editCommandBuffer.variableMeta) : {};
-    if (enumValues.length > 0) {
-      currentMeta[varName] = { type: "enum", enumValues };
-    } else {
-      delete currentMeta[varName];
-    }
-    editCommandBuffer.variableMeta = JSON.stringify(currentMeta);
+    delete currentMeta[varName];
   }
+  commandFormBuffer.variableMeta = JSON.stringify(currentMeta);
 }
 
 /**
@@ -206,7 +192,6 @@ function bindEnumManagerEvents() {
     closeBtn.addEventListener("click", function () {
       enumManagerState = {
         visible: false,
-        commandId: null,
         varName: "",
         enumValues: [],
         editIndex: null,

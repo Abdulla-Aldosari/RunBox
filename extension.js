@@ -341,11 +341,8 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   const modalsRunConfirmUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, "media", "modals", "run-confirm.js")
   );
-  const modalsEditCommandUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "edit-command.js")
-  );
-  const modalsNewCommandUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "new-command.js")
+  const modalsCommandFormUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "modals", "command-form.js")
   );
   const modalsAiSettingsUri = webview.asWebviewUri(
     vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-settings.js")
@@ -404,8 +401,7 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
 
   <!-- 2. Modals (must exist before tab renderers that reference renderCommandCard, etc.) -->
   <script nonce="${nonce}" src="${modalsRunConfirmUri}"></script>
-  <script nonce="${nonce}" src="${modalsEditCommandUri}"></script>
-  <script nonce="${nonce}" src="${modalsNewCommandUri}"></script>
+  <script nonce="${nonce}" src="${modalsCommandFormUri}"></script>
   <script nonce="${nonce}" src="${modalsAiSettingsUri}"></script>
   <script nonce="${nonce}" src="${modalsAiGenerateUri}"></script>
   <script nonce="${nonce}" src="${modalsAiExplainUri}"></script>

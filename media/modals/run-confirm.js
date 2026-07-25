@@ -9,12 +9,21 @@
 // Run Confirmation modal (shell picker + variable entry) and Delete Confirm modal.
 // All functions rely on globals from state.js, icons.js, and utils.js.
 
-function renderToggleSwitch3(commandId, varName, currentValue, extraClass) {
+/**
+ * Renders the 3-way variable scope toggle (Local / Off / Global).
+ * @param {string} commandId - Written to data-command-id, used only for DOM lookups
+ * @param {string} varName
+ * @param {string} currentValue - Active scope: "local" | "off" | "global"
+ * @param {string} extraClass
+ * @param {{ local: object, global: object }} [scopeSource] - Value maps used for the
+ *   indicator dots. Defaults to the persisted scope drafts of commandId.
+ */
+function renderToggleSwitch3(commandId, varName, currentValue, extraClass, scopeSource) {
   const noWorkspace = !state.workspaceFolder;
 
   // Check which scopes have stored values — used for the indicator dot
-  const localDraft = getCommandLocalDraft(commandId);
-  const globalDraft = getCommandGlobalDraft(commandId);
+  const localDraft = scopeSource ? scopeSource.local : getCommandLocalDraft(commandId);
+  const globalDraft = scopeSource ? scopeSource.global : getCommandGlobalDraft(commandId);
   const hasLocal = localDraft[varName] !== undefined && localDraft[varName] !== "";
   const hasGlobal = globalDraft[varName] !== undefined && globalDraft[varName] !== "";
 

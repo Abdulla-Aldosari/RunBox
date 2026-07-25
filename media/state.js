@@ -66,16 +66,6 @@ const uiState = {
   commandGlobalDrafts: {}, // { [commandId]: { [varName]: value } } — global scope
   commandSessionDrafts: {}, // { [commandId]: { [varName]: value } } — session-only (never written to disk)
   commandRemember: {},
-  newCommandDraft: {
-    visible: false,
-    title: "",
-    template: "",
-    description: "",
-    groupId: "",
-    helpUrl: "",
-    targetShell: "",
-    variableMeta: {},
-  },
 
   columnVisibility: (function () {
     try {
@@ -139,7 +129,6 @@ let categoriesModalState = {
 // Enum Manager Modal state
 let enumManagerState = {
   visible: false,
-  commandId: null, // null = new command context, string = editing existing command
   varName: "",
   enumValues: [], // working copy array of {title, value, description}
   editIndex: null, // index of item being edited inline, or null
