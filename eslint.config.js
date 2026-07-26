@@ -112,6 +112,7 @@ const browserGlobals = {
   bindRecentTabEvents: "readonly",
   bindVariablesTabEvents: "readonly",
   bindCommandFormEvents: "readonly",
+  unbindTemplateResizeListener: "readonly",
   bindAiSettingsEvents: "readonly",
   bindAiGenerateEvents: "readonly",
   bindFavoriteModalEvents: "readonly",

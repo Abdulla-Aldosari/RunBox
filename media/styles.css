@@ -780,11 +780,6 @@ td.actions-cell {
   align-items: center;
 }
 
-.grouped-tags-wrap {
-  display: grid;
-  gap: 6px;
-}
-
 .inline-tags {
   display: flex;
   gap: 8px;
@@ -948,6 +943,12 @@ td.actions-cell {
 .width-100 {
   width: 100%;
 }
+.width-stretch {
+  width: stretch;
+}
+.width-min-content {
+  width: min-content;
+}
 
 .min-w65 {
   min-width: 65px;
@@ -960,7 +961,9 @@ td.actions-cell {
 .d-flex {
   display: flex;
 }
-
+.grid-column-auto {
+  grid-column: auto;
+}
 .gap-6 {
   gap: 6px;
 }

@@ -15,8 +15,15 @@
 // It is never used as a storage key — all form data lives in commandFormBuffer.
 const COMMAND_FORM_CTX = "__form__";
 
+// Tracks the window "resize" listener bound only while the Command form is open.
+// Kept scoped to this form (bound in bindCommandFormTemplateInput, unbound in
+// closeCommandForm) so it never lingers across other tabs/pages of the extension.
+let _templateResizeHandler = null;
+let _templateResizeTimer = null;
+
 /**
  * Returns the user-defined variable names of a template
+
  * (auto-resolved variables are excluded).
  * @param {string} template
  * @returns {string[]}
@@ -313,7 +320,7 @@ function renderCommandForm(mode) {
         <label class="full-width">Description<textarea id="command-form-description" class="input" rows="2">${escapeHtml(commandFormBuffer.description)}</textarea></label>
         ${
           isEdit
-            ? `<div class="full-width grouped-tags-wrap">
+            ? `<div class="full-width d-grid gap-6 grid-column-auto">
           <span class="groups-label">Category:</span>
           ${renderCustomSelect(
             "command-form-category-wrap",
@@ -331,7 +338,7 @@ function renderCommandForm(mode) {
         </div>`
             : ""
         }
-        <div class="full-width grouped-tags-wrap">
+        <div class="full-width d-grid gap-6">
           <span class="groups-label">Groups:</span>
           <div class="inline-tags" id="command-form-groups-tags">
             ${groups.length === 0 ? `<span class="muted">No groups in this category.</span>` : ""}
@@ -343,15 +350,15 @@ function renderCommandForm(mode) {
           </div>
         </div>
         <label class="full-width">Help URL (optional)<input id="command-form-help-url" class="input" placeholder="https://docs.example.com/command" value="${escapeAttr(commandFormBuffer.helpUrl || "")}" /></label>
-        <div class="full-width grouped-tags-wrap">
-          <span class="groups-label" data-tooltip="Restricts this command to a specific shell.<br>Leave as Any Shell if it works everywhere.">Target Shell:</span>
+        <div class="full-width d-grid gap-6 grid-column-auto">
+          <span class="groups-label width-min-content" data-tooltip="Restricts this command to a specific shell.<br>Leave as Any Shell if it works everywhere." data-tooltip-pos="right">Target Shell:</span>
           ${renderCustomSelect(
             "command-form-shell-wrap",
             "command-form-shell-btn",
             "command-form-shell-menu",
             TARGET_SHELL_OPTIONS,
             commandFormBuffer.targetShell || "",
-            "cs-btn-sm", // btnExtraClass
+            "cs-btn-sm width-stretch", // btnExtraClass
             false // menuUp
           )}
         </div>
@@ -441,6 +448,7 @@ function flushScopeDataToState(commandId) {
  */
 function closeCommandForm(savedCommandId) {
   const returnTab = commandFormBuffer.mode === "edit" ? uiState.editSourceTab || "commands" : "commands";
+  unbindTemplateResizeListener();
   commandFormBuffer.clear();
   uiState.editingCommandId = null;
   uiState.editSourceTab = null;
@@ -591,6 +599,45 @@ function bindCommandFormEnumButtons() {
 }
 
 /**
+ * Binds a window "resize" listener (debounced) that re-measures the template
+ * textarea height while the Command form is open. autoResizeTextarea() only
+ * computes height at render time, so narrowing the webview can wrap the
+ * template text into more lines without the element growing to fit, hiding
+ * the overflow instead of expanding or scrolling. Scoped to the form's
+ * lifetime only — bound here, unbound in closeCommandForm().
+ */
+function bindTemplateResizeListener() {
+  if (_templateResizeHandler) {
+    return;
+  }
+  _templateResizeHandler = function () {
+    console.log("resize.");
+    clearTimeout(_templateResizeTimer);
+    _templateResizeTimer = setTimeout(function () {
+      const el = document.getElementById("command-form-template");
+      if (el) {
+        autoResizeTextarea(el);
+        updateTemplateHighlight(el);
+      }
+    }, 30);
+  };
+  window.addEventListener("resize", _templateResizeHandler);
+}
+
+/**
+ * Removes the window "resize" listener bound by bindTemplateResizeListener().
+ * Called whenever the Command form closes so it never lingers on other tabs.
+ */
+function unbindTemplateResizeListener() {
+  if (_templateResizeHandler) {
+    window.removeEventListener("resize", _templateResizeHandler);
+    _templateResizeHandler = null;
+  }
+  clearTimeout(_templateResizeTimer);
+  _templateResizeTimer = null;
+}
+
+/**
  * Binds the template textarea: keeps the buffer in sync, auto-transfers data
  * on a 1-to-1 variable rename, then re-renders while preserving the caret.
  */
@@ -599,6 +646,8 @@ function bindCommandFormTemplateInput() {
   if (!templateInput) {
     return;
   }
+
+  bindTemplateResizeListener();
 
   templateInput.addEventListener("input", function () {
     commandFormBuffer.template = templateInput.value;

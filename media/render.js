@@ -485,6 +485,13 @@ function bindTabs() {
     tabButton.addEventListener("click", function () {
       const nextTab = tabButton.dataset.tab;
 
+      // Leaving the Command form (add or edit) → stop the resize listener bound
+      // by bindTemplateResizeListener() so it never lingers on other tabs.
+      // Safe to call even when no listener is currently bound.
+      if ((uiState.editingCommandId || uiState.activeTab === "add") && nextTab !== uiState.activeTab) {
+        unbindTemplateResizeListener();
+      }
+
       // Switching tabs while editing → clear buffer and discard editing state
       if (uiState.editingCommandId && nextTab !== uiState.activeTab) {
         commandFormBuffer.clear();
