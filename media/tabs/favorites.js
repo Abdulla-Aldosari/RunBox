@@ -13,7 +13,12 @@
 function renderFavoritesTab() {
   const hasWorkspace = !!state.workspaceFolder;
   const scope = uiState.favoritesScope;
-  const allCommands = state.data.commands || [];
+  // Local favorites may include "Current Workspace" commands (workspaceCommands.commands),
+  // which never appear in Global favorites since the Global option is hidden for them.
+  const allCommands =
+    scope === "local"
+      ? (state.data.commands || []).concat(state.workspaceCommands.commands || [])
+      : state.data.commands || [];
   const favoriteIds = scope === "local" ? state.localFavorites : state.globalFavorites;
   const favoritedCommands = allCommands.filter(function (cmd) {
     return favoriteIds.includes(cmd.id);
@@ -98,11 +103,14 @@ function renderFavoritesTable(commands) {
             const titleHtml = command.helpUrl
               ? `<a class="cmd-title-link" data-url="${escapeAttr(command.helpUrl)}" data-tooltip="Open documentation">${escapeHtml(command.title)}</a>`
               : `<strong>${escapeHtml(command.title)}</strong>`;
-            const _cat = (state.data.categories || []).find(function (c) {
-              return c.id === command.categoryId;
-            });
-            const _catTitle = _cat ? _cat.title || "" : "";
-            const _groups = _cat ? _cat.groups || [] : [];
+            const _isWsCmd = isWorkspaceCommand(command.id);
+            const _cat = _isWsCmd
+              ? null
+              : (state.data.categories || []).find(function (c) {
+                  return c.id === command.categoryId;
+                });
+            const _catTitle = _isWsCmd ? "Current Workspace" : _cat ? _cat.title || "" : "";
+            const _groups = _isWsCmd ? state.workspaceCommands.groups || [] : _cat ? _cat.groups || [] : [];
             const _groupTitle = resolveGroupTitle(command.groupId || "", _groups);
             const _hasGroup = !!_groupTitle && _groupTitle !== "-";
             const _catGroupLabel =
@@ -133,10 +141,13 @@ function renderFavoritesTable(commands) {
  */
 function renderFavoriteModal() {
   const s = favoriteModalState;
+  const command = findCommandById(s.commandId);
+  const isWsCmd = isWorkspaceCommand(s.commandId);
   const hasWorkspace = !!state.workspaceFolder;
-  const command = (state.data.commands || []).find(function (c) {
-    return c.id === s.commandId;
-  });
+  // "Current Workspace" commands can only ever be Local favorites — Global is
+  // meaningless for them since they never leave this workspace folder.
+  const showLocalTag = hasWorkspace;
+  const showGlobalTag = !isWsCmd;
   const cmdTitle = command ? command.title : "";
   const noneSelected = !s.selectedLocal && !s.selectedGlobal;
   // Only show warning/Unfavorite if command was already in at least one favorites list
@@ -149,8 +160,8 @@ function renderFavoriteModal() {
         <p class="delete-confirm-command-name">${escapeHtml(cmdTitle)}</p>
         <p class="modal-description">Select where to save this command as a favorite:</p>
         <div class="fav-modal-tags">
-          ${hasWorkspace ? `<button class="tag d-focus fav-modal-tag ${s.selectedLocal ? "active" : ""}" data-scope="local" data-tooltip="Save for this workspace only">Local Workspace</button>` : ""}
-          <button class="tag d-focus fav-modal-tag ${s.selectedGlobal ? "active" : ""}" data-scope="global" data-tooltip="Save for all workspaces">Global</button>
+          ${showLocalTag ? `<button class="tag d-focus fav-modal-tag ${s.selectedLocal ? "active" : ""}" data-scope="local" data-tooltip="Save for this workspace only">Local Workspace</button>` : ""}
+          ${showGlobalTag ? `<button class="tag d-focus fav-modal-tag ${s.selectedGlobal ? "active" : ""}" data-scope="global" data-tooltip="Save for all workspaces">Global</button>` : ""}
         </div>
         ${wasInFavorites && noneSelected ? `<p class="modal-description fav-modal-hint">No selection — clicking Save will remove from all favorites.</p>` : ""}
         <div class="row between mt-20">
@@ -173,9 +184,7 @@ function renderUnfavoriteConfirmModal() {
     return "";
   }
   const s = unfavoriteConfirmState;
-  const command = (state.data.commands || []).find(function (c) {
-    return c.id === s.commandId;
-  });
+  const command = findCommandById(s.commandId);
   const cmdTitle = command ? command.title : "";
   const scopeLabel = s.scope === "local" ? "Local Workspace" : "Global";
   let skipConfirm = false;

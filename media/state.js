@@ -15,6 +15,12 @@ const vscode = acquireVsCodeApi();
 // When a variable holds this value it is passed as "" to the resolved command template.
 const RUNBOX_EMPTY_VALUE = "__EMPTY_VALUE__";
 
+// Fixed pseudo-category ID for the "Current Workspace" entry. Never stored inside
+// state.data.categories — its content lives in state.workspaceCommands instead.
+// Always shown as the first option in both the Categories tab and the Commands
+// Browser dropdown, regardless of whether runBox.workspaceID has been created yet.
+const CURRENT_WORKSPACE_CATEGORY_ID = "__current_workspace__";
+
 // List of tabs whose selections can be saved in `localStorage`
 const PERSISTABLE_TABS = ["recent", "favorites", "categories", "commands", "variables"];
 
@@ -229,4 +235,10 @@ const state = {
   globalFavorites: [],
   localFavorites: [],
   workspaceFolders: [], // Array<{ name: string, fsPath: string }> — all open workspace folders (multi-root)
+  workspaceId: "", // runBox.workspaceID for the active workspace folder; "" if not created yet
+  workspaceCommands: {
+    // "Current Workspace" pseudo-category content — groups/commands private to this workspace folder
+    groups: [],
+    commands: [],
+  },
 };

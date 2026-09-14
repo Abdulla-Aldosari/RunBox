@@ -115,6 +115,12 @@
           "type": "string",
           "default": "",
           "description": "Relative path from the workspace root for extension-local files (variables, favorites, etc.). When empty, files are stored in .vscode/. Example: '.temp' or '.temp/runbox'. Changing this setting does not move existing files: you must manually move them to the new path, otherwise new files are created there and the old ones are ignored."
+        },
+        "runBox.workspaceID": {
+          "type": "string",
+          "default": "",
+          "scope": "resource",
+          "description": "Auto-generated unique identifier for this workspace folder, used to link 'Current Workspace' commands and groups to this specific project. Created automatically the first time you add a group or command under 'Current Workspace'. Do not edit or copy this value manually between projects."
         }
       }
     }

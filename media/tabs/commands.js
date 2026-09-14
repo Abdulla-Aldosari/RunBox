@@ -54,6 +54,17 @@ function renderCustomCategorySelect() {
   const options = categories.map(function (cat) {
     return { value: cat.id, label: cat.title };
   });
+
+  // "Current Workspace" is always the first option whenever a workspace folder is open,
+  // regardless of category order — it lives outside state.data.categories entirely.
+  if (state.workspaceFolder) {
+    options.unshift({
+      value: CURRENT_WORKSPACE_CATEGORY_ID,
+      label: "Current Workspace",
+      itemClass: "cs-item-current-workspace",
+    });
+  }
+
   return renderCustomSelect(
     "custom-category-select",
     "cs-btn-toggle",
@@ -163,7 +174,8 @@ function renderCommandsTable(commands, groups) {
 }
 
 /**
- * Reads the current DOM row order and syncs it back to state.data.commands,
+ * Reads the current DOM row order and syncs it back to state.data.commands
+ * (or state.workspaceCommands.commands when viewing "Current Workspace"),
  * then persists. Called after live DOM reordering completes (on dragend).
  */
 function syncCommandOrderFromDOM(tbody) {
@@ -172,7 +184,8 @@ function syncCommandOrderFromDOM(tbody) {
     return;
   }
 
-  var allCommands = state.data.commands;
+  var isCurrentWorkspace = isCurrentWorkspaceCategory(uiState.selectedCategoryId);
+  var allCommands = isCurrentWorkspace ? state.workspaceCommands.commands : state.data.commands;
 
   // Step 1: new order of visible command IDs (as they appear in the DOM right now)
   var newOrderIds = [];
@@ -207,7 +220,11 @@ function syncCommandOrderFromDOM(tbody) {
     }
   });
 
-  persistDataThenRender("Order saved.");
+  if (isCurrentWorkspace) {
+    persistWorkspaceCommandsThenRender("Order saved.");
+  } else {
+    persistDataThenRender("Order saved.");
+  }
 }
 
 /**
@@ -454,9 +471,7 @@ function bindCommandsTabEvents() {
 }
 
 function performCommandAction(commandId, action, forceShowVariables) {
-  const command = (state.data.commands || []).find(function (item) {
-    return item.id === commandId;
-  });
+  const command = findCommandById(commandId);
 
   if (!command) {
     return;
@@ -552,9 +567,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
 }
 
 function dispatchCommandAction(commandId, action, shellPath, shellName, activeFsPath) {
-  const command = (state.data.commands || []).find(function (item) {
-    return item.id === commandId;
-  });
+  const command = findCommandById(commandId);
 
   if (!command) {
     return;
@@ -581,9 +594,7 @@ function bindCommandActionButtons() {
   document.querySelectorAll(".btn-run").forEach(function (button) {
     button.addEventListener("click", function () {
       const commandId = button.dataset.commandId;
-      const command = (state.data.commands || []).find(function (item) {
-        return item.id === commandId;
-      });
+      const command = findCommandById(commandId);
 
       if (!command) {
         return;
@@ -660,9 +671,7 @@ function bindCommandActionButtons() {
   document.querySelectorAll(".btn-edit").forEach(function (button) {
     button.addEventListener("click", function () {
       const commandId = button.dataset.commandId;
-      const command = (state.data.commands || []).find(function (item) {
-        return item.id === commandId;
-      });
+      const command = findCommandById(commandId);
 
       // Save the tab we came from so we can return to it
       uiState.editSourceTab = uiState.activeTab;
@@ -682,9 +691,7 @@ function bindCommandActionButtons() {
   document.querySelectorAll(".btn-delete-command").forEach(function (button) {
     button.addEventListener("click", function () {
       const commandId = button.dataset.commandId;
-      const command = (state.data.commands || []).find(function (item) {
-        return item.id === commandId;
-      });
+      const command = findCommandById(commandId);
 
       deleteConfirmState = {
         type: "command",
@@ -711,16 +718,16 @@ function bindCommandActionButtons() {
   document.querySelectorAll(".btn-goto-command").forEach(function (button) {
     button.addEventListener("click", function () {
       const commandId = button.dataset.commandId;
-      const command = (state.data.commands || []).find(function (item) {
-        return item.id === commandId;
-      });
+      const command = findCommandById(commandId);
       if (!command) {
         return;
       }
-      if (command.categoryId) {
-        uiState.selectedCategoryId = command.categoryId;
+      const targetCategoryId =
+        command.categoryId || (isWorkspaceCommand(commandId) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
+      if (targetCategoryId) {
+        uiState.selectedCategoryId = targetCategoryId;
         try {
-          localStorage.setItem("selectedCategoryId", command.categoryId);
+          localStorage.setItem("selectedCategoryId", targetCategoryId);
         } catch {}
       }
       uiState.selectedGroupId = "all";
@@ -742,9 +749,25 @@ function bindCommandActionButtons() {
       const ctrlOrMeta = e.ctrlKey || e.metaKey;
       const shift = e.shiftKey;
       const hasWorkspace = !!state.workspaceFolder;
+      // "Current Workspace" commands never leave this workspace folder — Global
+      // favorites are meaningless for them, so Global shortcuts are ignored.
+      const isWsCmd = isWorkspaceCommand(commandId);
 
       if (ctrlOrMeta && shift) {
         // Ctrl+Shift+Click → Add to Both
+        if (isWsCmd) {
+          if (!hasWorkspace) {
+            return;
+          }
+          const newLocal = state.localFavorites.includes(commandId)
+            ? state.localFavorites
+            : state.localFavorites.concat([commandId]);
+          state.localFavorites = newLocal;
+          persistFavorites({ global: state.globalFavorites, local: newLocal });
+          showNotice("Added to Local Favorites.", icons.heartPlus, "success");
+          render();
+          return;
+        }
         const newGlobal = state.globalFavorites.includes(commandId)
           ? state.globalFavorites
           : state.globalFavorites.concat([commandId]);
@@ -763,7 +786,10 @@ function bindCommandActionButtons() {
         );
         render();
       } else if (ctrlOrMeta) {
-        // Ctrl+Click → Add to Global
+        // Ctrl+Click → Add to Global (ignored for "Current Workspace" commands)
+        if (isWsCmd) {
+          return;
+        }
         const newGlobal = state.globalFavorites.includes(commandId)
           ? state.globalFavorites
           : state.globalFavorites.concat([commandId]);
@@ -812,9 +838,24 @@ function bindCommandActionButtons() {
 
       const commandId = button.dataset.commandId;
       const hasWorkspace = !!state.workspaceFolder;
+      // "Current Workspace" commands can never be in Global favorites — Global
+      // removal shortcuts have nothing to do for them, so they are ignored.
+      const isWsCmd = isWorkspaceCommand(commandId);
 
       if (ctrlOrMeta && shift) {
         // Ctrl+Shift+Right → Remove from Both
+        if (isWsCmd) {
+          if (state.localFavorites.includes(commandId)) {
+            const newLocal = state.localFavorites.filter(function (id) {
+              return id !== commandId;
+            });
+            state.localFavorites = newLocal;
+            persistFavorites({ global: state.globalFavorites, local: newLocal });
+            showNotice("Removed from Local Favorites.", icons.heartMinus, "info");
+            render();
+          }
+          return;
+        }
         const newGlobal = state.globalFavorites.filter(function (id) {
           return id !== commandId;
         });
@@ -827,7 +868,10 @@ function bindCommandActionButtons() {
         showNotice("Removed from Global & Local Favorites.", icons.heartMinus, "info");
         render();
       } else if (ctrlOrMeta) {
-        // Ctrl+Right → Remove from Global
+        // Ctrl+Right → Remove from Global (ignored for "Current Workspace" commands)
+        if (isWsCmd) {
+          return;
+        }
         if (state.globalFavorites.includes(commandId)) {
           const newGlobal = state.globalFavorites.filter(function (id) {
             return id !== commandId;
@@ -919,9 +963,7 @@ function bindCommandActionButtons() {
         return;
       }
 
-      const command = (state.data.commands || []).find(function (item) {
-        return item.id === commandId;
-      });
+      const command = findCommandById(commandId);
 
       if (!command) {
         return;
@@ -1158,9 +1200,7 @@ function bindCommandActionButtons() {
 
         // Step 5b: If this is an Enum variable, also update the dropdown selection
         if (enumWrap && commandId) {
-          const command = (state.data.commands || []).find(function (c) {
-            return c.id === commandId;
-          });
+          const command = findCommandById(commandId);
           const enumMeta = command && command.variableMeta && command.variableMeta[varName];
           const isEnum = enumMeta && enumMeta.type === "enum" && enumMeta.enumValues && enumMeta.enumValues.length > 0;
           if (isEnum) {
@@ -1314,9 +1354,7 @@ function bindCommandActionButtons() {
       };
 
       if (action === "run") {
-        const command = (state.data.commands || []).find(function (item) {
-          return item.id === commandId;
-        });
+        const command = findCommandById(commandId);
 
         if (command) {
           const matchedProfile = findMatchingShellProfile(command.targetShell);
@@ -1410,9 +1448,7 @@ function executeDeleteConfirm() {
     }
 
     if (uiState.editingCommandId) {
-      var editCmd = (state.data.commands || []).find(function (c) {
-        return c.id === uiState.editingCommandId;
-      });
+      var editCmd = findCommandById(uiState.editingCommandId);
 
       if (!editCmd) {
         commandFormBuffer.clear();
@@ -1426,6 +1462,25 @@ function executeDeleteConfirm() {
 
   if (type === "group") {
     var selectedCategory = getSelectedCategory();
+
+    if (selectedCategory && selectedCategory.isCurrentWorkspace) {
+      state.workspaceCommands.groups = (state.workspaceCommands.groups || []).filter(function (group) {
+        return group.id !== id;
+      });
+
+      (state.workspaceCommands.commands || []).forEach(function (command) {
+        if (command.groupId === id) {
+          command.groupId = "";
+        }
+      });
+
+      if (uiState.selectedGroupId === id) {
+        uiState.selectedGroupId = "all";
+      }
+
+      persistWorkspaceCommandsThenRender("Group deleted.");
+      return;
+    }
 
     if (selectedCategory) {
       selectedCategory.groups = (selectedCategory.groups || []).filter(function (group) {
@@ -1448,9 +1503,17 @@ function executeDeleteConfirm() {
   }
 
   if (type === "command") {
-    state.data.commands = (state.data.commands || []).filter(function (command) {
-      return command.id !== id;
-    });
+    var isWorkspaceCmd = isWorkspaceCommand(id);
+
+    if (isWorkspaceCmd) {
+      state.workspaceCommands.commands = (state.workspaceCommands.commands || []).filter(function (command) {
+        return command.id !== id;
+      });
+    } else {
+      state.data.commands = (state.data.commands || []).filter(function (command) {
+        return command.id !== id;
+      });
+    }
 
     delete uiState.commandLocalDrafts[id];
     delete uiState.commandGlobalDrafts[id];
@@ -1482,7 +1545,12 @@ function executeDeleteConfirm() {
     }
 
     persistCommandVariables();
-    persistDataThenRender("Command deleted.");
+
+    if (isWorkspaceCmd) {
+      persistWorkspaceCommandsThenRender("Command deleted.");
+    } else {
+      persistDataThenRender("Command deleted.");
+    }
     return;
   }
 }

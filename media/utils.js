@@ -457,10 +457,66 @@ function setSelectedCategory(categoryId) {
 }
 
 /**
+ * Returns true if the given category ID refers to the "Current Workspace" pseudo-category.
+ * @param {string} categoryId
+ * @returns {boolean}
+ */
+function isCurrentWorkspaceCategory(categoryId) {
+  return categoryId === CURRENT_WORKSPACE_CATEGORY_ID;
+}
+
+/**
+ * Finds a command by ID across both command sources: the regular categorized
+ * commands (state.data.commands) and the "Current Workspace" pseudo-category
+ * commands (state.workspaceCommands.commands). Action buttons (run/use/copy/
+ * edit/favorite/explain) are bound generically regardless of which tab/category
+ * is active, so callers must always be able to resolve either kind of command.
+ * @param {string} commandId
+ * @returns {object|null}
+ */
+function findCommandById(commandId) {
+  return (
+    (state.data.commands || []).find(function (c) {
+      return c.id === commandId;
+    }) ||
+    (state.workspaceCommands.commands || []).find(function (c) {
+      return c.id === commandId;
+    }) ||
+    null
+  );
+}
+
+/**
+ * Returns true if the given command ID belongs to the "Current Workspace" pseudo-category
+ * (i.e. it lives in state.workspaceCommands.commands rather than state.data.commands).
+ * @param {string} commandId
+ * @returns {boolean}
+ */
+function isWorkspaceCommand(commandId) {
+  return (state.workspaceCommands.commands || []).some(function (c) {
+    return c.id === commandId;
+  });
+}
+
+/**
  * Returns the currently selected category object, or null if none matches.
+ * When the "Current Workspace" pseudo-category is selected, returns a synthetic
+ * category object backed by state.workspaceCommands.groups (only when a workspace
+ * folder is open — otherwise null, since the option cannot be selected at all then).
  * @returns {object|null}
  */
 function getSelectedCategory() {
+  if (isCurrentWorkspaceCategory(uiState.selectedCategoryId)) {
+    return state.workspaceFolder
+      ? {
+          id: CURRENT_WORKSPACE_CATEGORY_ID,
+          title: "Current Workspace",
+          groups: state.workspaceCommands.groups || [],
+          isCurrentWorkspace: true,
+        }
+      : null;
+  }
+
   return (
     (state.data.categories || []).find(function (category) {
       return category.id === uiState.selectedCategoryId;
@@ -482,11 +538,13 @@ function getSelectedCategoryGroups() {
  * @returns {Array}
  */
 function getVisibleCommands() {
-  return (state.data.commands || []).filter(function (command) {
-    if (command.categoryId !== uiState.selectedCategoryId) {
-      return false;
-    }
+  const source = isCurrentWorkspaceCategory(uiState.selectedCategoryId)
+    ? state.workspaceCommands.commands || []
+    : (state.data.commands || []).filter(function (command) {
+        return command.categoryId === uiState.selectedCategoryId;
+      });
 
+  return source.filter(function (command) {
     if (uiState.selectedGroupId === "all") {
       return true;
     }
@@ -497,6 +555,8 @@ function getVisibleCommands() {
 
 /**
  * Returns the command object currently being edited, or null.
+ * Looks in both state.data.commands and state.workspaceCommands.commands,
+ * since a command being edited may belong to the "Current Workspace" pseudo-category.
  * @returns {object|null}
  */
 function getEditingCommand() {
@@ -505,7 +565,7 @@ function getEditingCommand() {
   }
 
   return (
-    (state.data.commands || []).find(function (command) {
+    (state.data.commands || []).concat(state.workspaceCommands.commands || []).find(function (command) {
       return command.id === uiState.editingCommandId;
     }) || null
   );
@@ -860,6 +920,43 @@ function persistDataThenRender(successMessage) {
   vscode.postMessage({ type: "saveData", payload: state.data });
 }
 
+/**
+ * Persists the "Current Workspace" pseudo-category content (groups + commands)
+ * to the workspace-local unified data file. Mirrors persistDataThenRender(), but
+ * targets state.workspaceCommands instead of state.data.
+ * @param {string} [successMessage]
+ */
+function persistWorkspaceCommandsThenRender(successMessage) {
+  if (successMessage) {
+    uiState.pendingSaveMessage = successMessage;
+  }
+  render();
+  vscode.postMessage({ type: "saveWorkspaceCommandsData", payload: state.workspaceCommands });
+}
+
+/**
+ * Persists a command move between a regular category (state.data) and the
+ * "Current Workspace" pseudo-category (state.workspaceCommands) atomically, via a
+ * single "saveCommandMove" message handled by one extension-side handler.
+ *
+ * Sending this as one message (rather than separate saveData + saveWorkspaceCommandsData
+ * calls) avoids a race condition: the extension's message listener does not serialize
+ * async handlers, so two independent postState() calls can interleave and read one file
+ * before the other finished writing it — making the moved command appear in neither
+ * source. See lib/handlers.js handleSaveCommandMove for the full explanation.
+ * @param {string} [successMessage]
+ */
+function persistCommandMoveThenRender(successMessage) {
+  if (successMessage) {
+    uiState.pendingSaveMessage = successMessage;
+  }
+  render();
+  vscode.postMessage({
+    type: "saveCommandMove",
+    payload: { data: state.data, workspaceCommands: state.workspaceCommands },
+  });
+}
+
 function persistCommandVariables() {
   const payload = buildCommandVariablesPayload();
   vscode.postMessage({ type: "saveCommandVariables", payload });
@@ -929,9 +1026,14 @@ function renderActionsCell(command, options) {
             ? "fav-state-global"
             : "fav-state-both";
     var _icon = _fs === "none" ? icons.heartPlus : icons.heartActive;
+    // "Current Workspace" commands never leave this workspace folder, so all Global
+    // shortcuts are meaningless for them and are omitted from the tooltip entirely.
+    var _isWsCmd = isWorkspaceCommand(command.id);
     var _tip =
       _fs === "none"
-        ? 'Ctrl+Click: Add Global  •  Ctrl+Right-Click: Remove Global<br>Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br>Ctrl+Shift+Click: Add Both  •  Ctrl+Shift+Right-Click: Remove Both<br><span class="muted-tip">(Click to manage)</span>'
+        ? _isWsCmd
+          ? 'Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br><span class="muted-tip">(Click to manage)</span>'
+          : 'Ctrl+Click: Add Global  •  Ctrl+Right-Click: Remove Global<br>Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br>Ctrl+Shift+Click: Add Both  •  Ctrl+Shift+Right-Click: Remove Both<br><span class="muted-tip">(Click to manage)</span>'
         : _fs === "local"
           ? "In Local Favorites<br>(click to manage)"
           : _fs === "global"
@@ -987,8 +1089,9 @@ function renderCustomSelect(wrapperId, btnId, menuId, options, selectedValue, bt
       const isSelected = opt.value === selectedValue;
       const badgeHtml = opt.badge ? `<span class="cs-item-badge">${opt.badge}</span>` : "";
       const isStart = opt.badgePosition === "start";
+      const itemClass = opt.itemClass ? ` ${opt.itemClass}` : "";
       return `
-      <div class="cs-item" role="menuitem" tabindex="-1" data-value="${escapeAttr(opt.value)}"${opt.tooltip ? ` data-tooltip="${escapeAttr(opt.tooltip)}"` : ""}${opt.tooltipFooter ? ` data-tooltip-footer="${escapeAttr(opt.tooltipFooter)}"` : ""}>
+      <div class="cs-item${itemClass}" role="menuitem" tabindex="-1" data-value="${escapeAttr(opt.value)}"${opt.tooltip ? ` data-tooltip="${escapeAttr(opt.tooltip)}"` : ""}${opt.tooltipFooter ? ` data-tooltip-footer="${escapeAttr(opt.tooltipFooter)}"` : ""}>
         <span class="cs-item-label-group">
           ${isStart ? badgeHtml : ""}
           <span class="cs-item-label">${escapeHtml(opt.label)}</span>
@@ -1002,10 +1105,11 @@ function renderCustomSelect(wrapperId, btnId, menuId, options, selectedValue, bt
 
   const menuClass = `cs-menu${menuUp ? " cs-menu-up" : ""}`;
   const wrapClass = `cs-wrap${wrapExtraClass ? " " + wrapExtraClass : ""}`;
+  const selectedItemClass = selectedOption && selectedOption.itemClass ? ` ${selectedOption.itemClass}` : "";
 
   return `
     <div class="${wrapClass}" id="${escapeAttr(wrapperId)}">
-      <button class="cs-btn${btnExtraClass ? " " + btnExtraClass : ""}" type="button" aria-haspopup="menu" aria-expanded="false" id="${escapeAttr(btnId)}">
+      <button class="cs-btn${btnExtraClass ? " " + btnExtraClass : ""}${selectedItemClass}" type="button" aria-haspopup="menu" aria-expanded="false" id="${escapeAttr(btnId)}">
         <span class="cs-btn-label">${escapeHtml(selectedLabel)}</span>
         ${icons.chevron}
       </button>

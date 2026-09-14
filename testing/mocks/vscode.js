@@ -12,6 +12,11 @@
 // no real functionality, just enough to satisfy require() without crashing.
 
 const vscode = {
+  ConfigurationTarget: {
+    Global: 1,
+    Workspace: 2,
+    WorkspaceFolder: 3,
+  },
   workspace: {
     workspaceFolders: null,
     getConfiguration: function () {
@@ -19,6 +24,7 @@ const vscode = {
         get: function () {
           return undefined;
         },
+        update: async function () {},
       };
     },
   },

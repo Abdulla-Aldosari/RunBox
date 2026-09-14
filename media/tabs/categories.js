@@ -12,6 +12,25 @@
 // ─── Categories Tab ───────────────────────────────────────────────────────────
 
 /**
+ * Renders the fixed "Current Workspace" pseudo-category item, always shown first
+ * in the Categories panel (before any real category) whenever a workspace folder
+ * is open. Has no Rename/Delete actions since it is a permanent, non-deletable entry.
+ * @returns {string} HTML string
+ */
+function renderCurrentWorkspaceCategoryItem() {
+  const isActive = isCurrentWorkspaceCategory(uiState.selectedCategoryId);
+  const count = (state.workspaceCommands.commands || []).length;
+  return `
+    <div class="manage-item current-workspace-item ${isActive ? "active" : ""}" data-category-id="${CURRENT_WORKSPACE_CATEGORY_ID}" data-tooltip="Commands private to this workspace folder only — never shared with other projects" data-tooltip-pos="right">
+      <div class="manage-item-info">
+        <span class="manage-item-label">${icons.folder} Current Workspace</span>
+        <code class="manage-item-count">${count}</code>
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Renders the Categories & Groups management tab (two-panel layout).
  * @returns {string} HTML string
  */
@@ -34,6 +53,7 @@ function renderCategoriesTab() {
             </div>
           </div>
           <div class="manage-list">
+            ${state.workspaceFolder ? renderCurrentWorkspaceCategoryItem() : ""}
             ${categories.length === 0 ? `<p class="muted manage-empty">No categories yet.</p>` : ""}
             ${categories
               .map(function (category) {
@@ -352,6 +372,16 @@ function executeManageModalConfirm() {
       id: generateEntityId("grp"),
       title: value,
     };
+
+    if (selectedCategory.isCurrentWorkspace) {
+      state.workspaceCommands.groups = state.workspaceCommands.groups || [];
+      state.workspaceCommands.groups.push(newGroup);
+      uiState.selectedGroupId = newGroup.id;
+      categoriesModalState = { visible: false, mode: null, value: "" };
+      persistWorkspaceCommandsThenRender("Group added.");
+      return;
+    }
+
     selectedCategory.groups = selectedCategory.groups || [];
     selectedCategory.groups.push(newGroup);
     uiState.selectedGroupId = newGroup.id;
@@ -372,6 +402,12 @@ function executeManageModalConfirm() {
       group.title = value;
     }
     categoriesModalState = { visible: false, mode: null, value: "" };
+
+    if (selectedCategory.isCurrentWorkspace) {
+      persistWorkspaceCommandsThenRender("Group renamed.");
+      return;
+    }
+
     persistDataThenRender("Group renamed.");
     return;
   }

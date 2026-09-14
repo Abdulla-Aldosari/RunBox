@@ -20,6 +20,8 @@ const {
   getAllWorkspaceFolders,
   resolveActiveWorkspaceFolder,
   GLOBAL_COMMANDS_FILE,
+  readWorkspaceId,
+  readWorkspaceCommandsSection,
 } = require("./lib/storage");
 const { getTerminalProfiles } = require("./lib/terminal");
 const { buildAutoVariablesPayload } = require("./lib/auto-variables");
@@ -70,6 +72,8 @@ function activate(context) {
     const autoVariables = buildAutoVariablesPayload({ workspaceFolder }, autoVariablesSettings);
     const globalFavorites = await readGlobalFavorites();
     const localFavorites = await readWorkspaceFavorites(workspaceFolder);
+    const workspaceId = readWorkspaceId(workspaceFolder);
+    const workspaceCommands = await readWorkspaceCommandsSection(workspaceFolder);
 
     await targetPanel.webview.postMessage({
       type: "state",
@@ -85,6 +89,8 @@ function activate(context) {
         autoVariablesSettings,
         globalFavorites,
         localFavorites,
+        workspaceId,
+        workspaceCommands,
       },
     });
   }
@@ -159,6 +165,29 @@ function activate(context) {
           return;
         }
 
+        // Persists the "Current Workspace" pseudo-category groups/commands to the
+        // active folder's .vscode/ directory (runbox.data.json → workspaceCommands).
+        if (message.type === "saveWorkspaceCommandsData") {
+          // Inject activeFsPath so workspace commands are written to the correct .vscode/ folder.
+          const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
+          await H.handleSaveWorkspaceCommandsData(
+            panel,
+            Object.assign({}, message.payload, { activeFsPath }),
+            postState
+          );
+          return;
+        }
+
+        // Atomically persists a command move between a regular category (global
+        // commands.json) and the "Current Workspace" pseudo-category (workspace-local
+        // runbox.data.json). Sent as a single message instead of separate saveData +
+        // saveWorkspaceCommandsData calls to avoid a postState() race condition.
+        if (message.type === "saveCommandMove") {
+          const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
+          await H.handleSaveCommandMove(panel, Object.assign({}, message.payload, { activeFsPath }), postState);
+          return;
+        }
+
         // Saves workspace-scoped command variables to the active folder's .vscode/ directory.
         if (message.type === "saveCommandVariables") {
           // Inject activeFsPath so variables are written to the correct .vscode/ folder.
@@ -220,6 +249,13 @@ function activate(context) {
         // Inserts AI-generated commands into the commands data and refreshes the panel state.
         if (message.type === "aiInsert") {
           await H.handleAiInsert(panel, message.payload, postState);
+          return;
+        }
+
+        // Inserts AI-generated commands into the "Current Workspace" pseudo-category.
+        if (message.type === "aiInsertWorkspace") {
+          const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
+          await H.handleAiInsertWorkspace(panel, Object.assign({}, message.payload, { activeFsPath }), postState);
           return;
         }
 

@@ -17,8 +17,12 @@
  * @param {string} extraClass
  * @param {{ local: object, global: object }} [scopeSource] - Value maps used for the
  *   indicator dots. Defaults to the persisted scope drafts of commandId.
+ * @param {boolean} [isWorkspaceCmd] - True when this variable belongs to a "Current
+ *   Workspace" command. Global is disabled (but still visible, greyed out) for these,
+ *   since the command never leaves this workspace folder — a global value would be
+ *   written to a shared file with no way to ever be read back for this command.
  */
-function renderToggleSwitch3(commandId, varName, currentValue, extraClass, scopeSource) {
+function renderToggleSwitch3(commandId, varName, currentValue, extraClass, scopeSource, isWorkspaceCmd) {
   const noWorkspace = !state.workspaceFolder;
 
   // Check which scopes have stored values — used for the indicator dot
@@ -30,13 +34,17 @@ function renderToggleSwitch3(commandId, varName, currentValue, extraClass, scope
   const opts = [
     { value: "local", label: "Local", disabled: noWorkspace, hasValue: hasLocal },
     { value: "off", label: "Off", disabled: false, hasValue: false },
-    { value: "global", label: "Global", disabled: false, hasValue: hasGlobal },
+    { value: "global", label: "Global", disabled: !!isWorkspaceCmd, hasValue: hasGlobal },
   ];
+
+  const tooltip = isWorkspaceCmd
+    ? "Active scope for this variable<br><strong>Local</strong> = use &amp; edit the workspace-local value<br><strong>Global</strong> is disabled for Current Workspace commands (they never leave this project)<br><strong>Off</strong> = session-only value (not saved to disk)"
+    : "Active scope for this variable<br><strong>Local</strong> = use &amp; edit the workspace-local value<br><strong>Global</strong> = use &amp; edit the global value<br><strong>Off</strong> = session-only value (not saved to disk)";
 
   return `
     <div class="toggle-switch-3 ${escapeAttr(extraClass)}" data-command-id="${escapeAttr(commandId)}" data-variable-name="${escapeAttr(varName)}"
          data-tooltip-pos="top"
-         data-tooltip="Active scope for this variable<br><strong>Local</strong> = use &amp; edit the workspace-local value<br><strong>Global</strong> = use &amp; edit the global value<br><strong>Off</strong> = session-only value (not saved to disk)">
+         data-tooltip="${tooltip}">
       ${opts
         .map(function (opt) {
           return `<button type="button" class="toggle-option-3 d-focus ${currentValue === opt.value ? "active" : ""}" data-value="${opt.value}" ${opt.disabled ? "disabled" : ""}>${opt.label}<span class="scope-value-dot${opt.hasValue ? " has-value" : ""}"></span></button>`;
@@ -74,9 +82,7 @@ function renderRunConfirmModal() {
     return "";
   }
 
-  const command = (state.data.commands || []).find(function (item) {
-    return item.id === runConfirmState.commandId;
-  });
+  const command = findCommandById(runConfirmState.commandId);
 
   const hasVariables = command
     ? collectVariables([command.command]).some(function (name) {
@@ -110,9 +116,8 @@ function renderVariableInputModal() {
 
   const vars = variableInputState.missingVariables;
   // Get the command to check variableMeta
-  const cmdForMeta = (state.data.commands || []).find(function (c) {
-    return c.id === variableInputState.commandId;
-  });
+  const cmdForMeta = findCommandById(variableInputState.commandId);
+  const isWsCmd = isWorkspaceCommand(variableInputState.commandId);
 
   return `
     <div class="modal-overlay" id="variable-input-overlay" data-dismiss-on-outside-click="false">
@@ -189,7 +194,7 @@ function renderVariableInputModal() {
                     ${isEnumEmptyValue ? 'readonly data-is-empty-value="true"' : ""}
                   />
                 </div>
-                ${renderToggleSwitch3(variableInputState.commandId, name, rememberValue, "variable-modal-remember-toggle")}
+                ${renderToggleSwitch3(variableInputState.commandId, name, rememberValue, "variable-modal-remember-toggle", null, isWsCmd)}
               </div>
             `;
               }
@@ -205,7 +210,7 @@ function renderVariableInputModal() {
                   placeholder="Enter value..."
                   ${isEmptyValue ? 'readonly data-is-empty-value="true"' : ""}
                 />
-                ${renderToggleSwitch3(variableInputState.commandId, name, rememberValue, "variable-modal-remember-toggle")}
+                ${renderToggleSwitch3(variableInputState.commandId, name, rememberValue, "variable-modal-remember-toggle", null, isWsCmd)}
               </div>
             `;
             })

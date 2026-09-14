@@ -26,6 +26,18 @@ The folder resolution behavior when opening the panel is controlled by the `runB
 
 ---
 
+### What is "Current Workspace" in the Commands Browser?
+
+**Current Workspace** is a special entry that always appears first in the category list — both in the **Categories & Groups** tab and the **Commands Browser** dropdown on the **Commands** tab — whenever a workspace folder is open. Unlike regular categories, commands and groups added under **Current Workspace** are stored privately inside `runbox.data.json` in this project's `.vscode/` folder (or your configured `runBox.localWorkspaceFilesPath`) and are never written to the shared `~/.runbox/commands.json` file. This means they are only ever visible and usable in this exact workspace folder — never in any other project.
+
+This is useful when you have commands that only make sense for one specific project (e.g. a project-specific build script or a database connection string) and you never want them showing up when you open a different project.
+
+The first time you add a group or a command under **Current Workspace**, the extension automatically creates a `runBox.workspaceID` setting for that folder to link the data to it — you don't need to configure anything manually. Until then, the entry is shown empty.
+
+**Limitations:** commands under **Current Workspace** can only be added to **Local Workspace favorites** (never Global), and their variables can only use the **Local** or **Off** scope (never Global) — since these commands never leave this workspace folder, a Global value or favorite would have no other project to ever be read back from.
+
+---
+
 ### Can I back up my commands or share them with my team?
 
 Yes. Simply copy `~/.runbox/commands.json` to a safe location or commit it to a shared repository. To restore, replace the file at the same path. Anyone with this file can import your full set of commands by placing it at the same path on their machine.

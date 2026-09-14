@@ -31,6 +31,9 @@ function hydrateState(payload) {
   state.globalFavorites = payload && Array.isArray(payload.globalFavorites) ? payload.globalFavorites : [];
   state.localFavorites = payload && Array.isArray(payload.localFavorites) ? payload.localFavorites : [];
   state.workspaceFolders = payload && Array.isArray(payload.workspaceFolders) ? payload.workspaceFolders : [];
+  state.workspaceId = payload && typeof payload.workspaceId === "string" ? payload.workspaceId : "";
+  state.workspaceCommands =
+    payload && payload.workspaceCommands ? payload.workspaceCommands : { groups: [], commands: [] };
 
   // If no workspace, force scope to 'global'
   if (!state.workspaceFolder && uiState.favoritesScope === "local") {
@@ -95,6 +98,16 @@ function hydrateState(payload) {
  */
 function ensureSelectionDefaults() {
   const categories = state.data.categories || [];
+
+  // "Current Workspace" is a valid selection whenever a workspace folder is open,
+  // regardless of whether any real categories exist.
+  if (uiState.selectedCategoryId === CURRENT_WORKSPACE_CATEGORY_ID) {
+    if (!state.workspaceFolder) {
+      uiState.selectedCategoryId = categories[0] ? categories[0].id : "";
+      uiState.selectedGroupId = "all";
+    }
+    return;
+  }
 
   if (!categories.length) {
     uiState.selectedCategoryId = "";

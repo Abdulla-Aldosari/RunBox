@@ -50,6 +50,24 @@ window.addEventListener("message", function (event) {
     return;
   }
 
+  if (message.type === "saveWorkspaceCommandsDataResult") {
+    const pendingMessage = uiState.pendingSaveMessage;
+    uiState.pendingSaveMessage = null;
+
+    if (message.payload && message.payload.success) {
+      showNotice(pendingMessage || "Saved successfully.", icons.circleCheck, "success");
+    } else {
+      showNotice(
+        `Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
+        icons.circleX,
+        "error"
+      );
+      vscode.postMessage({ type: "requestState" });
+    }
+    paintNotice();
+    return;
+  }
+
   if (message.type === "actionResult") {
     if (message.payload && message.payload.success) {
       showNotice(`Action "${message.payload.action}" completed.`, icons.circleCheck, "info");

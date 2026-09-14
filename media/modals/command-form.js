@@ -94,7 +94,9 @@ const commandFormBuffer = {
   capture(command) {
     this.mode = "edit";
     this.commandId = command.id;
-    this.categoryId = command.categoryId || "";
+    // Workspace commands have no categoryId field — map them to the pseudo-category ID
+    // so getSelectedCategory()/getSelectedCategoryGroups() resolve correctly for this form.
+    this.categoryId = command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
     this.title = command.title || "";
     this.template = command.command || "";
     this.description = command.description || "";
@@ -211,6 +213,7 @@ function renderCommandFormVariables(variables) {
 
   const meta = commandFormBuffer.getMeta();
   const scopeSource = commandFormBuffer.scopeSource();
+  const isWsCmd = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
 
   const rows = variables
     .map(function (name) {
@@ -227,7 +230,7 @@ function renderCommandFormVariables(variables) {
               <div class="variable-row">
                 <label class="variable-name">\${${escapeHtml(name)}}</label>
                 <input class="input variable-input" data-command-id="${COMMAND_FORM_CTX}" data-variable-name="${escapeAttr(name)}" data-scope="${escapeAttr(pref)}" value="${escapeAttr(displayVal)}" placeholder="Enter value..."${isEmptyVal ? ' readonly data-is-empty-value="true"' : ""} />
-                ${renderToggleSwitch3(COMMAND_FORM_CTX, name, pref, "variable-remember-toggle", scopeSource)}
+                ${renderToggleSwitch3(COMMAND_FORM_CTX, name, pref, "variable-remember-toggle", scopeSource, isWsCmd)}
                 <button type="button" class="btn small ${isEnum ? "primary" : "secondary"} btn-open-enum-manager" data-var-name="${escapeAttr(name)}" data-tooltip="Manage Enum values for this variable">${icons.adjustments} ${isEnum ? `Enum (${enumCount})` : "Set Enum"}</button>
               </div>
             `;
@@ -294,13 +297,18 @@ function renderCommandForm(mode) {
   }
 
   const allCategories = state.data.categories || [];
-  const category =
-    allCategories.find(function (cat) {
-      return cat.id === commandFormBuffer.categoryId;
-    }) || null;
+  const isBufferCurrentWorkspace = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
+  const category = isBufferCurrentWorkspace
+    ? { id: CURRENT_WORKSPACE_CATEGORY_ID, title: "Current Workspace", groups: state.workspaceCommands.groups || [] }
+    : allCategories.find(function (cat) {
+        return cat.id === commandFormBuffer.categoryId;
+      }) || null;
   const groups = category ? category.groups || [] : [];
   const variables = getUserVariableNames(commandFormBuffer.template);
-  const isMoved = isEdit && commandFormBuffer.categoryId !== command.categoryId;
+  const originalCategoryId = isEdit
+    ? command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "")
+    : "";
+  const isMoved = isEdit && commandFormBuffer.categoryId !== originalCategoryId;
 
   return `
     <section class="card recipe-editor">
@@ -326,9 +334,20 @@ function renderCommandForm(mode) {
             "command-form-category-wrap",
             "command-form-category-btn",
             "command-form-category-menu",
-            allCategories.map(function (cat) {
-              return { value: cat.id, label: cat.title };
-            }),
+            (state.workspaceFolder
+              ? [
+                  {
+                    value: CURRENT_WORKSPACE_CATEGORY_ID,
+                    label: "Current Workspace",
+                    itemClass: "cs-item-current-workspace",
+                  },
+                ]
+              : []
+            ).concat(
+              allCategories.map(function (cat) {
+                return { value: cat.id, label: cat.title };
+              })
+            ),
             commandFormBuffer.categoryId,
             "cs-btn-sm cs-btn-category", // btnExtraClass
             false, // menuUp
@@ -701,14 +720,18 @@ function validateCommandForm() {
 
 /**
  * Creates the new command from the buffer and persists it.
+ * Commands created under the "Current Workspace" pseudo-category are pushed to
+ * state.workspaceCommands.commands (no categoryId field) instead of state.data.commands.
  */
 function submitAddCommand() {
+  const isWsCmd = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
+
   const newCommand = {
     id: generateEntityId("cmd"),
     title: commandFormBuffer.title,
     description: commandFormBuffer.description,
     command: commandFormBuffer.template,
-    categoryId: commandFormBuffer.categoryId,
+    ...(isWsCmd ? {} : { categoryId: commandFormBuffer.categoryId }),
     groupId: commandFormBuffer.groupId,
     ...(commandFormBuffer.helpUrl ? { helpUrl: commandFormBuffer.helpUrl } : {}),
     ...(commandFormBuffer.targetShell ? { targetShell: commandFormBuffer.targetShell } : {}),
@@ -719,15 +742,24 @@ function submitAddCommand() {
     newCommand.variableMeta = meta;
   }
 
-  state.data.commands.push(newCommand);
   flushScopeDataToState(newCommand.id);
   closeCommandForm(newCommand.id);
-  persistDataThenRender("Command added.");
   persistCommandVariables();
+
+  if (isWsCmd) {
+    state.workspaceCommands.commands.push(newCommand);
+    persistWorkspaceCommandsThenRender("Command added.");
+  } else {
+    state.data.commands.push(newCommand);
+    persistDataThenRender("Command added.");
+  }
 }
 
 /**
  * Applies the buffer to the edited command and persists it.
+ * Supports moving a command between the "Current Workspace" pseudo-category and a
+ * regular category: when the source changes, the command is removed from its old
+ * array and pushed into the new one, and both sides are persisted independently.
  * @param {object} command - The command being edited
  */
 function submitEditCommand(command) {
@@ -737,11 +769,19 @@ function submitEditCommand(command) {
     return;
   }
 
+  const wasWorkspaceCmd = isWorkspaceCommand(command.id);
+  const willBeWorkspaceCmd = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
+
   command.title = commandFormBuffer.title;
   command.description = commandFormBuffer.description;
   command.command = commandFormBuffer.template;
   command.groupId = commandFormBuffer.groupId;
-  command.categoryId = commandFormBuffer.categoryId;
+
+  if (willBeWorkspaceCmd) {
+    delete command.categoryId;
+  } else {
+    command.categoryId = commandFormBuffer.categoryId;
+  }
 
   if (commandFormBuffer.helpUrl) {
     command.helpUrl = commandFormBuffer.helpUrl;
@@ -764,7 +804,42 @@ function submitEditCommand(command) {
 
   flushScopeDataToState(command.id);
   closeCommandForm(command.id);
-  persistDataThenRender("Command saved.");
+
+  if (wasWorkspaceCmd === willBeWorkspaceCmd) {
+    // No source change — persist to whichever source already holds this command.
+    if (willBeWorkspaceCmd) {
+      persistWorkspaceCommandsThenRender("Command saved.");
+    } else {
+      persistDataThenRender("Command saved.");
+    }
+    return;
+  }
+
+  // Source changed — move the command object between arrays and persist both sides
+  // atomically in a single message (see persistCommandMoveThenRender for why this
+  // must not be split into two separate saveData / saveWorkspaceCommandsData calls).
+  if (willBeWorkspaceCmd) {
+    state.data.commands = (state.data.commands || []).filter(function (c) {
+      return c.id !== command.id;
+    });
+    state.workspaceCommands.commands.push(command);
+    // Moving out of a regular category removes it from Global favorites too,
+    // since "Current Workspace" commands can never be Global favorites.
+    if (state.globalFavorites.includes(command.id)) {
+      const newGlobal = state.globalFavorites.filter(function (id) {
+        return id !== command.id;
+      });
+      state.globalFavorites = newGlobal;
+      persistFavorites({ global: newGlobal, local: state.localFavorites });
+    }
+    persistCommandMoveThenRender("Command moved to Current Workspace.");
+  } else {
+    state.workspaceCommands.commands = (state.workspaceCommands.commands || []).filter(function (c) {
+      return c.id !== command.id;
+    });
+    state.data.commands.push(command);
+    persistCommandMoveThenRender("Command moved out of Current Workspace.");
+  }
   persistCommandVariables();
 }
 
@@ -818,6 +893,8 @@ function bindCommandFormEvents(mode) {
   });
 
   if (isEdit) {
+    const originalCategoryId =
+      command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
     bindCustomSelect(
       "command-form-category-wrap",
       "command-form-category-btn",
@@ -826,7 +903,7 @@ function bindCommandFormEvents(mode) {
         commandFormBuffer.categoryId = newCategoryId;
         // Restore the original group when reverting to the original category,
         // otherwise reset it — a group belongs to a single category
-        commandFormBuffer.groupId = newCategoryId === command.categoryId ? command.groupId || "" : "";
+        commandFormBuffer.groupId = newCategoryId === originalCategoryId ? command.groupId || "" : "";
         render();
       }
     );

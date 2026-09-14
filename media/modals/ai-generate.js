@@ -488,6 +488,20 @@ function bindAiGenerateEvents() {
           return;
         }
 
+        // "Current Workspace" pseudo-category: route to the dedicated workspace-local
+        // insert message instead of the regular category-based aiInsert.
+        if (isCurrentWorkspaceCategory(aiState.categoryId)) {
+          vscode.postMessage({
+            type: "aiInsertWorkspace",
+            payload: {
+              mode: aiState.mode,
+              groups: aiState.mode === "full" && aiState.result.category ? aiState.result.category.groups || [] : [],
+              commands: selectedCommands,
+            },
+          });
+          return;
+        }
+
         vscode.postMessage({
           type: "aiInsert",
           payload: {

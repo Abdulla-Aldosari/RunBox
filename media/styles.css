@@ -1362,6 +1362,33 @@ code {
   opacity: 1;
 }
 
+/* "Current Workspace" pseudo-category — always first, visually distinct from
+   regular categories (own accent color, no rename/delete actions). */
+.manage-item.current-workspace-item {
+  border-bottom: 1px solid color-mix(in srgb, #a67ee0 35%, transparent);
+}
+
+.manage-item.current-workspace-item:hover:not(.active) {
+  background-color: color-mix(in srgb, #a67ee0 8%, var(--runbox-editor-background)) !important;
+}
+
+.manage-item.current-workspace-item.active {
+  background: color-mix(in srgb, #a67ee0 18%, var(--runbox-editor-background));
+  border-left: 3px solid #a67ee0;
+}
+
+.manage-item.current-workspace-item .manage-item-label {
+  color: #a67ee0;
+  font-weight: 600;
+}
+
+/* Custom-select "Current Workspace" option — Commands Browser dropdown + Command form */
+.cs-item.cs-item-current-workspace .cs-item-label,
+.cs-btn.cs-item-current-workspace .cs-btn-label {
+  color: #a67ee0;
+  font-weight: 600;
+}
+
 /* ===== recent Table - Title Column ===== */
 .recent-table td:first-child {
   width: 1%;
