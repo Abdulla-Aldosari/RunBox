@@ -1014,7 +1014,7 @@ function bindCommandActionButtons() {
     });
   }
 
-  // Alt+0 to toggle empty value on modal inputs
+  // Alt+0 to toggle empty value on modal inputs; Alt+O to pick a file path from disk
   document.querySelectorAll(".variable-modal-input").forEach(function (input) {
     input.addEventListener("keydown", function (e) {
       if (e.altKey && e.key === "0") {
@@ -1035,6 +1035,14 @@ function bindCommandActionButtons() {
           input.value = "[EmptyValue]";
           variableInputState.inputValues[varName] = RUNBOX_EMPTY_VALUE;
         }
+        return;
+      }
+
+      if (e.altKey && e.key.toLowerCase() === "o") {
+        e.preventDefault();
+        const varName = input.dataset.variableName;
+        if (!varName || input.readOnly) return;
+        vscode.postMessage({ type: "pickFile", payload: { variableName: varName } });
       }
     });
   });

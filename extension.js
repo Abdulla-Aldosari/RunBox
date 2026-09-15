@@ -228,6 +228,13 @@ function activate(context) {
           return;
         }
 
+        // Opens a native "Open File" dialog restricted to a single file selection and
+        // sends the selected file's full path back to the webview.
+        if (message.type === "pickFile") {
+          await H.handlePickFile(panel, message.payload);
+          return;
+        }
+
         // Reads AI provider settings from secretStorage and sends them to the webview.
         if (message.type === "aiGetSettings") {
           await H.handleAiGetSettings(panel, context);

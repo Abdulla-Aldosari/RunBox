@@ -196,6 +196,7 @@ expectFn(handlers, "handleSaveCommandVariables");
 
 expectFn(handlers, "handlePerformAction");
 expectFn(handlers, "handleOpenExternalUrl");
+expectFn(handlers, "handlePickFile");
 expectFn(handlers, "openGlobalCommandsFile");
 expectFn(handlers, "openGlobalDataFile");
 expectFn(handlers, "openLocalDataFile");
@@ -214,9 +215,9 @@ expectFn(handlers, "handleAiExplain");
 expectFn(handlers, "handleAiCheckConnection");
 expectFn(handlers, "handleAiCheckRateLimits");
 
-test("has exactly 22 exports", function () {
+test("has exactly 23 exports", function () {
   const keys = Object.keys(handlers);
-  assert.strictEqual(keys.length, 22, `Expected 22 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 23, `Expected 23 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

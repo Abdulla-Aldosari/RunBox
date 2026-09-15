@@ -272,4 +272,22 @@ window.addEventListener("message", function (event) {
     handleAiCheckRateLimitsResult(message.payload);
     return;
   }
+
+  if (message.type === "pickFileResult") {
+    if (!message.payload || !message.payload.success || !message.payload.fsPath) {
+      return;
+    }
+    const varName = message.payload.variableName;
+    if (!varName) {
+      return;
+    }
+    const input = document.querySelector('.variable-modal-input[data-variable-name="' + varName + '"]');
+    if (!input || input.classList.contains("hidden") || input.readOnly) {
+      return;
+    }
+    input.value = message.payload.fsPath;
+    variableInputState.inputValues[varName] = message.payload.fsPath;
+    // No render() here to avoid focus loss while editing
+    return;
+  }
 });
