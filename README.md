@@ -1,7 +1,5 @@
 <div align="center">
 
-<picture><img src="media/icon.png" alt="RunBox" width="128" /></picture>
-
 # RunBox
 
 [![CodeQL](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml) [![Tests](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml) [![Lint](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml) [![Security Audit](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml)
@@ -16,9 +14,7 @@ RunBox gives you a central panel inside VS Code to store and run your frequently
 
 ---
 
-## Previews
-
-> _(Screenshots and GIFs coming soon - stored in `docs/images/`)_
+![RunBox Overview](docs/images/hero-screenshot.png)
 
 ---
 
@@ -26,9 +22,27 @@ RunBox gives you a central panel inside VS Code to store and run your frequently
 
 ### 📂 Categorized Command Management
 
+![Categorized Command Management](https://i.imgur.com/MxkqXb5.png)
+
 Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
 
+---
+
+### 🗂️ Current Workspace
+
+![Current Workspace](https://i.imgur.com/MxkqXb5.png)
+
+A special category that always appears first in the list whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately inside `.vscode/runbox.data.json` (or your configured `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they only ever show up in this exact workspace folder, never in any other project.
+
+This is useful for commands that only make sense for one specific project, such as a project-specific build script or a database connection string, that you never want showing up when you open a different project.
+
+> Commands under **Current Workspace** can only be added to **Local Workspace favorites** (never Global), and their variables can only use the **Local** or **Off** scope (never Global).
+
+---
+
 ### ⚡ Three Ways to Run a Command
+
+![Run, Use, and Copy](https://i.imgur.com/MxkqXb5.png)
 
 | Action   | What it does                                                               |
 | -------- | -------------------------------------------------------------------------- |
@@ -36,7 +50,19 @@ Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Buil
 | **Use**  | Pastes it into the terminal input so you can review or edit before running |
 | **Copy** | Copies the resolved command to your clipboard                              |
 
+---
+
+### 🖥️ Target Shell Selection
+
+![Target Shell Selection](https://i.imgur.com/MxkqXb5.png)
+
+Assign a specific target shell (PowerShell, CMD, Bash, and more) to any command from the Add/Edit form. When you click **Run**, RunBox automatically detects a matching terminal profile on your machine and pre-selects it in the confirmation dialog, you can still override it manually before confirming. AI-generated commands can also target a specific shell so the syntax matches.
+
+---
+
 ### 🔤 Variables - Three Independent Scopes
+
+![Variables](https://i.imgur.com/MxkqXb5.png)
 
 Add `${variableName}` placeholders to any command template. When you run or use a command, a dialog prompts you to fill in the values.
 
@@ -50,43 +76,70 @@ Each variable can be saved in one of three independent scopes:
 
 Switching the scope toggle never deletes the value stored in the other scopes.
 
-**Auto Variables** (`${date}`, `${username}`, `${workspaceFolder}`, `${workspaceName}`) resolve automatically without any input.  
+**Auto Variables** (`${date}`, `${username}`, `${workspaceFolder}`, `${workspaceName}`) resolve automatically without any input.
 **Enum Variables** let you predefine a fixed list of options that appear as a dropdown at run time.
 
-> **Multi-Root Workspaces:** A workspace folder selector appears in the panel header when working with a multi-root workspace. Local variables, local favorites, and auto variables like `${workspaceFolder}` automatically reflect the selected folder. The Run confirmation dialog also includes a per-execution folder override that sets the terminal's working directory.
+---
 
-### 🤖 AI Assistant
+### 🗃️ Multi-Root Workspace Support
 
-Generate and understand commands without leaving VS Code:
+![Multi-Root Workspace](https://i.imgur.com/MxkqXb5.png)
 
-- **Generate**: Describe what you need in plain language and the AI produces a set of ready-to-insert commands.
-- **Explain**: Click the Explain button on any command to get a structured breakdown: what it does, what each part means, practical examples, and warnings.
+A workspace folder selector appears in the panel header when working with a multi-root workspace. Local variables, local favorites, and auto variables like `${workspaceFolder}` and `${workspaceName}` automatically reflect the selected folder. The Run confirmation dialog also includes a per-execution folder override that sets the terminal's working directory.
+
+The folder resolution behavior when opening the panel is controlled by the `runBox.multiRootFolderResolution` setting - see the [Settings Reference](docs/settings.md) for the available modes.
+
+---
+
+### ✨ Generate Commands with AI
+
+![Generate Commands with AI](https://i.imgur.com/MxkqXb5.png)
+
+Describe what you need in plain language (e.g. "commands to manage a MySQL database") and the AI produces a set of ready-to-insert commands. Review the results, select the ones you want, and insert them directly into a category and group.
 
 **8 AI providers supported:** Google Gemini · OpenAI · Anthropic Claude · DeepSeek · Groq · Mistral AI · Cohere · StepFun
 
 > Several providers offer **free tiers** - Gemini, DeepSeek, and Groq are good starting points.
 
-### ⭐ Favorites & Recent Commands
+---
 
-- **Favorites**: Mark any command as a favorite with Global or Workspace scope. Quick-add with a single click, or Ctrl+click to manage the scope. Jump back to the original command from the Favorites tab at any time.
-- **Recent**: Every command you run is tracked automatically. Revisit or re-run recent commands without searching the full list.
+### 📖 Explain Command with AI
+
+![Explain Command with AI](https://i.imgur.com/MxkqXb5.png)
+
+Click the **Explain** button on any command to get a structured breakdown: what it does, what each part means, practical examples, and warnings, rendered directly inside the panel.
 
 ---
 
-## What's New in v1.0.0
+### ⭐ Favorites
 
-- 🤖 AI command generation and explanation with 8 provider options (including free tiers)
-- ⭐ Favorites system with Global and Workspace scope
-- 🔤 Three-scope variable system (Local / Global / Off) with per-variable independent storage
-- 📋 Enum Variables - predefine fixed option lists for any variable
+![Favorites](https://i.imgur.com/MxkqXb5.png)
 
-To check the full changelog [click here](CHANGELOG.md).
+Mark any command as a favorite with **Global** or **Workspace** scope. Quick-add with a single click, or Ctrl+click to manage the scope. Jump back to the original command from the Favorites tab at any time.
+
+---
+
+### 🕘 Recent Commands
+
+![Recent Commands](https://i.imgur.com/MxkqXb5.png)
+
+Every command you run is tracked automatically. Revisit or re-run recent commands without searching the full list.
+
+---
+
+### 💾 Command Storage, Backup & Sharing
+
+![Command Storage, Backup & Sharing](https://i.imgur.com/MxkqXb5.png)
+
+All commands and categories are stored globally in a single JSON file on your machine: `~/.runbox/commands.json`, shared across every VS Code workspace you open. Open and edit it directly from the panel with the **Open Global JSON** button in the header.
+
+Back it up or commit it to a shared repository to sync your commands across machines, or share them with your team, anyone with this file can restore your full set of commands by placing it at the same path on their machine.
 
 ---
 
 ## Requirements
 
-- VS Code `1.86.0` or later.
+- VS Code `^1.90.0` or later.
 
 ## Getting Started
 
@@ -115,4 +168,4 @@ To check the full changelog [click here](CHANGELOG.md).
 
 ## License
 
-[MIT](LICENSE)
+[Apache-2.0](LICENSE)
