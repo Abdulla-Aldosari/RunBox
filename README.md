@@ -2,37 +2,28 @@
 
 # RunBox
 
-[![CodeQL](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/codeql.yml) [![Tests](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/test.yml) [![Lint](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/lint.yml) [![Security Audit](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml/badge.svg)](https://github.com/Abdulla-Aldosari/runbox/actions/workflows/audit.yml)
-
 **Organize, run, and generate terminal commands with variables, favorites, and a built-in AI assistant.**
-
 </div>
-
----
-
-RunBox gives you a central panel inside VS Code to store and run your frequently used terminal commands. Organize them by category and group, define reusable variables, and execute them with a single click across every project you work on.
-
----
 
 ![RunBox Overview](docs/images/hero-screenshot.png)
 
----
+RunBox gives you a central panel inside VS Code to store and run your frequently used terminal commands. Organize them by category and group, define reusable variables, and execute them with a single click across every project you work on.
 
 ## Key Features
 
 ### 📂 Categorized Command Management
 
-![Categorized Command Management](https://i.imgur.com/MxkqXb5.png)
-
 Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
+
+![Categorized Command Management](docs/images/categorized-command-management.gif)
 
 ---
 
 ### 🗂️ Current Workspace
 
-![Current Workspace](https://i.imgur.com/MxkqXb5.png)
-
 A special category that always appears first in the list whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately inside `.vscode/runbox.data.json` (or your configured `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they only ever show up in this exact workspace folder, never in any other project.
+
+![Current Workspace](https://i.imgur.com/MxkqXb5.png)
 
 This is useful for commands that only make sense for one specific project, such as a project-specific build script or a database connection string, that you never want showing up when you open a different project.
 
@@ -42,27 +33,25 @@ This is useful for commands that only make sense for one specific project, such 
 
 ### ⚡ Three Ways to Run a Command
 
-![Run, Use, and Copy](https://i.imgur.com/MxkqXb5.png)
-
 | Action   | What it does                                                               |
 | -------- | -------------------------------------------------------------------------- |
 | **Run**  | Executes the command immediately (with a confirmation dialog)              |
 | **Use**  | Pastes it into the terminal input so you can review or edit before running |
 | **Copy** | Copies the resolved command to your clipboard                              |
 
+![Run, Use, and Copy](https://i.imgur.com/MxkqXb5.png)
+
 ---
 
 ### 🖥️ Target Shell Selection
 
-![Target Shell Selection](https://i.imgur.com/MxkqXb5.png)
-
 Assign a specific target shell (PowerShell, CMD, Bash, and more) to any command from the Add/Edit form. When you click **Run**, RunBox automatically detects a matching terminal profile on your machine and pre-selects it in the confirmation dialog, you can still override it manually before confirming. AI-generated commands can also target a specific shell so the syntax matches.
+
+![Target Shell Selection](https://i.imgur.com/MxkqXb5.png)
 
 ---
 
 ### 🔤 Variables - Three Independent Scopes
-
-![Variables](https://i.imgur.com/MxkqXb5.png)
 
 Add `${variableName}` placeholders to any command template. When you run or use a command, a dialog prompts you to fill in the values.
 
@@ -76,16 +65,27 @@ Each variable can be saved in one of three independent scopes:
 
 Switching the scope toggle never deletes the value stored in the other scopes.
 
+![Variables](https://i.imgur.com/MxkqXb5.png)
+
+### 🔤 Auto Variables
+
 **Auto Variables** (`${date}`, `${username}`, `${workspaceFolder}`, `${workspaceName}`) resolve automatically without any input.
+
+![Multi-Root Workspace](https://i.imgur.com/MxkqXb5.png)
+
+### 🔤 Enum Variables
+
 **Enum Variables** let you predefine a fixed list of options that appear as a dropdown at run time.
+
+![Multi-Root Workspace](https://i.imgur.com/MxkqXb5.png)
 
 ---
 
 ### 🗃️ Multi-Root Workspace Support
 
-![Multi-Root Workspace](https://i.imgur.com/MxkqXb5.png)
-
 A workspace folder selector appears in the panel header when working with a multi-root workspace. Local variables, local favorites, and auto variables like `${workspaceFolder}` and `${workspaceName}` automatically reflect the selected folder. The Run confirmation dialog also includes a per-execution folder override that sets the terminal's working directory.
+
+![Multi-Root Workspace](https://i.imgur.com/MxkqXb5.png)
 
 The folder resolution behavior when opening the panel is controlled by the `runBox.multiRootFolderResolution` setting - see the [Settings Reference](docs/settings.md) for the available modes.
 
