@@ -65,6 +65,7 @@ const browserGlobals = {
   scrollToAndHighlight: "readonly",
   escapeHtml: "readonly",
   escapeAttr: "readonly",
+  isAltPressed: "readonly",
   formatDateTime: "readonly",
   timeAgo: "readonly",
   generateEntityId: "readonly",

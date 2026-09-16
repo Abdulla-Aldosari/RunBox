@@ -359,9 +359,10 @@ function activate(context) {
         }
 
         // Opens a native "Open File" dialog restricted to a single file selection and
-        // sends the selected file's full path back to the webview.
+        // sends the selected file's full path back to the webview. Remembers the last
+        // picked folder per VS Code window via context.workspaceState.
         if (message.type === "pickFile") {
-          await H.handlePickFile(panel, message.payload);
+          await H.handlePickFile(panel, message.payload, context);
           return;
         }
 

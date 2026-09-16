@@ -991,10 +991,10 @@ function bindCommandActionButtons() {
     });
   }
 
-  // Alt+0 to toggle empty value on modal inputs; Alt+O to pick a file path from disk
+  // Alt+0 to toggle empty value on modal inputs; Alt+P to pick a file path from disk
   document.querySelectorAll(".variable-modal-input").forEach(function (input) {
     input.addEventListener("keydown", function (e) {
-      if (e.altKey && e.key === "0") {
+      if (isAltPressed(e) && e.code === "Digit0") {
         e.preventDefault();
         const varName = input.dataset.variableName;
         if (!varName) return;
@@ -1015,7 +1015,7 @@ function bindCommandActionButtons() {
         return;
       }
 
-      if (e.altKey && e.key.toLowerCase() === "o") {
+      if (isAltPressed(e) && e.code === "KeyP") {
         e.preventDefault();
         const varName = input.dataset.variableName;
         if (!varName || input.readOnly) return;
@@ -1027,7 +1027,7 @@ function bindCommandActionButtons() {
   // Alt+0 on enum dropdown buttons — switch to custom value and toggle empty value
   document.querySelectorAll(".cs-btn-enum-var").forEach(function (btn) {
     btn.addEventListener("keydown", function (e) {
-      if (e.altKey && e.key === "0") {
+      if (isAltPressed(e) && e.code === "Digit0") {
         e.preventDefault();
         var wrapEl = btn.closest(".enum-input-wrap");
         if (!wrapEl) return;

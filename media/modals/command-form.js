@@ -505,7 +505,7 @@ function bindCommandFormVariableInputs() {
     });
 
     input.addEventListener("keydown", function (e) {
-      if (!e.altKey || e.key !== "0") {
+      if (!isAltPressed(e) || e.code !== "Digit0") {
         return;
       }
       e.preventDefault();

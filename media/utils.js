@@ -29,6 +29,18 @@ function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// ─── Keyboard Helpers ─────────────────────────────────────────────────────────
+
+// Returns true when the Alt modifier is active, covering both the left Alt key
+// (always reported via e.altKey) and the right Alt key. On many non-US keyboard
+// layouts the right Alt key acts as AltGr: browsers may not set e.altKey for it,
+// instead exposing it only through the AltGraph modifier state. Checking both
+// keeps Alt-based shortcuts working regardless of the active keyboard layout or
+// which physical Alt key (left/right) the user presses.
+function isAltPressed(e) {
+  return Boolean(e.altKey || (typeof e.getModifierState === "function" && e.getModifierState("AltGraph")));
+}
+
 // ─── Time Helpers ─────────────────────────────────────────────────────────────
 
 function timeAgo(isoString) {
