@@ -137,6 +137,12 @@ Back it up or commit it to a shared repository to sync your commands across mach
 
 ---
 
+### 🪟 Safe Across Multiple Windows
+
+Open RunBox in as many VS Code windows as you like — the same project twice, or several different projects at once — without worrying about lost data. Saves are always written safely to disk, adding or removing a command in one window never erases what another window just saved, and every open window updates live to reflect changes made elsewhere. If two windows happen to edit the exact same command at the same time, a clear dialog lets you choose which version to keep.
+
+---
+
 ## Requirements
 
 - VS Code `^1.90.0` or later.

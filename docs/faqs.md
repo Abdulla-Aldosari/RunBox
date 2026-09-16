@@ -38,6 +38,17 @@ The first time you add a group or a command under **Current Workspace**, the ext
 
 ---
 
+### Is it safe to have RunBox open in multiple VS Code windows at the same time?
+
+Yes. RunBox is designed to be used across multiple VS Code windows at once, whether that's the same project opened twice, or several different projects each running RunBox in parallel — all sharing the same global `~/.runbox/commands.json` file.
+
+- **Every save is written safely.** Files are always written atomically (via a temp file + rename), so a crash or interruption mid-save can never leave a corrupted file on disk.
+- **Adding, deleting, or reordering never loses another window's changes.** Each of these actions is applied directly against the current content of the file at the moment of saving, not against a stale copy held in memory — so if another window added a command a second ago, your window's save does not erase it.
+- **Other windows update live.** If you add, edit, delete, move, or reorder something in one window, every other open window reflects that change automatically, without needing to close and reopen the panel.
+- **Editing the exact same command in two windows at once is the one case that needs your input.** If two windows have the same command open for editing and both try to save, the second window to save sees a dialog explaining that the command was changed elsewhere, showing the newer version, with two choices: **Overwrite anyway** (save your version over it) or **Discard my changes** (reload the newer version instead). This is a rare situation, but it exists specifically so neither window's edit can silently disappear without you noticing.
+
+---
+
 ### Can I back up my commands or share them with my team?
 
 Yes. Simply copy `~/.runbox/commands.json` to a safe location or commit it to a shared repository. To restore, replace the file at the same path. Anyone with this file can import your full set of commands by placing it at the same path on their machine.
