@@ -92,12 +92,13 @@ expectFn(normalize, "normalizeWorkspaceCommandsSection");
 expectFn(normalize, "normalizeDataFile");
 expectFn(normalize, "normalizeGroups");
 expectFn(normalize, "normalizeVariableMeta");
+expectFn(normalize, "computeCommandFingerprint");
 expectConst(normalize, "VALID_TARGET_SHELLS");
 expectConst(normalize, "DATA_SECTIONS");
 
-test("has exactly 12 exports", function () {
+test("has exactly 13 exports", function () {
   const keys = Object.keys(normalize);
-  assert.strictEqual(keys.length, 12, `Expected 12 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 13, `Expected 13 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -142,13 +143,16 @@ expectFn(storage, "getWorkspaceDataFilePath");
 expectFn(storage, "ensureGlobalCommandsFile");
 expectFn(storage, "readCommandsData");
 expectFn(storage, "writeCommandsData");
+expectFn(storage, "applyCommandsDataOperation");
 expectFn(storage, "readDataFile");
 
 expectFn(storage, "writeDataFile");
 expectFn(storage, "readWorkspaceVariables");
 expectFn(storage, "writeWorkspaceVariables");
+expectFn(storage, "mergeWorkspaceVariables");
 expectFn(storage, "readGlobalVariables");
 expectFn(storage, "writeGlobalVariables");
+expectFn(storage, "mergeGlobalVariables");
 expectFn(storage, "readAutoVariablesSettings");
 expectFn(storage, "writeAutoVariablesSettings");
 expectFn(storage, "readGlobalFavorites");
@@ -159,10 +163,11 @@ expectFn(storage, "readWorkspaceId");
 expectFn(storage, "ensureWorkspaceId");
 expectFn(storage, "readWorkspaceCommandsSection");
 expectFn(storage, "writeWorkspaceCommandsSection");
+expectFn(storage, "applyWorkspaceCommandsOperation");
 
-test("has exactly 28 exports (4 constants + 24 functions)", function () {
+test("has exactly 32 exports (4 constants + 28 functions)", function () {
   const keys = Object.keys(storage);
-  assert.strictEqual(keys.length, 28, `Expected 28 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 32, `Expected 32 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // Spot-check path constant values
@@ -191,6 +196,7 @@ const handlers = require("../lib/handlers");
 
 expectFn(handlers, "handleSaveCommandsData");
 expectFn(handlers, "handleSaveWorkspaceCommandsData");
+expectFn(handlers, "handleApplyOperation");
 expectFn(handlers, "handleSaveCommandMove");
 expectFn(handlers, "handleSaveCommandVariables");
 
@@ -215,9 +221,9 @@ expectFn(handlers, "handleAiExplain");
 expectFn(handlers, "handleAiCheckConnection");
 expectFn(handlers, "handleAiCheckRateLimits");
 
-test("has exactly 23 exports", function () {
+test("has exactly 24 exports", function () {
   const keys = Object.keys(handlers);
-  assert.strictEqual(keys.length, 23, `Expected 23 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 24, `Expected 24 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

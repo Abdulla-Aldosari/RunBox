@@ -20,6 +20,7 @@ const {
   getAllWorkspaceFolders,
   resolveActiveWorkspaceFolder,
   GLOBAL_COMMANDS_FILE,
+  GLOBAL_DIR,
   readWorkspaceId,
   readWorkspaceCommandsSection,
 } = require("./lib/storage");
@@ -52,7 +53,7 @@ function activate(context) {
    * for multi-root folder persistence. All handlers receive and call postState(panel).
    * @param {import('vscode').WebviewPanel} targetPanel
    */
-  async function postState(targetPanel) {
+  async function collectAndPostState(targetPanel) {
     const savedFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
     const workspaceFolder = resolveActiveWorkspaceFolder(savedFsPath);
     const workspaceFolders = getAllWorkspaceFolders();
@@ -94,6 +95,123 @@ function activate(context) {
       },
     });
   }
+
+  // postState() can be triggered from multiple independent, unordered sources in
+  // quick succession for the same logical change: the message handler's own
+  // explicit call after it finishes writing, PLUS one or more file-watcher
+  // callbacks fired by each individual atomic write (rename) that handler
+  // performed internally (e.g. handleSaveCommandMove writes two separate files).
+  // Because each of these calls independently does its own async disk reads
+  // before posting to the webview, running them concurrently is a genuine race:
+  // whichever happens to finish its reads LAST "wins" and becomes the state the
+  // webview displays — even if it started before a call that reflects more
+  // complete/newer data. This serializes+coalesces all postState() calls into a
+  // single in-flight collectAndPostState() at a time, with at most one more
+  // pending re-run queued up (never a growing backlog), so state is always
+  // read fresh once whatever triggered the call has actually settled, and two
+  // calls can never interleave their disk reads.
+  let postStateInFlight = null;
+  let postStateRerunQueued = false;
+
+  async function postState(targetPanel) {
+    if (postStateInFlight) {
+      postStateRerunQueued = true;
+      return postStateInFlight;
+    }
+
+    postStateInFlight = (async function run() {
+      try {
+        await collectAndPostState(targetPanel);
+      } finally {
+        if (postStateRerunQueued) {
+          postStateRerunQueued = false;
+          await collectAndPostState(targetPanel);
+        }
+        postStateInFlight = null;
+      }
+    })();
+
+    return postStateInFlight;
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // ─── Cross-Window File Watchers ────────────────────────────────────────────────
+  // Watches the shared JSON files this extension persists to disk so that changes
+  // written by ANOTHER VS Code window (a different project also running RunBox, or
+  // this same file edited/reverted externally) are reflected in this window's panel
+  // automatically, instead of this window silently working on stale in-memory data
+  // until its own next save overwrites the other window's changes.
+  //
+  // Safe to call postState() unconditionally on every change event: state.data /
+  // state.workspaceCommands are read-only mirrors of disk content, while any
+  // in-progress "Add/Edit Command" form edit lives in the isolated
+  // commandFormBuffer working copy (media/modals/command-form.js) that is never
+  // overwritten by hydrateState() — so an external change never discards unsaved
+  // keystrokes in an open edit form.
+  // IMPORTANT: a plain absolute path string as globPattern falls back to Node's
+  // raw fs.watch on that single path since it lives outside any workspace
+  // folder, which tracks the file by its original inode. atomicWriteFile()
+  // (lib/storage.js) replaces the file via a temp-file + rename on every
+  // write, giving it a brand new inode each time — after the very first write,
+  // a plain-path watcher silently stops firing for all subsequent changes.
+  // Wrapping the path in a RelativePattern (rooted at its containing
+  // directory) forces VS Code to use its directory-level watch service
+  // instead, which survives rename-based atomic writes indefinitely.
+  const globalCommandsWatcher = vscode.workspace.createFileSystemWatcher(
+    new vscode.RelativePattern(vscode.Uri.file(GLOBAL_DIR), "commands.json")
+  );
+  const refreshOnExternalChange = function () {
+    if (panel) {
+      postState(panel);
+    }
+  };
+  globalCommandsWatcher.onDidChange(refreshOnExternalChange);
+  globalCommandsWatcher.onDidCreate(refreshOnExternalChange);
+  globalCommandsWatcher.onDidDelete(refreshOnExternalChange);
+  context.subscriptions.push(globalCommandsWatcher);
+
+  // Workspace-local runbox.data.json lives under each workspace folder's
+  // .vscode/ (or the configured runBox.localWorkspaceFilesPath). Re-created
+  // whenever the workspace folder set changes, since the watched path pattern
+  // depends on the folder list.
+  /** @type {import('vscode').FileSystemWatcher[]} */
+  let workspaceDataWatchers = [];
+
+  function rebuildWorkspaceDataWatcher() {
+    workspaceDataWatchers.forEach(function (watcher) {
+      watcher.dispose();
+    });
+    workspaceDataWatchers = [];
+
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+      return;
+    }
+    // A single glob pattern can't span multiple workspace-folder roots at once —
+    // createFileSystemWatcher accepts one RelativePattern base per call — so a
+    // dedicated watcher is created per open folder in a multi-root workspace.
+    workspaceDataWatchers = vscode.workspace.workspaceFolders.map(function (folder) {
+      const configuredPath =
+        vscode.workspace.getConfiguration("runBox", folder.uri).get("localWorkspaceFilesPath") || "";
+      const relativeDir = configuredPath.trim() || ".vscode";
+      const watcher = vscode.workspace.createFileSystemWatcher(
+        new vscode.RelativePattern(folder, `${relativeDir}/runbox.data.json`)
+      );
+      watcher.onDidChange(refreshOnExternalChange);
+      watcher.onDidCreate(refreshOnExternalChange);
+      watcher.onDidDelete(refreshOnExternalChange);
+      return watcher;
+    });
+  }
+
+  rebuildWorkspaceDataWatcher();
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeWorkspaceFolders(rebuildWorkspaceDataWatcher),
+    new vscode.Disposable(function () {
+      workspaceDataWatchers.forEach(function (watcher) {
+        watcher.dispose();
+      });
+    })
+  );
   // ─────────────────────────────────────────────────────────────────────────────
 
   // Registers the primary command that opens (or focuses) the RunBox panel.
@@ -178,10 +296,22 @@ function activate(context) {
           return;
         }
 
-        // Atomically persists a command move between a regular category (global
-        // commands.json) and the "Current Workspace" pseudo-category (workspace-local
-        // runbox.data.json). Sent as a single message instead of separate saveData +
-        // saveWorkspaceCommandsData calls to avoid a postState() race condition.
+        // Applies a single surgical operation (add/rename/delete one category, group,
+        // or command, or reorder) to either the global commands.json or the
+        // workspace-local "Current Workspace" section, read-modify-write against
+        // the freshest on-disk copy — safe against multi-window data loss, unlike
+        // saveData/saveWorkspaceCommandsData which replace an entire section.
+        if (message.type === "applyOperation") {
+          const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
+          await H.handleApplyOperation(panel, Object.assign({}, message.payload, { activeFsPath }), postState);
+          return;
+        }
+
+        // Moves a single command between a regular category (global commands.json)
+        // and the "Current Workspace" pseudo-category (workspace-local
+        // runbox.data.json) via two surgical per-file operations, read-modify-write
+        // against the freshest on-disk copy of each file — safe against multi-window
+        // data loss on both sides of the move.
         if (message.type === "saveCommandMove") {
           const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
           await H.handleSaveCommandMove(panel, Object.assign({}, message.payload, { activeFsPath }), postState);

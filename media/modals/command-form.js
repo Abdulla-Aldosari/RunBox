@@ -62,6 +62,10 @@ const commandFormBuffer = {
   _orig: null,
   // Variable names after the last template edit — used to detect renames
   _prevVarNames: [],
+  // Snapshot of the raw command object as it was on disk when the form opened,
+  // used to build an edit-edit conflict fingerprint (see computeFingerprint()
+  // below and lib/normalize.js computeCommandFingerprint). null in "add" mode.
+  _capturedCommand: null,
 
   /**
    * Opens the form in "add" mode for a category.
@@ -85,6 +89,7 @@ const commandFormBuffer = {
     this.remember = {};
     this._orig = null;
     this._prevVarNames = [];
+    this._capturedCommand = null;
   },
 
   /**
@@ -94,6 +99,7 @@ const commandFormBuffer = {
   capture(command) {
     this.mode = "edit";
     this.commandId = command.id;
+    this._capturedCommand = Object.assign({}, command);
     // Workspace commands have no categoryId field — map them to the pseudo-category ID
     // so getSelectedCategory()/getSelectedCategoryGroups() resolve correctly for this form.
     this.categoryId = command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
@@ -163,6 +169,7 @@ const commandFormBuffer = {
     this.remember = {};
     this._orig = null;
     this._prevVarNames = [];
+    this._capturedCommand = null;
   },
 
   /**
@@ -719,6 +726,84 @@ function validateCommandForm() {
 }
 
 /**
+ * Renders the edit-edit conflict modal, shown when the extension reports that
+ * another VS Code window changed this exact command between this form opening
+ * and this save (see editConflictState in media/state.js).
+ * @returns {string} HTML string, or "" when not visible
+ */
+function renderEditConflictModal() {
+  if (!editConflictState.visible) {
+    return "";
+  }
+
+  const current = editConflictState.currentCommand;
+
+  return `
+    <div class="modal-overlay" id="edit-conflict-overlay" data-dismiss-on-outside-click="false">
+      <div class="modal-box">
+        <h3>${icons.exclamationTriangle} This command was changed elsewhere</h3>
+        <p class="modal-description">
+          Another VS Code window saved changes to this command while you were editing it here.
+        </p>
+        ${
+          current
+            ? `
+        <p class="delete-confirm-command-name">${escapeHtml(current.title || "")}</p>
+        <pre class="modal-command-preview">${highlightTemplateHtml(current.command || "")}</pre>
+        `
+            : ""
+        }
+        <p class="modal-description">Choose how to proceed. Your edits are not lost yet.</p>
+        <div class="row justify-content-flex-end">
+          <button class="btn small danger min-w65" id="btn-edit-conflict-overwrite" data-tooltip="Save your version, replacing the other window's change">Overwrite anyway</button>
+          <button class="btn small secondary action min-w65" id="btn-edit-conflict-discard">Discard my changes</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Binds the edit-edit conflict modal's two action buttons.
+ */
+function bindEditConflictModalEvents() {
+  const overwriteButton = document.getElementById("btn-edit-conflict-overwrite");
+  if (overwriteButton) {
+    overwriteButton.addEventListener("click", function () {
+      const scope = editConflictState.pendingScope;
+      const command = editConflictState.pendingCommand;
+      editConflictState = { visible: false, currentCommand: null, pendingScope: null, pendingCommand: null };
+
+      if (!scope || !command) {
+        render();
+        return;
+      }
+
+      // Resubmit without expectedFingerprint — the user explicitly chose to
+      // overwrite regardless of what is currently on disk, so this write is
+      // unconditional this time.
+      if (scope === "workspace") {
+        persistWorkspaceOperation({ type: "updateCommand", command }, "Command saved.");
+      } else {
+        persistGlobalOperation({ type: "updateCommand", command }, "Command saved.");
+      }
+    });
+  }
+
+  const discardButton = document.getElementById("btn-edit-conflict-discard");
+  if (discardButton) {
+    discardButton.addEventListener("click", function () {
+      editConflictState = { visible: false, currentCommand: null, pendingScope: null, pendingCommand: null };
+      // Reload authoritative state from disk — this window's optimistic edit
+      // to the command (applied in place by submitEditCommand) is discarded
+      // in favor of whatever the other window actually saved.
+      vscode.postMessage({ type: "requestState" });
+      render();
+    });
+  }
+}
+
+/**
  * Creates the new command from the buffer and persists it.
  * Commands created under the "Current Workspace" pseudo-category are pushed to
  * state.workspaceCommands.commands (no categoryId field) instead of state.data.commands.
@@ -748,10 +833,10 @@ function submitAddCommand() {
 
   if (isWsCmd) {
     state.workspaceCommands.commands.push(newCommand);
-    persistWorkspaceCommandsThenRender("Command added.");
+    persistWorkspaceOperation({ type: "addCommand", command: newCommand }, "Command added.");
   } else {
     state.data.commands.push(newCommand);
-    persistDataThenRender("Command added.");
+    persistGlobalOperation({ type: "addCommand", command: newCommand }, "Command added.");
   }
 }
 
@@ -771,6 +856,12 @@ function submitEditCommand(command) {
 
   const wasWorkspaceCmd = isWorkspaceCommand(command.id);
   const willBeWorkspaceCmd = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
+
+  // Fingerprint of the command exactly as it was when this form opened
+  // (commandFormBuffer.capture()) — sent along with the save so the extension
+  // can detect whether another VS Code window edited this exact command in
+  // the meantime and, if so, refuse to silently overwrite that change.
+  const expectedFingerprint = computeCommandFingerprint(commandFormBuffer._capturedCommand);
 
   command.title = commandFormBuffer.title;
   command.description = commandFormBuffer.description;
@@ -807,17 +898,27 @@ function submitEditCommand(command) {
 
   if (wasWorkspaceCmd === willBeWorkspaceCmd) {
     // No source change — persist to whichever source already holds this command.
+    // `command` was mutated in place above (it is the same object reference
+    // held in state.data.commands / state.workspaceCommands.commands), so the
+    // UI already optimistically reflects this edit. If the extension reports
+    // an edit-edit conflict, editConflictState.pendingCommand keeps a copy of
+    // this exact edited object so the "Overwrite anyway" choice can resubmit
+    // it without the user having to redo any typing.
+    editConflictState.pendingScope = willBeWorkspaceCmd ? "workspace" : "global";
+    editConflictState.pendingCommand = Object.assign({}, command);
+
     if (willBeWorkspaceCmd) {
-      persistWorkspaceCommandsThenRender("Command saved.");
+      persistWorkspaceOperation({ type: "updateCommand", command, expectedFingerprint }, "Command saved.");
     } else {
-      persistDataThenRender("Command saved.");
+      persistGlobalOperation({ type: "updateCommand", command, expectedFingerprint }, "Command saved.");
     }
     return;
   }
 
-  // Source changed — move the command object between arrays and persist both sides
-  // atomically in a single message (see persistCommandMoveThenRender for why this
-  // must not be split into two separate saveData / saveWorkspaceCommandsData calls).
+  // Source changed — the extension moves the command between the two files as two
+  // surgical operations (delete from source, add to destination) in a single
+  // "saveCommandMove" message (see persistCommandMoveThenRender / lib/handlers.js
+  // handleSaveCommandMove).
   if (willBeWorkspaceCmd) {
     state.data.commands = (state.data.commands || []).filter(function (c) {
       return c.id !== command.id;
@@ -832,13 +933,13 @@ function submitEditCommand(command) {
       state.globalFavorites = newGlobal;
       persistFavorites({ global: newGlobal, local: state.localFavorites });
     }
-    persistCommandMoveThenRender("Command moved to Current Workspace.");
+    persistCommandMoveThenRender(command, "toWorkspace", "Command moved to Current Workspace.");
   } else {
     state.workspaceCommands.commands = (state.workspaceCommands.commands || []).filter(function (c) {
       return c.id !== command.id;
     });
     state.data.commands.push(command);
-    persistCommandMoveThenRender("Command moved out of Current Workspace.");
+    persistCommandMoveThenRender(command, "toGlobal", "Command moved out of Current Workspace.");
   }
   persistCommandVariables();
 }

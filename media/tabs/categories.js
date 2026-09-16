@@ -348,7 +348,7 @@ function executeManageModalConfirm() {
     setSelectedCategory(newCategory.id);
     uiState.selectedGroupId = "all";
     categoriesModalState = { visible: false, mode: null, value: "" };
-    persistDataThenRender("Category added.");
+    persistGlobalOperation({ type: "addCategory", category: newCategory }, "Category added.");
     return;
   }
 
@@ -358,7 +358,7 @@ function executeManageModalConfirm() {
       category.title = value;
     }
     categoriesModalState = { visible: false, mode: null, value: "" };
-    persistDataThenRender("Category renamed.");
+    persistGlobalOperation({ type: "renameCategory", categoryId: category.id, title: value }, "Category renamed.");
     return;
   }
 
@@ -378,7 +378,7 @@ function executeManageModalConfirm() {
       state.workspaceCommands.groups.push(newGroup);
       uiState.selectedGroupId = newGroup.id;
       categoriesModalState = { visible: false, mode: null, value: "" };
-      persistWorkspaceCommandsThenRender("Group added.");
+      persistWorkspaceOperation({ type: "addGroup", group: newGroup }, "Group added.");
       return;
     }
 
@@ -386,7 +386,7 @@ function executeManageModalConfirm() {
     selectedCategory.groups.push(newGroup);
     uiState.selectedGroupId = newGroup.id;
     categoriesModalState = { visible: false, mode: null, value: "" };
-    persistDataThenRender("Group added.");
+    persistGlobalOperation({ type: "addGroup", categoryId: selectedCategory.id, group: newGroup }, "Group added.");
     return;
   }
 
@@ -404,11 +404,17 @@ function executeManageModalConfirm() {
     categoriesModalState = { visible: false, mode: null, value: "" };
 
     if (selectedCategory.isCurrentWorkspace) {
-      persistWorkspaceCommandsThenRender("Group renamed.");
+      persistWorkspaceOperation(
+        { type: "renameGroup", groupId: uiState.selectedGroupId, title: value },
+        "Group renamed."
+      );
       return;
     }
 
-    persistDataThenRender("Group renamed.");
+    persistGlobalOperation(
+      { type: "renameGroup", categoryId: selectedCategory.id, groupId: uiState.selectedGroupId, title: value },
+      "Group renamed."
+    );
     return;
   }
 }

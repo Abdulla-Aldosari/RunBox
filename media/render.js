@@ -238,6 +238,7 @@ function render() {
       ${renderDeleteConfirmModal()}
       ${favoriteModalState.visible ? renderFavoriteModal() : ""}
       ${unfavoriteConfirmState.visible ? renderUnfavoriteConfirmModal() : ""}
+      ${editConflictState.visible ? renderEditConflictModal() : ""}
       ${aiState.view === "settings" ? renderAiSettingsModal() : ""}
       ${aiState.view === "prompt" ? renderAiPromptModal() : ""}
       ${aiState.view === "loading" ? renderAiLoadingOverlay() : ""}

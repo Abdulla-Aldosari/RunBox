@@ -16,6 +16,21 @@
  * aiSaveSettingsResult, aiGenerateResult, aiInsertResult,
  * saveAutoVariablesSettingsResult, saveFavoritesResult.
  */
+/**
+ * Opens the edit-edit conflict modal after the extension reports that another
+ * VS Code window changed this exact command between this form opening and
+ * this save. editConflictState.pendingScope/pendingCommand were already set by
+ * submitEditCommand() (media/modals/command-form.js) right before the save
+ * attempt; this only needs to record the newer on-disk version and reveal the
+ * modal.
+ * @param {object} currentCommand - the newer command object currently on disk
+ */
+function handleEditConflict(currentCommand) {
+  editConflictState.visible = true;
+  editConflictState.currentCommand = currentCommand || null;
+  render();
+}
+
 window.addEventListener("message", function (event) {
   const message = event.data;
 
@@ -46,6 +61,32 @@ window.addEventListener("message", function (event) {
       vscode.postMessage({ type: "requestState" });
     }
     // Page is already rendered by persistDataThenRender() — just append the notice to document.body (outside #app, survives render)
+    paintNotice();
+    return;
+  }
+
+  if (message.type === "applyOperationResult") {
+    const pendingMessage = uiState.pendingSaveMessage;
+    uiState.pendingSaveMessage = null;
+
+    if (message.payload && message.payload.success) {
+      showNotice(pendingMessage || "Saved successfully.", icons.circleCheck, "success");
+    } else if (message.payload && message.payload.conflict) {
+      // Edit-edit conflict: another VS Code window changed this exact command
+      // between this form opening and this save. The extension did NOT write
+      // anything and did NOT refresh state — show the conflict modal instead
+      // of the generic failure path so the user can choose to overwrite or
+      // discard, rather than silently losing one side or the other.
+      handleEditConflict(message.payload.currentCommand);
+    } else {
+      showNotice(
+        `Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
+        icons.circleX,
+        "error"
+      );
+      // Rollback optimistic render — reload authoritative state from disk
+      vscode.postMessage({ type: "requestState" });
+    }
     paintNotice();
     return;
   }

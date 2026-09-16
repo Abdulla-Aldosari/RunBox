@@ -159,6 +159,21 @@ let unfavoriteConfirmState = {
   scope: null, // 'local' | 'global'
 };
 
+// Edit-Edit Conflict Modal — shown when saving an "Edit Command" form discovers
+// that another VS Code window changed this exact command in the meantime
+// (detected via a fingerprint mismatch server-side, see lib/storage.js
+// computeCommandFingerprint). By the time this modal appears the edit form has
+// already closed and the command's optimistic edit is already reflected in
+// state.data/state.workspaceCommands (see submitEditCommand); the user chooses
+// to overwrite anyway (resubmit pendingCommand as-is) or discard and reload
+// the newer version currently on disk (currentCommand).
+let editConflictState = {
+  visible: false,
+  currentCommand: null, // the newer command object currently on disk
+  pendingScope: null, // "workspace" | "global" — which section to re-save into on "overwrite anyway"
+  pendingCommand: null, // this window's edited command object, ready to resubmit
+};
+
 // AI feature state
 let aiState = {
   view: null, // null | 'settings' | 'prompt' | 'loading' | 'results'

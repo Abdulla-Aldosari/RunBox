@@ -148,6 +148,13 @@ const browserGlobals = {
   findCommandById: "readonly",
   persistWorkspaceCommandsThenRender: "readonly",
   persistCommandMoveThenRender: "readonly",
+  persistWorkspaceOperation: "readonly",
+  persistGlobalOperation: "readonly",
+  editConflictState: "writable",
+  computeCommandFingerprint: "readonly",
+  handleEditConflict: "readonly",
+  renderEditConflictModal: "readonly",
+  bindEditConflictModalEvents: "readonly",
 };
 
 module.exports = [

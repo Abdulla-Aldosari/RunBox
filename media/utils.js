@@ -487,6 +487,29 @@ function findCommandById(commandId) {
 }
 
 /**
+ * Produces a stable, order-independent string fingerprint of a command object's
+ * content. Mirrors lib/normalize.js computeCommandFingerprint() exactly — both
+ * sides must compute the identical fingerprint for the same logical content so
+ * the extension can detect whether another VS Code window changed this exact
+ * command between this form opening and this save.
+ * @param {object} command
+ * @returns {string}
+ */
+function computeCommandFingerprint(command) {
+  if (!command || typeof command !== "object") {
+    return "";
+  }
+
+  const sortedKeys = Object.keys(command).sort();
+  const stable = {};
+  sortedKeys.forEach(function (key) {
+    stable[key] = command[key];
+  });
+
+  return JSON.stringify(stable);
+}
+
+/**
  * Returns true if the given command ID belongs to the "Current Workspace" pseudo-category
  * (i.e. it lives in state.workspaceCommands.commands rather than state.data.commands).
  * @param {string} commandId
@@ -924,6 +947,11 @@ function persistDataThenRender(successMessage) {
  * Persists the "Current Workspace" pseudo-category content (groups + commands)
  * to the workspace-local unified data file. Mirrors persistDataThenRender(), but
  * targets state.workspaceCommands instead of state.data.
+ *
+ * WARNING: this replaces the ENTIRE section with the current in-memory
+ * state.workspaceCommands snapshot. Any group/command added by another VS Code
+ * window since this window last read the file is silently lost. Prefer
+ * persistWorkspaceOperation() for any single add/rename/delete/reorder action.
  * @param {string} [successMessage]
  */
 function persistWorkspaceCommandsThenRender(successMessage) {
@@ -935,25 +963,66 @@ function persistWorkspaceCommandsThenRender(successMessage) {
 }
 
 /**
- * Persists a command move between a regular category (state.data) and the
- * "Current Workspace" pseudo-category (state.workspaceCommands) atomically, via a
- * single "saveCommandMove" message handled by one extension-side handler.
+ * Persists a single surgical operation against the "Current Workspace" section
+ * (add/rename/delete one group or command, or reorder). The extension applies
+ * `op` to the freshest on-disk copy of the section (read-modify-write), so any
+ * change written moments earlier by another VS Code window is preserved
+ * instead of being erased by a stale in-memory snapshot from this window.
  *
- * Sending this as one message (rather than separate saveData + saveWorkspaceCommandsData
- * calls) avoids a race condition: the extension's message listener does not serialize
- * async handlers, so two independent postState() calls can interleave and read one file
- * before the other finished writing it — making the moved command appear in neither
- * source. See lib/handlers.js handleSaveCommandMove for the full explanation.
+ * Unlike persistWorkspaceCommandsThenRender(), this does NOT optimistically
+ * render local state.workspaceCommands mutations before the round trip —
+ * render() runs first to reflect any state already mutated by the caller for
+ * immediate UI feedback, and the authoritative state is refreshed by the
+ * subsequent "state" message the extension sends back after applying the
+ * operation.
+ * @param {object} op - See applyWorkspaceCommandsOperation() in lib/storage.js for shapes
  * @param {string} [successMessage]
  */
-function persistCommandMoveThenRender(successMessage) {
+function persistWorkspaceOperation(op, successMessage) {
+  if (successMessage) {
+    uiState.pendingSaveMessage = successMessage;
+  }
+  render();
+  vscode.postMessage({ type: "applyOperation", payload: { scope: "workspace", op } });
+}
+
+/**
+ * Persists a single surgical operation against the global commands data
+ * (categories, groups, commands) shared across ALL VS Code windows on this
+ * machine. See applyCommandsDataOperation() in lib/storage.js for op shapes.
+ * Mirrors persistWorkspaceOperation() but with scope: "global".
+ * @param {object} op
+ * @param {string} [successMessage]
+ */
+function persistGlobalOperation(op, successMessage) {
+  if (successMessage) {
+    uiState.pendingSaveMessage = successMessage;
+  }
+  render();
+  vscode.postMessage({ type: "applyOperation", payload: { scope: "global", op } });
+}
+
+/**
+ * Persists a single command move between a regular category (global commands.json)
+ * and the "Current Workspace" pseudo-category (workspace-local runbox.data.json),
+ * via a single "saveCommandMove" message handled by one extension-side handler.
+ *
+ * The extension applies this as two surgical operations (delete from the source
+ * file, add to the destination file) against the freshest on-disk copy of each —
+ * never a full-section snapshot overwrite — so concurrent changes from another
+ * window to either file are preserved. See lib/handlers.js handleSaveCommandMove.
+ * @param {object} command - The full command object being moved
+ * @param {"toWorkspace"|"toGlobal"} direction
+ * @param {string} [successMessage]
+ */
+function persistCommandMoveThenRender(command, direction, successMessage) {
   if (successMessage) {
     uiState.pendingSaveMessage = successMessage;
   }
   render();
   vscode.postMessage({
     type: "saveCommandMove",
-    payload: { data: state.data, workspaceCommands: state.workspaceCommands },
+    payload: { command, direction },
   });
 }
 

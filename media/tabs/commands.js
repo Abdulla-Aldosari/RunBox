@@ -185,45 +185,22 @@ function syncCommandOrderFromDOM(tbody) {
   }
 
   var isCurrentWorkspace = isCurrentWorkspaceCategory(uiState.selectedCategoryId);
-  var allCommands = isCurrentWorkspace ? state.workspaceCommands.commands : state.data.commands;
 
-  // Step 1: new order of visible command IDs (as they appear in the DOM right now)
-  var newOrderIds = [];
+  // New order of visible command IDs only (as they appear in the DOM right now).
+  // The extension applies this ordering to the freshest on-disk copy of the
+  // full command list (read-modify-write) — commands not present here (outside
+  // the current filter, or added by another window) keep their existing
+  // position untouched. See applyWorkspaceCommandsOperation()/
+  // applyCommandsDataOperation() "reorderCommands" in lib/storage.js.
+  var orderedIds = [];
   rows.forEach(function (row) {
-    newOrderIds.push(row.dataset.commandId);
-  });
-
-  // Step 2: build a set of visible IDs for fast lookup
-  var visibleIdSet = {};
-  newOrderIds.forEach(function (id) {
-    visibleIdSet[id] = true;
-  });
-
-  // Step 3: find which positions in allCommands belong to the visible set
-  var visibleIndices = [];
-  for (var i = 0; i < allCommands.length; i++) {
-    if (visibleIdSet[allCommands[i].id]) {
-      visibleIndices.push(i);
-    }
-  }
-
-  // Step 4: build a lookup map id → command object
-  var cmdMap = {};
-  allCommands.forEach(function (c) {
-    cmdMap[c.id] = c;
-  });
-
-  // Step 5: write new order into exactly those positions
-  newOrderIds.forEach(function (id, idx) {
-    if (idx < visibleIndices.length && cmdMap[id]) {
-      allCommands[visibleIndices[idx]] = cmdMap[id];
-    }
+    orderedIds.push(row.dataset.commandId);
   });
 
   if (isCurrentWorkspace) {
-    persistWorkspaceCommandsThenRender("Order saved.");
+    persistWorkspaceOperation({ type: "reorderCommands", orderedIds: orderedIds }, "Order saved.");
   } else {
-    persistDataThenRender("Order saved.");
+    persistGlobalOperation({ type: "reorderCommands", orderedIds: orderedIds }, "Order saved.");
   }
 }
 
@@ -1423,6 +1400,8 @@ function bindCommandActionButtons() {
       render();
     });
   }
+
+  bindEditConflictModalEvents();
 }
 
 /** Execute the pending delete action based on deleteConfirmState */
@@ -1437,7 +1416,7 @@ function executeDeleteConfirm() {
       delete cmd.lastRunAt;
       delete cmd.runCount;
     });
-    persistDataThenRender("Recent history cleared.");
+    persistGlobalOperation({ type: "clearRecent" }, "Recent history cleared.");
     return;
   }
 
@@ -1464,7 +1443,7 @@ function executeDeleteConfirm() {
       }
     }
 
-    persistDataThenRender("Category deleted.");
+    persistGlobalOperation({ type: "deleteCategory", categoryId: id }, "Category deleted.");
     return;
   }
 
@@ -1486,7 +1465,7 @@ function executeDeleteConfirm() {
         uiState.selectedGroupId = "all";
       }
 
-      persistWorkspaceCommandsThenRender("Group deleted.");
+      persistWorkspaceOperation({ type: "deleteGroup", groupId: id }, "Group deleted.");
       return;
     }
 
@@ -1506,7 +1485,10 @@ function executeDeleteConfirm() {
       uiState.selectedGroupId = "all";
     }
 
-    persistDataThenRender("Group deleted.");
+    persistGlobalOperation(
+      { type: "deleteGroup", categoryId: selectedCategory ? selectedCategory.id : "", groupId: id },
+      "Group deleted."
+    );
     return;
   }
 
@@ -1555,9 +1537,9 @@ function executeDeleteConfirm() {
     persistCommandVariables();
 
     if (isWorkspaceCmd) {
-      persistWorkspaceCommandsThenRender("Command deleted.");
+      persistWorkspaceOperation({ type: "deleteCommand", commandId: id }, "Command deleted.");
     } else {
-      persistDataThenRender("Command deleted.");
+      persistGlobalOperation({ type: "deleteCommand", commandId: id }, "Command deleted.");
     }
     return;
   }
