@@ -23,7 +23,7 @@ Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Buil
 
 A special category that always appears first in the list whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately inside `.vscode/runbox.data.json` (or your configured `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they only ever show up in this exact workspace folder, never in any other project.
 
-![Current Workspace](https://i.imgur.com/MxkqXb5.png)
+![Current Workspace](docs/images/current-workspace.gif)
 
 This is useful for commands that only make sense for one specific project, such as a project-specific build script or a database connection string, that you never want showing up when you open a different project.
 
@@ -39,7 +39,7 @@ This is useful for commands that only make sense for one specific project, such 
 | **Use**  | Pastes it into the terminal input so you can review or edit before running |
 | **Copy** | Copies the resolved command to your clipboard                              |
 
-![Run, Use, and Copy](https://i.imgur.com/MxkqXb5.png)
+![Run, Use, and Copy](docs/images/three-ways-to-run-a-command.gif)
 
 ---
 
