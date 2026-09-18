@@ -422,6 +422,15 @@ a change) and renders a short indicator below the "Target Shell" field:
   configured profile resolves to this shell type on this machine.
 - **Any Shell** → nothing is rendered.
 
+The same `describeShellSelection()` result also drives
+`buildTargetShellOptions()` (`media/modals/command-form.js`), which dims every
+option in the "Target Shell" dropdown itself (`itemClass:
+"cs-item-shell-unmatched"`, see `media/styles.css`) whose shell type has no
+matching profile — so the lack of a match is visible directly in the closed
+list, before the user even selects it. This is purely visual: every option
+remains fully selectable, since Target Shell is a suggestion, never a
+restriction. "Any Shell" is never dimmed.
+
 ### Run Confirm Auto-Selection
 
 When the Run Confirm modal is opened for a command (Run button click, or

@@ -1389,6 +1389,12 @@ code {
   font-weight: 600;
 }
 
+/* Custom-select "Target Shell" option with no matching terminal profile on this
+   machine — Command form. Purely visual, the option remains fully selectable. */
+.cs-item.cs-item-shell-unmatched .cs-item-label {
+  opacity: 0.45;
+}
+
 /* ===== recent Table - Title Column ===== */
 .recent-table td:first-child {
   width: 1%;

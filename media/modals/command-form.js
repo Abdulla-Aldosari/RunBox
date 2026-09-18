@@ -67,6 +67,25 @@ function renderTargetShellCheck(targetShell) {
   return `<span class="target-shell-check target-shell-unmatched" data-tooltip="No configured terminal profile resolves to this shell type on this machine.">${icons.exclamationTriangle} No matching profile</span>`;
 }
 
+/**
+ * Builds the "Target Shell" dropdown options with a dimmed itemClass applied
+ * to every shell type that has no matching terminal profile configured on
+ * this machine, so the lack of a match is visible directly in the closed
+ * list, not only after selecting it. Purely visual — every option remains
+ * fully selectable, since Target Shell is a suggestion, never a restriction.
+ * "Any Shell" (empty value) is never dimmed.
+ * @returns {Array<{value: string, label: string, itemClass?: string}>}
+ */
+function buildTargetShellOptions() {
+  return TARGET_SHELL_OPTIONS.map(function (opt) {
+    if (!opt.value) {
+      return opt;
+    }
+    const info = describeShellSelection(opt.value);
+    return info && info.status === "matched" ? opt : Object.assign({}, opt, { itemClass: "cs-item-shell-unmatched" });
+  });
+}
+
 // Isolated working copy of the whole form state, used by BOTH modes.
 // The global sources of truth (state.data.commands, commandLocalDrafts, ...)
 // are never touched until the user confirms by submitting the form.
@@ -414,7 +433,7 @@ function renderCommandForm(mode) {
             "command-form-shell-wrap",
             "command-form-shell-btn",
             "command-form-shell-menu",
-            TARGET_SHELL_OPTIONS,
+            buildTargetShellOptions(),
             commandFormBuffer.targetShell || "",
             "cs-btn-sm width-stretch", // btnExtraClass
             false // menuUp
