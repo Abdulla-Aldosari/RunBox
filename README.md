@@ -61,7 +61,10 @@ Assign a specific target shell (Windows PowerShell, PowerShell, CMD, Bash, and m
 > command still runs normally. This is purely a convenience pre-selection,
 > not an enforced restriction - you can always pick any other profile in
 > the confirmation dialog before running. Leaving Target Shell as
-> **Any Shell** simply skips this auto-selection step.
+> **Any Shell** simply skips this auto-selection step. The Add/Edit form
+> shows a small indicator below the field confirming whether your
+> selection actually matches a profile configured on your machine, hover
+> it to see the full path it resolves to.
 
 ---
 

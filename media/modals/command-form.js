@@ -35,6 +35,38 @@ function getUserVariableNames(template) {
   });
 }
 
+/**
+ * Renders the transparency indicator below the "Target Shell" field, showing
+ * whether the current selection actually resolves to a terminal profile
+ * configured on this machine. Hovering it reveals the full executable path
+ * and, when more than one profile shares the same resolved shell, which
+ * other profile names are considered equivalent. Returns an empty string for
+ * "Any Shell" (nothing to describe).
+ * @param {string} targetShell
+ * @returns {string}
+ */
+function renderTargetShellCheck(targetShell) {
+  const info = describeShellSelection(targetShell);
+  if (!info) {
+    return "";
+  }
+
+  if (info.status === "matched") {
+    const tooltipLines = [`Resolves to: ${escapeHtml(info.profile.shellPath)}`];
+    if (info.duplicates.length > 0) {
+      const names = info.duplicates
+        .map(function (p) {
+          return escapeHtml(p.name);
+        })
+        .join(", ");
+      tooltipLines.push(`Also matches: ${names} (same executable)`);
+    }
+    return `<span class="target-shell-check target-shell-matched" data-tooltip="${tooltipLines.join("<br>")}">${icons.circleCheck} Matches: ${escapeHtml(info.profile.name)}</span>`;
+  }
+
+  return `<span class="target-shell-check target-shell-unmatched" data-tooltip="No configured terminal profile resolves to this shell type on this machine.">${icons.exclamationTriangle} No matching profile</span>`;
+}
+
 // Isolated working copy of the whole form state, used by BOTH modes.
 // The global sources of truth (state.data.commands, commandLocalDrafts, ...)
 // are never touched until the user confirms by submitting the form.
@@ -387,6 +419,7 @@ function renderCommandForm(mode) {
             "cs-btn-sm width-stretch", // btnExtraClass
             false // menuUp
           )}
+          ${renderTargetShellCheck(commandFormBuffer.targetShell)}
         </div>
 
         ${renderCommandFormVariables(variables)}

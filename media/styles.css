@@ -2097,6 +2097,23 @@ tr.row-highlight td {
   gap: 5px;
 }
 
+/* ===== Edit/Add Command: Target Shell Check ===== */
+.target-shell-check {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+}
+
+.target-shell-matched {
+  color: #6fc951;
+}
+
+.target-shell-unmatched {
+  color: var(--runbox-charts-yellow, #e9b44c);
+}
+
 /* ===== Enum Manager: Add/Edit form heading ===== */
 .enum-add-form h4 {
   margin: 0 0 8px;

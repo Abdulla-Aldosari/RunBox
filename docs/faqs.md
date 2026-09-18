@@ -177,6 +177,8 @@ Separately, when adding or editing a command, you can set an optional **Target S
 
 When you run a command that has a Target Shell set, RunBox tries to be helpful: it looks through your configured profiles and pre-selects the first one that matches that general category in the Run confirmation dialog. This is only a convenience suggestion, never a restriction, you can always pick a different profile manually before confirming, and the command still runs normally either way. If none of your profiles match, nothing breaks: RunBox simply keeps whatever profile was previously selected.
 
+To make this pre-selection transparent up front, the Add/Edit Command form shows a short indicator right below the **Target Shell** field, reflecting your current selection at all times (not just when you change it): a green **"Matches: \<profile name\>"** when a configured profile resolves to that shell type, or a yellow **"No matching profile"** when none does. Hover the indicator to see the full executable path it resolves to, and, if more than one of your profiles points at that exact same executable (see the duplicate profiles topic below), which other profile names are equivalent.
+
 ---
 
 <a id="duplicate-terminal-profiles"></a>

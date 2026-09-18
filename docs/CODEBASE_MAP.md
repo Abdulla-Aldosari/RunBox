@@ -400,6 +400,28 @@ is omitted from the stored command object entirely — matching the same
    PowerShell", `"pwsh"` → "PowerShell"); otherwise the first match is
    returned.
 
+### Target Shell Transparency Indicator (Command Form)
+
+Since a terminal profile's display name never guarantees which real
+executable it points to, `describeShellSelection(targetShell)` in
+`media/utils.js` reuses `findMatchingShellProfile()` to describe the outcome
+directly instead of leaving the user to guess. It returns `null` for "Any
+Shell" (empty `targetShell`), or `{ status: "matched"|"unmatched", profile,
+duplicates }` — `duplicates` lists every other configured profile that
+resolves to the same `shellType`, if any.
+
+`renderTargetShellCheck(targetShell)` in `media/modals/command-form.js` calls
+this on every render of the Command form (both Add and Edit modes, always
+reflecting the current `commandFormBuffer.targetShell` — not only right after
+a change) and renders a short indicator below the "Target Shell" field:
+
+- **Matched** → `✓ Matches: <profile name>`, with a tooltip showing the full
+  resolved executable path and, when `duplicates` is non-empty, which other
+  profile names resolve to the exact same executable.
+- **Unmatched** → `⚠ No matching profile`, with a tooltip stating no
+  configured profile resolves to this shell type on this machine.
+- **Any Shell** → nothing is rendered.
+
 ### Run Confirm Auto-Selection
 
 When the Run Confirm modal is opened for a command (Run button click, or

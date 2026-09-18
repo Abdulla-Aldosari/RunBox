@@ -141,6 +141,40 @@ function findMatchingShellProfile(targetShell) {
   return candidates[0];
 }
 
+/**
+ * Describes how a Target Shell selection resolves against the terminal
+ * profiles actually configured on this machine, for the transparency
+ * indicator shown below the "Target Shell" field in the Command form.
+ * A profile's display name never guarantees which real executable it points
+ * to (see findMatchingShellProfile), so this surfaces the outcome directly
+ * instead of leaving the user to guess.
+ * @param {string} targetShell
+ * @returns {{status: "matched"|"unmatched", profile: {name: string, shellPath: string, shellType: string}|null, duplicates: Array<{name: string, shellPath: string, shellType: string}>}|null}
+ *   null when targetShell is empty ("Any Shell" — nothing to describe).
+ */
+function describeShellSelection(targetShell) {
+  if (!targetShell) {
+    return null;
+  }
+
+  const profile = findMatchingShellProfile(targetShell);
+  const profiles = (state.terminalProfiles && state.terminalProfiles.profiles) || [];
+  const allMatches = profiles.filter(function (p) {
+    return p.shellType === targetShell;
+  });
+  const duplicates = profile
+    ? allMatches.filter(function (p) {
+        return p.name !== profile.name;
+      })
+    : [];
+
+  return {
+    status: profile ? "matched" : "unmatched",
+    profile,
+    duplicates,
+  };
+}
+
 // ─── Variable Collection & Resolution ─────────────────────────────────────────
 
 /**

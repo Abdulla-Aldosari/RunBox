@@ -143,6 +143,7 @@ const browserGlobals = {
   openAiCheckRateLimitsModal: "readonly",
   TARGET_SHELL_OPTIONS: "readonly",
   findMatchingShellProfile: "readonly",
+  describeShellSelection: "readonly",
   CURRENT_WORKSPACE_CATEGORY_ID: "readonly",
   isCurrentWorkspaceCategory: "readonly",
   isWorkspaceCommand: "readonly",
