@@ -146,6 +146,53 @@ The **Explain** button (available on each command row) sends the raw command tem
 
 By default, the extension uses your active VS Code terminal profile. If you need to run a specific command in a specific shell (e.g. PowerShell vs CMD vs Git Bash), use the **shell selector** dropdown in the Run confirmation dialog to choose the target shell before confirming.
 
+### What are terminal profiles, and how does RunBox use them?
+
+A **terminal profile** is a VS Code concept, not something specific to RunBox. It is a named shortcut to a shell program (like PowerShell, Command Prompt, or Bash) that VS Code's integrated terminal can open. You can view and edit your profiles through the Settings UI (search for "terminal profiles") or by editing your `settings.json` file directly (Command Palette -> "Preferences: Open User Settings (JSON)"). The setting name depends on your operating system:
+
+- Windows: `terminal.integrated.profiles.windows`
+- macOS: `terminal.integrated.profiles.osx`
+- Linux: `terminal.integrated.profiles.linux`
+
+When you open the **Run confirmation dialog** in RunBox, it includes a dropdown to pick which terminal profile to run the command in. This dropdown lists exactly the same profiles you already defined in your VS Code settings, no more and no less. RunBox does not invent or add any shells you haven't already configured.
+
+![Shell selector in the Run confirmation dialog](images/faqs-run-dialog-shell-selector.png)
+
+Separately, when adding or editing a command, you can set an optional **Target Shell** (Any Shell, PowerShell, Command Prompt, Bash/Git Bash, WSL, Zsh, Sh). This is just a general category describing what kind of shell the command's syntax was written for, it is not the same list as your actual configured profiles. Think of it as "this command speaks PowerShell language" versus the Run dialog's list, which is "here are the actual programs installed and configured on your computer."
+
+When you run a command that has a Target Shell set, RunBox tries to be helpful: it looks through your configured profiles and pre-selects the first one that matches that general category in the Run confirmation dialog. This is only a convenience suggestion, never a restriction, you can always pick a different profile manually before confirming, and the command still runs normally either way. If none of your profiles match, nothing breaks: RunBox simply keeps whatever profile was previously selected.
+
+### RunBox warned me about duplicate terminal profiles, what should I do?
+
+Sometimes VS Code allows two (or more) profile entries, even with different names, to end up pointing at the exact same program on disk. A common example on Windows is a profile named "PowerShell" and another named "Windows PowerShell" both pointing at the same file. When this happens, choosing either one in the Run confirmation dialog produces the exact same terminal session, so the choice has no real effect.
+
+RunBox checks for this situation once, the first time you open the RunBox panel in a given VS Code session. If duplicate profiles are found, it shows a one-time notice naming the affected profiles:
+
+![RunBox duplicate terminal profile notice](images/faqs-duplicate-profile-notice.png)
+
+- **Open Settings** jumps you directly to your terminal profiles settings.
+- **Learn More** opens this FAQ section for full context.
+- **Don't Show Again** dismisses the notice for that exact situation. If your profile setup changes later and a new duplication appears, RunBox shows a fresh notice for that new situation.
+
+This notice is purely informational. RunBox never changes, deletes, or restricts any of your terminal profiles or settings by itself.
+
+**Why does this happen?** "Windows PowerShell" is the classic version built into every Windows PC, nothing needs to be installed. "PowerShell" (sometimes called "PowerShell 7") is a separate, more modern version that must be installed independently, it does not replace the classic one, both can exist on the same machine at the same time. A profile's name is just a label, it does not guarantee which actual program that profile points to. This is exactly why two differently-named profiles can end up pointing at the same underlying program, if whoever set them up pointed both names at the same file.
+
+**How to check and fix it:**
+
+1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run "Preferences: Open User Settings (JSON)", or use the **Open Settings** button from RunBox's notice, which jumps here directly.
+2. Look for the terminal profiles setting matching your operating system (see the setting names above).
+3. Find the profile names mentioned in RunBox's notice, and compare the `path` (or `source`) value under each one.
+
+   ![Duplicate profiles pointing at the same path in settings.json](images/faqs-duplicate-profile-settings-json.png)
+
+4. If you genuinely have two different programs installed (for example, you installed the newer PowerShell separately) but both profiles point at the same classic path, you can manually update the `path` of one profile to point at the newer program's actual install location instead. The exact install location can vary depending on how PowerShell 7 was installed on your machine, you can find the correct path through the official Microsoft installation methods, or by asking someone technical to help locate it.
+5. If you do not have two different programs installed (both names genuinely point at the same one program, a very common and harmless situation), there's nothing to fix: pick either profile in RunBox's Run dialog since both behave identically, and simply dismiss the notice with **Don't Show Again**. This is not a bug and not something you did wrong.
+
+This situation is not a RunBox error and does not prevent you from using RunBox normally in any way. It is purely a heads-up about a VS Code settings detail that most users would otherwise never notice.
+
+> This topic also applies on macOS and Linux, just with different setting names (see above) and different default shell programs (such as zsh, bash, or sh instead of PowerShell/CMD).
+
 ### The panel is not opening
 
 Use the Command Palette (`Ctrl+Shift+P`) and run **RunBox: Open Panel**, or press `F4 F4` (two consecutive presses of the F4 key).
