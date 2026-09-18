@@ -94,6 +94,7 @@ Auto Variables are built-in variables that are resolved automatically without an
 | `${workspaceFolder}` | The full path to the active workspace folder. In multi-root workspaces, reflects the folder selected in the panel's workspace selector. |
 | `${workspaceName}`   | The folder name (basename) of the active workspace folder. In multi-root workspaces, reflects the selected folder.                      |
 
+> [!NOTE]
 > **Multi-root workspaces:** `${workspaceFolder}` and `${workspaceName}` always reflect the folder that is currently active in the panel. Switching the workspace folder dropdown updates these values for all subsequent command executions. You can also override them per-execution in the Run confirmation dialog.
 
 ---
@@ -142,6 +143,8 @@ Once you have a key, open the panel → click **AI Settings** (⚙️ icon) → 
 
 The **Explain** button (available on each command row) sends the raw command template to the AI and returns a structured breakdown explaining what it does, what each part means, practical examples, and any warnings. The explanation appears directly inside the panel as formatted text.
 
+---
+
 <br>
 <br>
 
@@ -170,6 +173,8 @@ Separately, when adding or editing a command, you can set an optional **Target S
 When you run a command that has a Target Shell set, RunBox tries to be helpful: it looks through your configured profiles and pre-selects the first one that matches that general category in the Run confirmation dialog. This is only a convenience suggestion, never a restriction, you can always pick a different profile manually before confirming, and the command still runs normally either way. If none of your profiles match, nothing breaks: RunBox simply keeps whatever profile was previously selected.
 
 ---
+
+<a id="duplicate-terminal-profiles"></a>
 
 ### ℹ️ RunBox warned me about duplicate terminal profiles, what should I do?
 
@@ -200,6 +205,7 @@ This notice is purely informational. RunBox never changes, deletes, or restricts
 
 This situation is not a RunBox error and does not prevent you from using RunBox normally in any way. It is purely a heads-up about a VS Code settings detail that most users would otherwise never notice.
 
+> [!NOTE]
 > This topic also applies on macOS and Linux, just with different setting names (see above) and different default shell programs (such as zsh, bash, or sh instead of PowerShell/CMD).
 
 ---
@@ -210,7 +216,10 @@ Use the Command Palette (`Ctrl+Shift+P`) and run **RunBox: Open Panel**, or pres
 
 ---
 
-## Related
+<br>
+<br>
+
+## ➤ Related
 
 - [Back to README](../README.md)
 - [Settings Reference](settings.md)
