@@ -160,6 +160,8 @@ By default, the extension uses your active VS Code terminal profile. If you need
 
 A **terminal profile** is a VS Code concept, not something specific to RunBox. It is a named shortcut to a shell program (like PowerShell, Command Prompt, or Bash) that VS Code's integrated terminal can open. You can view and edit your profiles through the Settings UI (search for "terminal profiles") or by editing your `settings.json` file directly (Command Palette -> "Preferences: Open User Settings (JSON)"). The setting name depends on your operating system:
 
+<a name="profile-setting-names"></a>
+
 - Windows: `terminal.integrated.profiles.windows`
 - macOS: `terminal.integrated.profiles.osx`
 - Linux: `terminal.integrated.profiles.linux`
@@ -184,18 +186,19 @@ RunBox checks for this situation once, the first time you open the RunBox panel 
 
 ![RunBox duplicate terminal profile notice](images/faqs-duplicate-profile-notice.png)
 
-- **Open Settings** jumps you directly to your terminal profiles settings.
 - **Learn More** opens this FAQ section for full context.
+- **Open Settings** jumps you directly to your terminal profiles settings.
 - **Don't Show Again** dismisses the notice for that exact situation. If your profile setup changes later and a new duplication appears, RunBox shows a fresh notice for that new situation.
 
-This notice is purely informational. RunBox never changes, deletes, or restricts any of your terminal profiles or settings by itself.
+> [!NOTE]
+> This notice is purely informational. RunBox never changes, deletes, or restricts any of your terminal profiles or settings by itself.
 
 **Why does this happen?** "Windows PowerShell" is the classic version built into every Windows PC, nothing needs to be installed. "PowerShell" (sometimes called "PowerShell 7") is a separate, more modern version that must be installed independently, it does not replace the classic one, both can exist on the same machine at the same time. A profile's name is just a label, it does not guarantee which actual program that profile points to. This is exactly why two differently-named profiles can end up pointing at the same underlying program, if whoever set them up pointed both names at the same file.
 
 **How to check and fix it:**
 
 1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run "Preferences: Open User Settings (JSON)", or use the **Open Settings** button from RunBox's notice, which jumps here directly.
-2. Look for the terminal profiles setting matching your operating system (see the setting names above).
+2. Look for the terminal profiles setting matching your operating system [(see the setting names above)](#profile-setting-names).
 3. Find the profile names mentioned in RunBox's notice, and compare the `path` (or `source`) value under each one.
 
    ![Duplicate profiles pointing at the same path in settings.json](images/faqs-duplicate-profile-settings-json.png)
