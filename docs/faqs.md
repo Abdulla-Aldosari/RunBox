@@ -1,10 +1,10 @@
-# RunBox — Frequently Asked Questions
+# 📄 RunBox — Frequently Asked Questions
 
 <br>
 
-## ➤ General
+## 📚 General
 
-### ℹ️ Where are my commands stored?
+### 🔵 Where are my commands stored?
 
 All commands and categories are stored globally in a single JSON file on your machine:
 
@@ -16,7 +16,7 @@ This file is shared across all your VS Code workspaces, so your commands are alw
 
 ---
 
-### ℹ️ Does RunBox support multi-root workspaces?
+### 🔵 Does RunBox support multi-root workspaces?
 
 Yes. When you open a multi-root workspace (a `.code-workspace` file with multiple folders), a **workspace folder selector** dropdown appears below the panel header. You can switch between folders at any time — local variables, local favorites, and auto variables like `${workspaceFolder}` and `${workspaceName}` all update to reflect the selected folder.
 
@@ -26,7 +26,7 @@ The folder resolution behavior when opening the panel is controlled by the `runB
 
 ---
 
-### ℹ️ What is "Current Workspace" in the Commands Browser?
+### 🔵 What is "Current Workspace" in the Commands Browser?
 
 **Current Workspace** is a special entry that always appears first in the category list — both in the **Categories & Groups** tab and the **Commands Browser** dropdown on the **Commands** tab — whenever a workspace folder is open. Unlike regular categories, commands and groups added under **Current Workspace** are stored privately inside `runbox.data.json` in this project's `.vscode/` folder (or your configured `runBox.localWorkspaceFilesPath`) and are never written to the shared `~/.runbox/commands.json` file. This means they are only ever visible and usable in this exact workspace folder — never in any other project.
 
@@ -38,7 +38,7 @@ The first time you add a group or a command under **Current Workspace**, the ext
 
 ---
 
-### ℹ️ Is it safe to have RunBox open in multiple VS Code windows at the same time?
+### 🔵 Is it safe to have RunBox open in multiple VS Code windows at the same time?
 
 Yes. RunBox is designed to be used across multiple VS Code windows at once, whether that's the same project opened twice, or several different projects each running RunBox in parallel — all sharing the same global `~/.runbox/commands.json` file.
 
@@ -49,13 +49,13 @@ Yes. RunBox is designed to be used across multiple VS Code windows at once, whet
 
 ---
 
-### ℹ️ Can I back up my commands or share them with my team?
+### 🔵 Can I back up my commands or share them with my team?
 
 Yes. Simply copy `~/.runbox/commands.json` to a safe location or commit it to a shared repository. To restore, replace the file at the same path. Anyone with this file can import your full set of commands by placing it at the same path on their machine.
 
 ---
 
-### ℹ️ What is the difference between Run, Use, and Copy?
+### 🔵 What is the difference between Run, Use, and Copy?
 
 | Action   | What it does                                                                                                              |
 | -------- | ------------------------------------------------------------------------------------------------------------------------- |
@@ -67,9 +67,9 @@ Yes. Simply copy `~/.runbox/commands.json` to a safe location or commit it to a 
 
 <br>
 
-## ➤ Variables
+## 🏷️ Variables
 
-### ℹ️ How do the three variable scopes work?
+### 🔵 How do the three variable scopes work?
 
 Every variable in a command can be saved in one of three independent scopes. The **Local / Off / Global** toggle on each variable row controls which scope is active for that variable:
 
@@ -81,7 +81,7 @@ Every variable in a command can be saved in one of three independent scopes. The
 
 Switching the toggle does **not** delete the value stored in the other scopes — each scope stores its value independently.
 
-### ℹ️ What are Auto Variables?
+### 🔵 What are Auto Variables?
 
 ---
 
@@ -99,7 +99,7 @@ Auto Variables are built-in variables that are resolved automatically without an
 
 ---
 
-### ℹ️ What are Enum Variables?
+### 🔵 What are Enum Variables?
 
 Enum Variables let you define a fixed list of allowed values for a variable. Instead of typing a value manually, a dropdown appears with your predefined options when you run or use the command. This is useful for variables like `${env}` (with options: `dev`, `staging`, `production`) or `${region}`.
 
@@ -109,9 +109,9 @@ To define enum options, open the **Edit Command** form for any command and click
 
 <br>
 
-## ➤ AI Assistant
+## 🤖 AI Assistant
 
-### ℹ️ How do I get an API key for the AI assistant?
+### 🔵 How do I get an API key for the AI assistant?
 
 Each provider has a free option to get started:
 
@@ -130,7 +130,7 @@ Once you have a key, open the panel → click **AI Settings** (⚙️ icon) → 
 
 ---
 
-### ℹ️ How do I generate commands with AI?
+### 🔵 How do I generate commands with AI?
 
 1. Go to the **Categories & Groups** tab and select a category and group.
 2. Click **Create with AI** — or go to the **Commands** tab and click **Add with AI**.
@@ -139,7 +139,7 @@ Once you have a key, open the panel → click **AI Settings** (⚙️ icon) → 
 
 ---
 
-### ℹ️ What does the AI Explain button do?
+### 🔵 What does the AI Explain button do?
 
 The **Explain** button (available on each command row) sends the raw command template to the AI and returns a structured breakdown explaining what it does, what each part means, practical examples, and any warnings. The explanation appears directly inside the panel as formatted text.
 
@@ -148,15 +148,15 @@ The **Explain** button (available on each command row) sends the raw command tem
 <br>
 <br>
 
-## ➤ Troubleshooting
+## 🛠️ Troubleshooting
 
-### ℹ️ A command runs in the wrong shell on Windows
+### 🔵 A command runs in the wrong shell on Windows
 
 By default, the extension uses your active VS Code terminal profile. If you need to run a specific command in a specific shell (e.g. PowerShell vs CMD vs Git Bash), use the **shell selector** dropdown in the Run confirmation dialog to choose the target shell before confirming.
 
 ---
 
-### ℹ️ What are terminal profiles, and how does RunBox use them?
+### 🔵 What are terminal profiles, and how does RunBox use them?
 
 A **terminal profile** is a VS Code concept, not something specific to RunBox. It is a named shortcut to a shell program (like PowerShell, Command Prompt, or Bash) that VS Code's integrated terminal can open. You can view and edit your profiles through the Settings UI (search for "terminal profiles") or by editing your `settings.json` file directly (Command Palette -> "Preferences: Open User Settings (JSON)"). The setting name depends on your operating system:
 
@@ -179,11 +179,18 @@ When you run a command that has a Target Shell set, RunBox tries to be helpful: 
 
 To make this pre-selection transparent up front, the Add/Edit Command form shows a short indicator right below the **Target Shell** field, reflecting your current selection at all times (not just when you change it): a green **"Matches: \<profile name\>"** when a configured profile resolves to that shell type, or a yellow **"No matching profile"** when none does. Hover the indicator to see the full executable path it resolves to, and, if more than one of your profiles points at that exact same executable (see the duplicate profiles topic below), which other profile names are equivalent.
 
+![Target Shell indicator showing a matched profile](images/faqs/target-shell-check-matched.png)
+
+![Target Shell indicator showing no matching profile](images/faqs/target-shell-check-unmatched.png)
+
+The same information is reflected directly in the **Target Shell** dropdown itself: any option with no matching profile configured on your machine appears dimmed in the list, even before you select it. This is purely visual, every option remains fully selectable, since Target Shell is always a suggestion and never a restriction.
+
+![Target Shell dropdown showing dimmed profile](images/faqs/target-shell-dropdown-options-dimmed-list.png)
 ---
 
 <a id="duplicate-terminal-profiles"></a>
 
-### ℹ️ RunBox warned me about duplicate terminal profiles, what should I do?
+### 🔵 RunBox warned me about duplicate terminal profiles, what should I do?
 
 Sometimes VS Code allows two (or more) profile entries, even with different names, to end up pointing at the exact same program on disk. A common example on Windows is a profile named "PowerShell" and another named "Windows PowerShell" both pointing at the same file. When this happens, choosing either one in the Run confirmation dialog produces the exact same terminal session, so the choice has no real effect.
 
@@ -218,16 +225,15 @@ This situation is not a RunBox error and does not prevent you from using RunBox 
 
 ---
 
-### ℹ️ The panel is not opening
+### 🔵 The panel is not opening
 
 Use the Command Palette (`Ctrl+Shift+P`) and run **RunBox: Open Panel**, or press `F4 F4` (two consecutive presses of the F4 key).
 
 ---
 
 <br>
-<br>
 
-## ➤ Related
+## 🧾 Related
 
 - [Back to README](../README.md)
 - [Settings Reference](settings.md)
