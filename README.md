@@ -49,6 +49,20 @@ Assign a specific target shell (PowerShell, CMD, Bash, and more) to any command 
 
 ![Target Shell Selection](https://i.imgur.com/MxkqXb5.png)
 
+> **Note:** The Target Shell field in the Add/Edit form is a fixed shell
+> _type_ (e.g. `bash`), independent of shell _names_. The confirmation
+> dialog's shell picker, on the other hand, lists the actual terminal
+> profiles configured on your machine (from VS Code's
+> `terminal.integrated.profiles` setting) - which is why the two lists
+> can look different. RunBox matches your command's target shell type
+> against each profile's detected type (based on its executable path) and
+> pre-selects the first match; if no matching profile exists on your
+> machine, your previous or default selection is kept instead, and the
+> command still runs normally. This is purely a convenience pre-selection,
+> not an enforced restriction - you can always pick any other profile in
+> the confirmation dialog before running. Leaving Target Shell as
+> **Any Shell** simply skips this auto-selection step.
+
 ---
 
 ### 🔤 Variables - Three Independent Scopes
