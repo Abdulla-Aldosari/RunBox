@@ -388,10 +388,17 @@ is omitted from the stored command object entirely — matching the same
 2. `getTerminalProfiles()` calls `detectShellType()` for every configured VS
    Code terminal profile and attaches the result as `shellType` on each
    profile entry sent to the webview (`state.terminalProfiles.profiles`).
-3. `findMatchingShellProfile(targetShell)` in `media/utils.js` scans
-   `state.terminalProfiles.profiles` and returns the first profile whose
-   `shellType` equals the requested `targetShell`, or `null` if none matches
-   or `targetShell` is empty.
+3. `findMatchingShellProfile(targetShell)` in `media/utils.js` collects every
+   profile in `state.terminalProfiles.profiles` whose `shellType` equals the
+   requested `targetShell`, or returns `null` if none matches or `targetShell`
+   is empty. When more than one profile matches (e.g. a "PowerShell" profile
+   and a "Windows PowerShell" profile that both resolve to the same classic
+   `powershell.exe`, a setup VS Code's own "Select Default Profile" flow
+   produces when PowerShell 7+ is not installed), the profile named after VS
+   Code's own naming convention for that shell type is preferred
+   (`PREFERRED_PROFILE_NAME_BY_SHELL_TYPE`: `"powershell"` → "Windows
+   PowerShell", `"pwsh"` → "PowerShell"); otherwise the first match is
+   returned.
 
 ### Run Confirm Auto-Selection
 

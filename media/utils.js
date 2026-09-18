@@ -89,10 +89,29 @@ function generateEntityId(prefix) {
   return `${prefix}-${Date.now().toString(36)}-${random}`;
 }
 
+// When multiple configured terminal profiles share the same shellType (e.g. a
+// "PowerShell" profile and a "Windows PowerShell" profile that both resolve to
+// the same powershell.exe, which is exactly what VS Code's own "Select Default
+// Profile" flow produces when PowerShell 7+ is not installed), picking "the
+// first one found" is arbitrary and can pre-select a profile whose display
+// name does not match what the user actually chose as Target Shell. This map
+// gives the profile named after VS Code's own naming convention for each
+// PowerShell variant priority over any other same-shellType profile, without
+// changing behavior for any other shell type or for setups with no ambiguity.
+const PREFERRED_PROFILE_NAME_BY_SHELL_TYPE = {
+  powershell: "Windows PowerShell",
+  pwsh: "PowerShell",
+};
+
 /**
- * Finds the first configured terminal profile whose detected shellType matches
- * the given targetShell (e.g. "bash", "powershell"). Returns null if targetShell
+ * Finds the configured terminal profile whose detected shellType matches the
+ * given targetShell (e.g. "bash", "powershell"). Returns null if targetShell
  * is empty or no matching profile is configured.
+ *
+ * When more than one configured profile shares the same shellType, the one
+ * named after VS Code's own naming convention for that shell (see
+ * PREFERRED_PROFILE_NAME_BY_SHELL_TYPE) is preferred; otherwise the first
+ * matching profile is returned, preserving prior behavior.
  * @param {string} targetShell
  * @returns {{name: string, shellPath: string, shellType: string}|null}
  */
@@ -101,11 +120,25 @@ function findMatchingShellProfile(targetShell) {
     return null;
   }
   const profiles = (state.terminalProfiles && state.terminalProfiles.profiles) || [];
-  return (
-    profiles.find(function (p) {
-      return p.shellType === targetShell;
-    }) || null
-  );
+  const candidates = profiles.filter(function (p) {
+    return p.shellType === targetShell;
+  });
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const preferredName = PREFERRED_PROFILE_NAME_BY_SHELL_TYPE[targetShell];
+  if (preferredName) {
+    const preferred = candidates.find(function (p) {
+      return p.name === preferredName;
+    });
+    if (preferred) {
+      return preferred;
+    }
+  }
+
+  return candidates[0];
 }
 
 // ─── Variable Collection & Resolution ─────────────────────────────────────────
