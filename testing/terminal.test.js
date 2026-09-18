@@ -23,7 +23,7 @@ Module._resolveFilename = function (request, ...args) {
 };
 
 const assert = require("assert");
-const { fixShellPath } = require("../lib/terminal");
+const { fixShellPath, findDuplicateShellProfiles } = require("../lib/terminal");
 
 // ---------------------------------------------------------------------------
 // Simple test runner
@@ -96,6 +96,70 @@ test("handles a path where Sysnative appears in a non-separator context (no repl
   // "Sysnative" without surrounding backslashes should NOT be replaced
   const path = "C:\\MySysnativeFolder\\cmd.exe";
   assert.strictEqual(fixShellPath(path), path);
+});
+
+// ---------------------------------------------------------------------------
+// findDuplicateShellProfiles
+// ---------------------------------------------------------------------------
+
+section("findDuplicateShellProfiles");
+
+test("returns an empty array when there is no duplication", function () {
+  const profiles = [
+    { name: "PowerShell", shellPath: "C:\\pwsh.exe" },
+    { name: "Command Prompt", shellPath: "C:\\cmd.exe" },
+  ];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), []);
+});
+
+test("returns an empty array for an empty profiles list", function () {
+  assert.deepStrictEqual(findDuplicateShellProfiles([]), []);
+});
+
+test("returns an empty array for null/undefined input", function () {
+  assert.deepStrictEqual(findDuplicateShellProfiles(null), []);
+  assert.deepStrictEqual(findDuplicateShellProfiles(undefined), []);
+});
+
+test("groups two profile names sharing the exact same shellPath", function () {
+  const profiles = [
+    { name: "PowerShell", shellPath: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" },
+    { name: "Windows PowerShell", shellPath: "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" },
+  ];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), [["PowerShell", "Windows PowerShell"]]);
+});
+
+test("groups three or more profile names sharing the exact same shellPath", function () {
+  const profiles = [
+    { name: "A", shellPath: "C:\\shared.exe" },
+    { name: "B", shellPath: "C:\\shared.exe" },
+    { name: "C", shellPath: "C:\\shared.exe" },
+  ];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), [["A", "B", "C"]]);
+});
+
+test("returns multiple independent duplicate groups", function () {
+  const profiles = [
+    { name: "PowerShell", shellPath: "C:\\powershell.exe" },
+    { name: "Windows PowerShell", shellPath: "C:\\powershell.exe" },
+    { name: "CMD 1", shellPath: "C:\\cmd.exe" },
+    { name: "CMD 2", shellPath: "C:\\cmd.exe" },
+    { name: "Git Bash", shellPath: "C:\\bash.exe" },
+  ];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), [
+    ["PowerShell", "Windows PowerShell"],
+    ["CMD 1", "CMD 2"],
+  ]);
+});
+
+test("ignores profiles with a missing or empty shellPath", function () {
+  const profiles = [{ name: "A", shellPath: "" }, { name: "B", shellPath: null }, { name: "C" }];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), []);
+});
+
+test("ignores null/undefined entries within the profiles array", function () {
+  const profiles = [null, undefined, { name: "A", shellPath: "C:\\a.exe" }, { name: "B", shellPath: "C:\\a.exe" }];
+  assert.deepStrictEqual(findDuplicateShellProfiles(profiles), [["A", "B"]]);
 });
 
 // ---------------------------------------------------------------------------

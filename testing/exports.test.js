@@ -114,10 +114,11 @@ expectFn(terminal, "resolveSourceProfilePath");
 expectFn(terminal, "getTerminalProfiles");
 expectFn(terminal, "getOrCreateTerminal");
 expectFn(terminal, "detectShellType");
+expectFn(terminal, "findDuplicateShellProfiles");
 
-test("has exactly 5 exports", function () {
+test("has exactly 6 exports", function () {
   const keys = Object.keys(terminal);
-  assert.strictEqual(keys.length, 5, `Expected 5 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 6, `Expected 6 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
@@ -240,6 +241,21 @@ expectFn(autoVars, "buildAutoVariablesPayload");
 test("has exactly 2 exports", function () {
   const keys = Object.keys(autoVars);
   assert.strictEqual(keys.length, 2, `Expected 2 exports, got ${keys.length}: ${keys.join(", ")}`);
+});
+
+// ---------------------------------------------------------------------------
+// lib/help-links.js
+// ---------------------------------------------------------------------------
+
+section("lib/help-links.js");
+
+const helpLinks = require("../lib/help-links");
+
+expectFn(helpLinks, "getHelpLink");
+
+test("has exactly 1 export", function () {
+  const keys = Object.keys(helpLinks);
+  assert.strictEqual(keys.length, 1, `Expected 1 export, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

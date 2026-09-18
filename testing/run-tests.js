@@ -24,6 +24,7 @@ const TESTS = [
   { label: "Function", header: "Normalize test :", file: "testing/normalize.test.js" },
   { label: "FixShellPath", header: "Terminal test :", file: "testing/terminal.test.js" },
   { label: "Exports", header: "Exports test :", file: "testing/exports.test.js" },
+  { label: "HelpLinks", header: "Help Links test :", file: "testing/help-links.test.js" },
   { label: "Inline-Styles", header: "Inline Styles test :", file: "testing/style-lint.test.js" },
 ];
 

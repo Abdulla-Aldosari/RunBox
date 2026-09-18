@@ -24,7 +24,8 @@ const {
   readWorkspaceId,
   readWorkspaceCommandsSection,
 } = require("./lib/storage");
-const { getTerminalProfiles } = require("./lib/terminal");
+const { getTerminalProfiles, findDuplicateShellProfiles } = require("./lib/terminal");
+const { getHelpLink } = require("./lib/help-links");
 const { buildAutoVariablesPayload } = require("./lib/auto-variables");
 const H = require("./lib/handlers");
 const { initLogger } = require("./lib/logger");
@@ -39,6 +40,11 @@ const { initLogger } = require("./lib/logger");
 function activate(context) {
   /** @type {import('vscode').WebviewPanel | null} Active webview panel; null when not open. */
   let panel = null;
+
+  // Ensures the duplicate shell profile check (see below) runs at most once per
+  // VS Code session, even if the user closes and reopens the RunBox panel
+  // multiple times without restarting/reloading the window.
+  let hasCheckedDuplicateShellProfilesThisSession = false;
 
   // Output channel used by the logger to write structured JSON logs visible in the Output panel.
   const loggerOutputChannel = vscode.window.createOutputChannel("RunBox", "json");
@@ -214,6 +220,90 @@ function activate(context) {
   );
   // ─────────────────────────────────────────────────────────────────────────────
 
+  // ─── Duplicate Shell Profile Notice ────────────────────────────────────────────
+  // VS Code allows multiple terminal profile entries (terminal.integrated.profiles.*)
+  // to resolve to the exact same shell executable path (e.g. a custom "PowerShell"
+  // profile pointing at the same powershell.exe as the built-in "Windows PowerShell"
+  // profile). When that happens, picking between them in RunBox's run confirmation
+  // dialog has no real effect, which is confusing. This only detects and informs the
+  // user — it never changes any profile or restricts any selection.
+  //
+  // The dismissal is remembered per exact set of duplicate groups (a "fingerprint"),
+  // not as a single global flag: if the user dismisses today's duplication and later
+  // a different duplication appears (e.g. after editing settings), a fresh notice is
+  // shown for that new situation instead of staying silent forever.
+  //
+  // Intentionally NOT run here at activation time: onStartupFinished activates every
+  // RunBox install on every VS Code window startup, regardless of whether the user
+  // ever opens the RunBox panel. Showing a warning at that point would surprise users
+  // who have no intention of using RunBox in that session. Instead, checkDuplicateShellProfiles()
+  // is called from openPanelCommand below, only once the user actually opens the panel.
+  const DUPLICATE_SHELL_DISMISSED_KEY = "runBox.dismissedDuplicateShellFingerprint";
+
+  function buildDuplicateShellFingerprint(duplicateGroups) {
+    return JSON.stringify(
+      duplicateGroups
+        .map(function (names) {
+          return names.slice().sort();
+        })
+        .sort(function (a, b) {
+          return a.join(",").localeCompare(b.join(","));
+        })
+    );
+  }
+
+  function checkDuplicateShellProfiles() {
+    const { profiles } = getTerminalProfiles();
+    const duplicateGroups = findDuplicateShellProfiles(profiles);
+
+    if (duplicateGroups.length === 0) {
+      return;
+    }
+
+    const fingerprint = buildDuplicateShellFingerprint(duplicateGroups);
+    const dismissedFingerprint = context.globalState.get(DUPLICATE_SHELL_DISMISSED_KEY) || "";
+
+    if (fingerprint === dismissedFingerprint) {
+      return;
+    }
+
+    const groupsText = duplicateGroups
+      .map(function (names) {
+        const namesText = names
+          .map(function (n) {
+            return `"${n}"`;
+          })
+          .join(" and ");
+        const sharedPath = profiles.find(function (p) {
+          return p.name === names[0];
+        }).shellPath;
+        return `${namesText}. Both point to the path: "${sharedPath}"`;
+      })
+      .join("; ");
+
+    vscode.window
+      .showWarningMessage(
+        `RunBox detected terminal profiles that run the exact same shell: ${groupsText}. ` +
+          `Selecting either option in the Run confirmation dialog uses the same shell.`,
+        "Learn More",
+        "Open Settings",
+        "Don't Show Again"
+      )
+      .then(function (choice) {
+        if (choice === "Learn More") {
+          const url = getHelpLink("faqs-duplicate-terminal-profiles");
+          if (url) {
+            vscode.env.openExternal(vscode.Uri.parse(url));
+          }
+        } else if (choice === "Open Settings") {
+          vscode.commands.executeCommand("workbench.action.openSettings", "terminal.integrated.profiles");
+        } else if (choice === "Don't Show Again") {
+          context.globalState.update(DUPLICATE_SHELL_DISMISSED_KEY, fingerprint);
+        }
+      });
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
   // Registers the primary command that opens (or focuses) the RunBox panel.
   const openPanelCommand = vscode.commands.registerCommand("runBox.openPanel", async function () {
     // If the panel already exists, bring it to focus and refresh its state instead
@@ -222,6 +312,13 @@ function activate(context) {
       panel.reveal(vscode.ViewColumn.One);
       await postState(panel);
       return;
+    }
+
+    // Runs once per session, only now that the user has actually opened the panel
+    // (see the comment above checkDuplicateShellProfiles's definition for why).
+    if (!hasCheckedDuplicateShellProfilesThisSession) {
+      hasCheckedDuplicateShellProfilesThisSession = true;
+      checkDuplicateShellProfiles();
     }
 
     panel = vscode.window.createWebviewPanel("runBoxPanel", "RunBox", vscode.ViewColumn.One, {
