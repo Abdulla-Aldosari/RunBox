@@ -656,6 +656,42 @@ test("always returns version: 1", function () {
   assert.strictEqual(normalizeCommandsData(null).version, 1);
 });
 
+test('preserves targetShell "powershell" (Windows PowerShell 5.1)', function () {
+  const input = {
+    categories: [{ id: "git", title: "Git" }],
+    commands: [{ id: "cmd1", title: "Push", command: "git push", categoryId: "git", targetShell: "powershell" }],
+  };
+  const result = normalizeCommandsData(input);
+  assert.strictEqual(result.commands[0].targetShell, "powershell");
+});
+
+test('preserves targetShell "pwsh" (PowerShell 7+) as a distinct value from "powershell"', function () {
+  const input = {
+    categories: [{ id: "git", title: "Git" }],
+    commands: [{ id: "cmd1", title: "Push", command: "git push", categoryId: "git", targetShell: "pwsh" }],
+  };
+  const result = normalizeCommandsData(input);
+  assert.strictEqual(result.commands[0].targetShell, "pwsh");
+});
+
+test("drops an invalid targetShell value", function () {
+  const input = {
+    categories: [{ id: "git", title: "Git" }],
+    commands: [{ id: "cmd1", title: "Push", command: "git push", categoryId: "git", targetShell: "fish" }],
+  };
+  const result = normalizeCommandsData(input);
+  assert.strictEqual(result.commands[0].targetShell, undefined);
+});
+
+test("omits targetShell entirely when empty", function () {
+  const input = {
+    categories: [{ id: "git", title: "Git" }],
+    commands: [{ id: "cmd1", title: "Push", command: "git push", categoryId: "git", targetShell: "" }],
+  };
+  const result = normalizeCommandsData(input);
+  assert.strictEqual(result.commands[0].targetShell, undefined);
+});
+
 // ---------------------------------------------------------------------------
 // Results
 // ---------------------------------------------------------------------------

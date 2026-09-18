@@ -23,7 +23,7 @@ Module._resolveFilename = function (request, ...args) {
 };
 
 const assert = require("assert");
-const { fixShellPath, findDuplicateShellProfiles } = require("../lib/terminal");
+const { fixShellPath, findDuplicateShellProfiles, detectShellType } = require("../lib/terminal");
 
 // ---------------------------------------------------------------------------
 // Simple test runner
@@ -160,6 +160,63 @@ test("ignores profiles with a missing or empty shellPath", function () {
 test("ignores null/undefined entries within the profiles array", function () {
   const profiles = [null, undefined, { name: "A", shellPath: "C:\\a.exe" }, { name: "B", shellPath: "C:\\a.exe" }];
   assert.deepStrictEqual(findDuplicateShellProfiles(profiles), [["A", "B"]]);
+});
+
+// ---------------------------------------------------------------------------
+// detectShellType
+// ---------------------------------------------------------------------------
+
+section("detectShellType");
+
+test('classifies "pwsh.exe" as "pwsh" (PowerShell 7+)', function () {
+  assert.strictEqual(detectShellType("C:\\Program Files\\PowerShell\\7\\pwsh.exe"), "pwsh");
+});
+
+test('classifies a WinGet/MSIX "pwsh.exe" alias path as "pwsh"', function () {
+  assert.strictEqual(detectShellType("C:\\Users\\test\\AppData\\Local\\Microsoft\\WindowsApps\\pwsh.exe"), "pwsh");
+});
+
+test('classifies "powershell.exe" as "powershell" (Windows PowerShell 5.1)', function () {
+  assert.strictEqual(detectShellType("C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"), "powershell");
+});
+
+test('does not classify "pwsh.exe" as "powershell" (distinct from Windows PowerShell)', function () {
+  assert.notStrictEqual(detectShellType("C:\\Program Files\\PowerShell\\7\\pwsh.exe"), "powershell");
+});
+
+test('classifies "cmd.exe" as "cmd"', function () {
+  assert.strictEqual(detectShellType("C:\\Windows\\System32\\cmd.exe"), "cmd");
+});
+
+test('classifies a WSL path as "wsl"', function () {
+  assert.strictEqual(detectShellType("C:\\Windows\\System32\\wsl.exe"), "wsl");
+});
+
+test('classifies a Git Bash path as "bash"', function () {
+  assert.strictEqual(detectShellType("C:\\Program Files\\Git\\bin\\bash.exe"), "bash");
+});
+
+test('classifies a zsh path as "zsh"', function () {
+  assert.strictEqual(detectShellType("/usr/bin/zsh"), "zsh");
+});
+
+test('classifies "sh" and "sh.exe" as "sh"', function () {
+  assert.strictEqual(detectShellType("/bin/sh"), "sh");
+  assert.strictEqual(detectShellType("C:\\sh.exe"), "sh");
+});
+
+test("returns null for an unrecognized shell path", function () {
+  assert.strictEqual(detectShellType("C:\\Program Files\\SomeOtherShell\\shell.exe"), null);
+});
+
+test("returns null for non-string input", function () {
+  assert.strictEqual(detectShellType(null), null);
+  assert.strictEqual(detectShellType(undefined), null);
+  assert.strictEqual(detectShellType(42), null);
+});
+
+test("returns null for an empty string", function () {
+  assert.strictEqual(detectShellType(""), null);
 });
 
 // ---------------------------------------------------------------------------

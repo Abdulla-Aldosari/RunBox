@@ -26,9 +26,14 @@ const PERSISTABLE_TABS = ["recent", "favorites", "categories", "commands", "vari
 
 // Options for the manual "Target Shell" selector in Add/Edit Command forms.
 // Empty value ("") means "Any Shell" — no restriction, preserves current behavior.
+// "powershell" and "pwsh" are distinct: Windows PowerShell 5.1 (built into every
+// Windows install, powershell.exe) and PowerShell 7+ (installed separately,
+// pwsh.exe) are different, independently installed programs with real syntax
+// differences, not just a version number.
 const TARGET_SHELL_OPTIONS = [
   { value: "", label: "Any Shell" },
-  { value: "powershell", label: "PowerShell" },
+  { value: "powershell", label: "Windows PowerShell" },
+  { value: "pwsh", label: "PowerShell" },
   { value: "cmd", label: "Command Prompt" },
   { value: "bash", label: "Bash / Git Bash" },
   { value: "wsl", label: "WSL" },
