@@ -125,7 +125,7 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | `resolveSourceProfilePath(source)`                | Resolves shell path from a VS Code profile source name                                                                                                                                                                                                                                                             |
 | `getTerminalProfiles()`                           | Reads terminal profiles from VS Code settings. Each returned profile includes a `shellType` field (see `detectShellType` below), used to match profiles against a command's `targetShell`.                                                                                                                         |
 | `getOrCreateTerminal(shellPath, shellName, cwd?)` | Returns the active terminal or creates a new one. When `cwd` is provided, always creates a new terminal that opens at the specified directory — reusing an existing terminal would ignore the `cwd`. Used by `handlePerformAction` to open the terminal in the workspace folder selected in the run-confirm modal. |
-| `detectShellType(shellPath)`                      | Classifies a shell executable path into a standardized identifier: `"powershell"`, `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`, or `null` if unrecognized. See "Target Shell System" below.                                                                                                                        |
+| `detectShellType(shellPath)`                      | Classifies a shell executable path into a standardized identifier: `"pwsh"` (PowerShell 7+), `"powershell"` (Windows PowerShell 5.1), `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`, or `null` if unrecognized. See "Target Shell System" below.                                                                     |
 
 **Dependencies:** `vscode`, `fs` (sync `accessSync` only).
 
@@ -357,11 +357,14 @@ user's default shell.
 ### Data Model
 
 Each command may carry an optional `targetShell` field, a string identifier from
-the fixed set: `"powershell"`, `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`. The
-field is validated in `lib/normalize.js` against `VALID_TARGET_SHELLS` (a
-`Set` that must stay in sync with the classification logic in
-`detectShellType`). An invalid or empty value is dropped, and the key is
-omitted from the stored command object entirely — matching the same
+the fixed set: `"pwsh"`, `"powershell"`, `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`,
+`"sh"`. `"pwsh"` (PowerShell 7+, `pwsh.exe`) and `"powershell"` (Windows
+PowerShell 5.1, `powershell.exe`) are distinct values — they are different,
+independently installed programs with real syntax/feature differences, not
+just a version number. The field is validated in `lib/normalize.js` against
+`VALID_TARGET_SHELLS` (a `Set` that must stay in sync with the classification
+logic in `detectShellType`). An invalid or empty value is dropped, and the key
+is omitted from the stored command object entirely — matching the same
 "omit-if-empty" convention used for `helpUrl` and `variableMeta`.
 
 ### Where `targetShell` Is Set

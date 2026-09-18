@@ -170,7 +170,10 @@ When you open the **Run confirmation dialog** in RunBox, it includes a dropdown 
 
 ![Shell selector in the Run confirmation dialog](images/faqs/run-dialog-shell-selector.png)
 
-Separately, when adding or editing a command, you can set an optional **Target Shell** (Any Shell, PowerShell, Command Prompt, Bash/Git Bash, WSL, Zsh, Sh). This is just a general category describing what kind of shell the command's syntax was written for, it is not the same list as your actual configured profiles. Think of it as "this command speaks PowerShell language" versus the Run dialog's list, which is "here are the actual programs installed and configured on your computer."
+Separately, when adding or editing a command, you can set an optional **Target Shell** (Any Shell, Windows PowerShell, PowerShell, Command Prompt, Bash/Git Bash, WSL, Zsh, Sh). This is just a general category describing what kind of shell the command's syntax was written for, it is not the same list as your actual configured profiles. Think of it as "this command speaks PowerShell language" versus the Run dialog's list, which is "here are the actual programs installed and configured on your computer."
+
+> [!NOTE]
+> **Windows PowerShell** and **PowerShell** are two different, independently installed programs, not the same thing with two names. Windows PowerShell (5.1) ships built into every Windows PC. PowerShell (7 or newer) is a separate, modern program you install yourself, it runs side-by-side with Windows PowerShell rather than replacing it. Picking the wrong one when both are installed only affects which profile RunBox pre-selects for you, you can always switch it manually in the Run confirmation dialog.
 
 When you run a command that has a Target Shell set, RunBox tries to be helpful: it looks through your configured profiles and pre-selects the first one that matches that general category in the Run confirmation dialog. This is only a convenience suggestion, never a restriction, you can always pick a different profile manually before confirming, and the command still runs normally either way. If none of your profiles match, nothing breaks: RunBox simply keeps whatever profile was previously selected.
 

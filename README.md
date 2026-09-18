@@ -45,7 +45,7 @@ This is useful for commands that only make sense for one specific project, such 
 
 ### 🖥️ Target Shell Selection
 
-Assign a specific target shell (PowerShell, CMD, Bash, and more) to any command from the Add/Edit form. When you click **Run**, RunBox automatically detects a matching terminal profile on your machine and pre-selects it in the confirmation dialog, you can still override it manually before confirming. AI-generated commands can also target a specific shell so the syntax matches.
+Assign a specific target shell (Windows PowerShell, PowerShell, CMD, Bash, and more) to any command from the Add/Edit form. Windows PowerShell (5.1, built into Windows) and PowerShell (7+, installed separately) are listed as distinct options since they are different programs with real syntax differences. When you click **Run**, RunBox automatically detects a matching terminal profile on your machine and pre-selects it in the confirmation dialog, you can still override it manually before confirming. AI-generated commands can also target a specific shell so the syntax matches.
 
 ![Target Shell Selection](https://i.imgur.com/MxkqXb5.png)
 
