@@ -168,7 +168,7 @@ A **terminal profile** is a VS Code concept, not something specific to RunBox. I
 
 When you open the **Run confirmation dialog** in RunBox, it includes a dropdown to pick which terminal profile to run the command in. This dropdown lists exactly the same profiles you already defined in your VS Code settings, no more and no less. RunBox does not invent or add any shells you haven't already configured.
 
-![Shell selector in the Run confirmation dialog](images/faqs-run-dialog-shell-selector.png)
+![Shell selector in the Run confirmation dialog](images/faqs/run-dialog-shell-selector.png)
 
 Separately, when adding or editing a command, you can set an optional **Target Shell** (Any Shell, PowerShell, Command Prompt, Bash/Git Bash, WSL, Zsh, Sh). This is just a general category describing what kind of shell the command's syntax was written for, it is not the same list as your actual configured profiles. Think of it as "this command speaks PowerShell language" versus the Run dialog's list, which is "here are the actual programs installed and configured on your computer."
 
@@ -184,7 +184,7 @@ Sometimes VS Code allows two (or more) profile entries, even with different name
 
 RunBox checks for this situation once, the first time you open the RunBox panel in a given VS Code session. If duplicate profiles are found, it shows a one-time notice naming the affected profiles:
 
-![RunBox duplicate terminal profile notice](images/faqs-duplicate-profile-notice.png)
+![RunBox duplicate terminal profile notice](images/faqs/duplicate-profile-notice.png)
 
 - **Learn More** opens this FAQ section for full context.
 - **Open Settings** jumps you directly to your terminal profiles settings.
@@ -198,10 +198,10 @@ RunBox checks for this situation once, the first time you open the RunBox panel 
 **How to check and fix it:**
 
 1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and run "Preferences: Open User Settings (JSON)", or use the **Open Settings** button from RunBox's notice, which jumps here directly.
-2. Look for the terminal profiles setting matching your operating system [(see the setting names above)](#profile-setting-names).
+2. Look for the terminal profiles setting matching your operating system [(see the setting names above)](#profile-setting-names), then click `Edit in settings.json`.
 3. Find the profile names mentioned in RunBox's notice, and compare the `path` (or `source`) value under each one.
 
-   ![Duplicate profiles pointing at the same path in settings.json](images/faqs-duplicate-profile-settings-json.png)
+   ![Duplicate profiles pointing at the same path in settings.json](images/faqs/duplicate-profile-settings-json.png)
 
 4. If you genuinely have two different programs installed (for example, you installed the newer PowerShell separately) but both profiles point at the same classic path, you can manually update the `path` of one profile to point at the newer program's actual install location instead. The exact install location can vary depending on how PowerShell 7 was installed on your machine, you can find the correct path through the official Microsoft installation methods, or by asking someone technical to help locate it.
 5. If you do not have two different programs installed (both names genuinely point at the same one program, a very common and harmless situation), there's nothing to fix: pick either profile in RunBox's Run dialog since both behave identically, and simply dismiss the notice with **Don't Show Again**. This is not a bug and not something you did wrong.
