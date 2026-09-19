@@ -63,7 +63,7 @@ All settings are available via **File > Preferences > Settings** > search for `R
 
 ---
 
-## Related links
+## Related
 
 - [Back to README](../README.md)
 - [Frequently Asked Questions](faqs.md)
