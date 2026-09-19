@@ -35,6 +35,23 @@ function hydrateState(payload) {
   state.workspaceCommands =
     payload && payload.workspaceCommands ? payload.workspaceCommands : { groups: [], commands: [] };
 
+  // Apply the workspace's saved UI selection preferences (active tab, selected
+  // category/group, favorites scope) only once, on the very first "state" message
+  // (right after "ready"). Every later "state" message (triggered by saves, file
+  // watchers, or another window's edits) must leave the user's current in-session
+  // selections untouched. See uiPreferencesHydrated (media/state.js) for why.
+  if (!uiPreferencesHydrated) {
+    uiPreferencesHydrated = true;
+    const uiPreferences = Object.assign({}, UI_PREFERENCE_DEFAULTS, payload && payload.uiPreferences);
+    uiState.activeTab = PERSISTABLE_TABS.includes(uiPreferences.selectedTab)
+      ? uiPreferences.selectedTab
+      : UI_PREFERENCE_DEFAULTS.selectedTab;
+    uiState.selectedCategoryId = uiPreferences.selectedCategoryId;
+    uiState.selectedGroupId = uiPreferences.selectedGroupId;
+    uiState.categoriesSelectedGroupId = uiPreferences.categoriesSelectedGroupId;
+    uiState.favoritesScope = uiPreferences.favoritesScope;
+  }
+
   // If no workspace, force scope to 'global'
   if (!state.workspaceFolder && uiState.favoritesScope === "local") {
     uiState.favoritesScope = "global";
@@ -93,8 +110,9 @@ function hydrateState(payload) {
 }
 
 /**
- * Ensures selectedCategoryId and selectedGroupId point to valid existing items.
- * Falls back to the first category / 'all' group if the saved selection is stale.
+ * Ensures selectedCategoryId, selectedGroupId, and categoriesSelectedGroupId point
+ * to valid existing items. Falls back to the first category / 'all' group if the
+ * saved selection is stale.
  */
 function ensureSelectionDefaults() {
   const categories = state.data.categories || [];
@@ -105,6 +123,7 @@ function ensureSelectionDefaults() {
     if (!state.workspaceFolder) {
       uiState.selectedCategoryId = categories[0] ? categories[0].id : "";
       uiState.selectedGroupId = "all";
+      uiState.categoriesSelectedGroupId = "all";
     }
     return;
   }
@@ -112,6 +131,7 @@ function ensureSelectionDefaults() {
   if (!categories.length) {
     uiState.selectedCategoryId = "";
     uiState.selectedGroupId = "all";
+    uiState.categoriesSelectedGroupId = "all";
     return;
   }
 
@@ -132,6 +152,15 @@ function ensureSelectionDefaults() {
     })
   ) {
     uiState.selectedGroupId = "all";
+  }
+
+  if (
+    uiState.categoriesSelectedGroupId !== "all" &&
+    !groups.some(function (group) {
+      return group.id === uiState.categoriesSelectedGroupId;
+    })
+  ) {
+    uiState.categoriesSelectedGroupId = "all";
   }
 }
 
@@ -521,9 +550,7 @@ function bindTabs() {
       uiState.activeTab = nextTab;
       // Persist only the main saveable tabs (not 'add' which is a transient form state)
       if (PERSISTABLE_TABS.includes(nextTab)) {
-        try {
-          localStorage.setItem("selectedTab", nextTab);
-        } catch {}
+        saveUiPreference("selectedTab", nextTab);
       }
       render();
     });

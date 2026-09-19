@@ -21,7 +21,7 @@ const RUNBOX_EMPTY_VALUE = "__EMPTY_VALUE__";
 // Browser dropdown, regardless of whether runBox.workspaceID has been created yet.
 const CURRENT_WORKSPACE_CATEGORY_ID = "__current_workspace__";
 
-// List of tabs whose selections can be saved in `localStorage`
+// List of tabs whose selections can be saved as the "selectedTab" UI preference
 const PERSISTABLE_TABS = ["recent", "favorites", "categories", "commands", "variables"];
 
 // Options for the manual "Target Shell" selector in Add/Edit Command forms.
@@ -41,32 +41,32 @@ const TARGET_SHELL_OPTIONS = [
   { value: "sh", label: "Sh" },
 ];
 
+// Default values for per-workspace UI selection preferences, used only until the
+// first "state" message arrives from the extension with the real, per-workspace
+// values read from context.workspaceState. Mirrors extension.js's
+// UI_PREFERENCE_DEFAULTS. See hydrateState() (media/render.js) for how these are
+// applied once the extension's payload is received.
+const UI_PREFERENCE_DEFAULTS = {
+  selectedTab: "recent",
+  selectedCategoryId: "",
+  selectedGroupId: "all",
+  categoriesSelectedGroupId: "all",
+  favoritesScope: "local",
+};
+
 const uiState = {
-  activeTab: (function () {
-    try {
-      const saved = localStorage.getItem("selectedTab");
-      return saved && PERSISTABLE_TABS.includes(saved) ? saved : "recent";
-    } catch {
-      return "recent";
-    }
-  })(),
+  activeTab: UI_PREFERENCE_DEFAULTS.selectedTab,
   noticeMessage: "",
   noticeIcon: "",
   noticeType: "",
-  selectedCategoryId: (function () {
-    try {
-      return localStorage.getItem("selectedCategoryId") || "";
-    } catch {
-      return "";
-    }
-  })(),
-  selectedGroupId: (function () {
-    try {
-      return localStorage.getItem("selectedGroupId") || "all";
-    } catch {
-      return "all";
-    }
-  })(),
+  selectedCategoryId: UI_PREFERENCE_DEFAULTS.selectedCategoryId,
+  selectedGroupId: UI_PREFERENCE_DEFAULTS.selectedGroupId,
+  // Separate from selectedGroupId: tracks which group is selected/highlighted for
+  // display, rename, or delete purposes inside the Categories & Groups tab only.
+  // Kept independent so that browsing groups there never affects the Commands tab's
+  // group filter (and therefore never affects the "Add with AI" button's enabled
+  // state, which is driven solely by selectedGroupId).
+  categoriesSelectedGroupId: UI_PREFERENCE_DEFAULTS.categoriesSelectedGroupId,
   devToolsOpen: false,
   sortingMode: false,
   editingCommandId: null,
@@ -95,13 +95,7 @@ const uiState = {
   favoritesSelectedCommandRowId: "",
   commandsSelectedCommandRowId: "",
   // 'local' = workspace favorites, 'global' = global favorites
-  favoritesScope: (function () {
-    try {
-      return localStorage.getItem("favoritesScope") || "local";
-    } catch {
-      return "local";
-    }
-  })(),
+  favoritesScope: UI_PREFERENCE_DEFAULTS.favoritesScope,
 };
 
 let noticeTimer = null;
@@ -230,6 +224,15 @@ let aiCheckStatusState = {
   result: null, // raw payload received from the extension (shape depends on mode)
   error: "",
 };
+
+// Set to true by hydrateState() (media/render.js) after the first "state" message
+// applies payload.uiPreferences to uiState. Subsequent "state" messages (triggered
+// by saves, file watchers, etc.) must NOT re-apply uiPreferences, since the user
+// may have already changed tab/category/group locally and sent a newer
+// saveUiPreference message that has not necessarily reached/persisted in
+// context.workspaceState yet, whose stale echo would otherwise clobber the user's
+// latest in-progress selection.
+let uiPreferencesHydrated = false;
 
 const state = {
   data: {

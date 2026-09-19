@@ -331,18 +331,14 @@ function bindCommandsTabEvents() {
   bindCustomSelect("custom-category-select", "cs-btn-toggle", "cs-menu", function (value) {
     setSelectedCategory(value);
     uiState.selectedGroupId = "all";
-    try {
-      localStorage.setItem("selectedGroupId", "all");
-    } catch {}
+    saveUiPreference("selectedGroupId", "all");
     render();
   });
 
   document.querySelectorAll(".group-filter-tag").forEach(function (tagButton) {
     tagButton.addEventListener("click", function () {
       uiState.selectedGroupId = tagButton.dataset.groupId;
-      try {
-        localStorage.setItem("selectedGroupId", uiState.selectedGroupId);
-      } catch {}
+      saveUiPreference("selectedGroupId", uiState.selectedGroupId);
       // Exit sort mode when switching groups
       if (uiState.sortingMode) {
         uiState.sortingMode = false;
@@ -703,17 +699,13 @@ function bindCommandActionButtons() {
         command.categoryId || (isWorkspaceCommand(commandId) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
       if (targetCategoryId) {
         uiState.selectedCategoryId = targetCategoryId;
-        try {
-          localStorage.setItem("selectedCategoryId", targetCategoryId);
-        } catch {}
+        saveUiPreference("selectedCategoryId", targetCategoryId);
       }
       uiState.selectedGroupId = "all";
       uiState.activeTab = "commands";
       uiState.pendingScrollCommandId = commandId;
-      try {
-        localStorage.setItem("selectedTab", "commands");
-        localStorage.setItem("selectedGroupId", "all");
-      } catch {}
+      saveUiPreference("selectedTab", "commands");
+      saveUiPreference("selectedGroupId", "all");
       render();
     });
   });
@@ -1431,7 +1423,11 @@ function executeDeleteConfirm() {
 
     if (uiState.selectedCategoryId === id) {
       uiState.selectedCategoryId = "";
+      saveUiPreference("selectedCategoryId", "");
       uiState.selectedGroupId = "all";
+      saveUiPreference("selectedGroupId", "all");
+      uiState.categoriesSelectedGroupId = "all";
+      saveUiPreference("categoriesSelectedGroupId", "all");
     }
 
     if (uiState.editingCommandId) {
@@ -1463,6 +1459,11 @@ function executeDeleteConfirm() {
 
       if (uiState.selectedGroupId === id) {
         uiState.selectedGroupId = "all";
+        saveUiPreference("selectedGroupId", "all");
+      }
+      if (uiState.categoriesSelectedGroupId === id) {
+        uiState.categoriesSelectedGroupId = "all";
+        saveUiPreference("categoriesSelectedGroupId", "all");
       }
 
       persistWorkspaceOperation({ type: "deleteGroup", groupId: id }, "Group deleted.");
@@ -1483,6 +1484,11 @@ function executeDeleteConfirm() {
 
     if (uiState.selectedGroupId === id) {
       uiState.selectedGroupId = "all";
+      saveUiPreference("selectedGroupId", "all");
+    }
+    if (uiState.categoriesSelectedGroupId === id) {
+      uiState.categoriesSelectedGroupId = "all";
+      saveUiPreference("categoriesSelectedGroupId", "all");
     }
 
     persistGlobalOperation(

@@ -525,14 +525,25 @@ function updateScopeIndicatorDots(container, variableName, scopeSource) {
 // ─── Category / Group / Command Selection Helpers ─────────────────────────────
 
 /**
- * Persists the selected category ID to localStorage and updates uiState.
+ * Persists a single UI selection preference (active tab, selected category/group,
+ * favorites scope) to the active workspace via context.workspaceState, so it is
+ * isolated per-project instead of shared globally like localStorage. Sends a
+ * "saveUiPreference" message to the extension; the caller is responsible for
+ * updating the corresponding uiState property before/after calling this.
+ * @param {string} key - One of UI_PREFERENCE_DEFAULTS' keys
+ * @param {*} value
+ */
+function saveUiPreference(key, value) {
+  vscode.postMessage({ type: "saveUiPreference", payload: { key, value } });
+}
+
+/**
+ * Persists the selected category ID and updates uiState.
  * @param {string} categoryId
  */
 function setSelectedCategory(categoryId) {
   uiState.selectedCategoryId = categoryId;
-  try {
-    localStorage.setItem("selectedCategoryId", categoryId);
-  } catch {}
+  saveUiPreference("selectedCategoryId", categoryId);
 }
 
 /**

@@ -90,7 +90,7 @@ function renderCategoriesTab() {
             ${selectedCategory && selectedGroups.length === 0 ? `<p class="muted manage-empty">No groups yet.</p>` : ""}
             ${selectedGroups
               .map(function (group) {
-                const isActive = group.id === uiState.selectedGroupId;
+                const isActive = group.id === uiState.categoriesSelectedGroupId;
                 return `
               <div class="manage-item ${isActive ? "active" : ""}" data-group-id="${escapeAttr(group.id)}">
                 <div class="manage-item-info">
@@ -175,7 +175,8 @@ function bindCategoriesTabEvents() {
       }
 
       setSelectedCategory(item.dataset.categoryId);
-      uiState.selectedGroupId = "all";
+      uiState.categoriesSelectedGroupId = "all";
+      saveUiPreference("categoriesSelectedGroupId", "all");
       render();
     });
   });
@@ -187,7 +188,8 @@ function bindCategoriesTabEvents() {
         return;
       }
 
-      uiState.selectedGroupId = item.dataset.groupId;
+      uiState.categoriesSelectedGroupId = item.dataset.groupId;
+      saveUiPreference("categoriesSelectedGroupId", uiState.categoriesSelectedGroupId);
       render();
     });
   });
@@ -261,7 +263,8 @@ function bindCategoriesTabEvents() {
       e.stopPropagation();
       const groupId = btn.dataset.groupId;
       const groupTitle = btn.dataset.groupTitle;
-      uiState.selectedGroupId = groupId;
+      uiState.categoriesSelectedGroupId = groupId;
+      saveUiPreference("categoriesSelectedGroupId", groupId);
       categoriesModalState = {
         visible: true,
         mode: "rename-group",
@@ -282,7 +285,8 @@ function bindCategoriesTabEvents() {
       e.stopPropagation();
       const groupId = btn.dataset.groupId;
       const groupTitle = btn.dataset.groupTitle;
-      uiState.selectedGroupId = groupId;
+      uiState.categoriesSelectedGroupId = groupId;
+      saveUiPreference("categoriesSelectedGroupId", groupId);
       deleteConfirmState = {
         type: "group",
         id: groupId,
@@ -347,6 +351,9 @@ function executeManageModalConfirm() {
     state.data.categories.push(newCategory);
     setSelectedCategory(newCategory.id);
     uiState.selectedGroupId = "all";
+    saveUiPreference("selectedGroupId", "all");
+    uiState.categoriesSelectedGroupId = "all";
+    saveUiPreference("categoriesSelectedGroupId", "all");
     categoriesModalState = { visible: false, mode: null, value: "" };
     persistGlobalOperation({ type: "addCategory", category: newCategory }, "Category added.");
     return;
@@ -376,7 +383,8 @@ function executeManageModalConfirm() {
     if (selectedCategory.isCurrentWorkspace) {
       state.workspaceCommands.groups = state.workspaceCommands.groups || [];
       state.workspaceCommands.groups.push(newGroup);
-      uiState.selectedGroupId = newGroup.id;
+      uiState.categoriesSelectedGroupId = newGroup.id;
+      saveUiPreference("categoriesSelectedGroupId", newGroup.id);
       categoriesModalState = { visible: false, mode: null, value: "" };
       persistWorkspaceOperation({ type: "addGroup", group: newGroup }, "Group added.");
       return;
@@ -384,7 +392,8 @@ function executeManageModalConfirm() {
 
     selectedCategory.groups = selectedCategory.groups || [];
     selectedCategory.groups.push(newGroup);
-    uiState.selectedGroupId = newGroup.id;
+    uiState.categoriesSelectedGroupId = newGroup.id;
+    saveUiPreference("categoriesSelectedGroupId", newGroup.id);
     categoriesModalState = { visible: false, mode: null, value: "" };
     persistGlobalOperation({ type: "addGroup", categoryId: selectedCategory.id, group: newGroup }, "Group added.");
     return;
@@ -396,7 +405,7 @@ function executeManageModalConfirm() {
       return;
     }
     const group = (selectedCategory.groups || []).find(function (g) {
-      return g.id === uiState.selectedGroupId;
+      return g.id === uiState.categoriesSelectedGroupId;
     });
     if (group) {
       group.title = value;
@@ -405,14 +414,19 @@ function executeManageModalConfirm() {
 
     if (selectedCategory.isCurrentWorkspace) {
       persistWorkspaceOperation(
-        { type: "renameGroup", groupId: uiState.selectedGroupId, title: value },
+        { type: "renameGroup", groupId: uiState.categoriesSelectedGroupId, title: value },
         "Group renamed."
       );
       return;
     }
 
     persistGlobalOperation(
-      { type: "renameGroup", categoryId: selectedCategory.id, groupId: uiState.selectedGroupId, title: value },
+      {
+        type: "renameGroup",
+        categoryId: selectedCategory.id,
+        groupId: uiState.categoriesSelectedGroupId,
+        title: value,
+      },
       "Group renamed."
     );
     return;

@@ -220,9 +220,7 @@ function bindFavoritesTabEvents() {
     btn.addEventListener("click", function () {
       const scope = btn.dataset.scope;
       uiState.favoritesScope = scope;
-      try {
-        localStorage.setItem("favoritesScope", scope);
-      } catch {}
+      saveUiPreference("favoritesScope", scope);
       render();
     });
   });

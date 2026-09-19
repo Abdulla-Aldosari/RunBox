@@ -31,6 +31,18 @@ const { buildAutoVariablesPayload } = require("./lib/auto-variables");
 const H = require("./lib/handlers");
 const { initLogger } = require("./lib/logger");
 
+// Default values for per-workspace UI selection preferences (active tab, selected
+// category/group in the Commands tab, selected group in the Categories & Groups
+// tab, favorites scope). Mirrors the fallback defaults previously hardcoded in
+// media/state.js when reading from localStorage.
+const UI_PREFERENCE_DEFAULTS = {
+  selectedTab: "recent",
+  selectedCategoryId: "",
+  selectedGroupId: "all",
+  categoriesSelectedGroupId: "all",
+  favoritesScope: "local",
+};
+
 /**
  * Called by VS Code when the extension is activated.
  * Registers the 'runBox.openPanel' command and creates the webview panel
@@ -71,6 +83,17 @@ function activate(context) {
       await context.workspaceState.update("activeWorkspaceFolder", workspaceFolder);
     }
 
+    // Last-used UI selections (active tab, selected category/group, favorites scope)
+    // are scoped per-workspace via context.workspaceState instead of the webview's
+    // localStorage, which is shared globally across every VS Code window on the
+    // machine. Without this, closing the panel on one project's "Commands" tab and
+    // later opening it on an unrelated project would incorrectly show the other
+    // project's last tab/category/group. When no folder is open at all (empty
+    // window), VS Code has no stable identity to key workspaceState by, so this
+    // simply falls back to UI_PREFERENCE_DEFAULTS on every read in that case,
+    // which is safe and expected since there is no real "workspace" to remember state for.
+    const uiPreferences = Object.assign({}, UI_PREFERENCE_DEFAULTS, context.workspaceState.get("uiPreferences") || {});
+
     const data = await readCommandsData();
     const commandVariables = await readWorkspaceVariables(workspaceFolder);
     const globalCommandVariables = await readGlobalVariables();
@@ -99,6 +122,7 @@ function activate(context) {
         localFavorites,
         workspaceId,
         workspaceCommands,
+        uiPreferences,
       },
     });
   }
@@ -542,6 +566,23 @@ function activate(context) {
         // Retrieves rate limit information for the given AI provider, if supported.
         if (message.type === "aiCheckRateLimits") {
           await H.handleAiCheckRateLimits(panel, context, message.payload);
+          return;
+        }
+
+        // Persists a single UI selection preference (active tab, selected
+        // category/group, favorites scope) scoped to the active workspace via
+        // context.workspaceState. Intentionally does NOT call postState(), since
+        // the webview already updated its own uiState optimistically before
+        // sending this message, so a full state refresh here would be redundant.
+        if (message.type === "saveUiPreference") {
+          const key = message.payload && typeof message.payload.key === "string" ? message.payload.key : null;
+          if (key && Object.prototype.hasOwnProperty.call(UI_PREFERENCE_DEFAULTS, key)) {
+            const current = context.workspaceState.get("uiPreferences") || {};
+            await context.workspaceState.update(
+              "uiPreferences",
+              Object.assign({}, current, { [key]: message.payload.value })
+            );
+          }
           return;
         }
 
