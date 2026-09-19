@@ -758,23 +758,43 @@ function bindCommandFormTemplateInput() {
 }
 
 /**
+ * Briefly pulses every group tag in the form (color/glow only, no scaling)
+ * so the user can quickly locate the Groups list after a "select a group"
+ * validation error. Called after render() so the freshly rebuilt DOM is used.
+ */
+function pulseCommandFormGroupTags() {
+  document.querySelectorAll(".command-form-group-tag").forEach(function (tag) {
+    tag.classList.remove("command-form-group-tag-pulse");
+    void tag.offsetWidth; // force reflow to restart the animation
+    tag.classList.add("command-form-group-tag-pulse");
+    tag.addEventListener(
+      "animationend",
+      function () {
+        tag.classList.remove("command-form-group-tag-pulse");
+      },
+      { once: true }
+    );
+  });
+}
+
+/**
  * Validates the buffer and reports the first problem found.
- * @returns {boolean} True when the buffer is valid
+ * @returns {string|null} Error key ("title" | "template" | "group"), or null when valid
  */
 function validateCommandForm() {
   if (commandFormBuffer.title.length < 3) {
     showError("Command Title must be at least 3 characters.");
-    return false;
+    return "title";
   }
   if (!commandFormBuffer.template) {
     showError("Command Template is required.");
-    return false;
+    return "template";
   }
   if (!commandFormBuffer.groupId) {
     showError("Please select a group from the list below.");
-    return false;
+    return "group";
   }
-  return true;
+  return null;
 }
 
 /**
@@ -1090,8 +1110,12 @@ function bindCommandFormEvents(mode) {
     commandFormBuffer.description = descriptionInput ? descriptionInput.value.trim() : "";
     commandFormBuffer.helpUrl = helpUrlInput ? helpUrlInput.value.trim() : "";
 
-    if (!validateCommandForm()) {
+    const validationError = validateCommandForm();
+    if (validationError) {
       render();
+      if (validationError === "group") {
+        pulseCommandFormGroupTags();
+      }
       return;
     }
 

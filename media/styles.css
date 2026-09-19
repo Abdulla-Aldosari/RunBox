@@ -713,6 +713,26 @@ textarea {
   border-color: transparent;
 }
 
+/* ===== Command Form Group Tags Pulse (color/glow only, no layout shift) ===== */
+@keyframes commandFormGroupPulse {
+  0%,
+  100% {
+    border-color: var(--runbox-panel-border);
+    background: transparent;
+    box-shadow: 0 0 0 0 transparent;
+  }
+
+  50% {
+    border-color: var(--runbox-focusBorder, var(--runbox-charts-blue));
+    background: color-mix(in srgb, var(--runbox-focusBorder, var(--runbox-charts-blue)) 14%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--runbox-focusBorder, var(--runbox-charts-blue)) 35%, transparent);
+  }
+}
+
+.command-form-group-tag-pulse {
+  animation: commandFormGroupPulse 0.5s ease-in-out 3;
+}
+
 .table-panel {
   min-width: 0;
 }
