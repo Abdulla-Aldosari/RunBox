@@ -140,6 +140,7 @@ expectFn(storage, "fileExists");
 expectFn(storage, "getFirstWorkspaceFolderPath");
 expectFn(storage, "getAllWorkspaceFolders");
 expectFn(storage, "resolveActiveWorkspaceFolder");
+expectFn(storage, "normalizeLocalWorkspaceDir");
 expectFn(storage, "getWorkspaceDataFilePath");
 expectFn(storage, "ensureGlobalCommandsFile");
 expectFn(storage, "readCommandsData");
@@ -166,9 +167,9 @@ expectFn(storage, "readWorkspaceCommandsSection");
 expectFn(storage, "writeWorkspaceCommandsSection");
 expectFn(storage, "applyWorkspaceCommandsOperation");
 
-test("has exactly 32 exports (4 constants + 28 functions)", function () {
+test("has exactly 33 exports (4 constants + 29 functions)", function () {
   const keys = Object.keys(storage);
-  assert.strictEqual(keys.length, 32, `Expected 32 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 33, `Expected 33 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // Spot-check path constant values

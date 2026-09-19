@@ -23,6 +23,7 @@ const {
   GLOBAL_DIR,
   readWorkspaceId,
   readWorkspaceCommandsSection,
+  normalizeLocalWorkspaceDir,
 } = require("./lib/storage");
 const { getTerminalProfiles, findDuplicateShellProfiles } = require("./lib/terminal");
 const { getHelpLink } = require("./lib/help-links");
@@ -198,7 +199,7 @@ function activate(context) {
     workspaceDataWatchers = vscode.workspace.workspaceFolders.map(function (folder) {
       const configuredPath =
         vscode.workspace.getConfiguration("runBox", folder.uri).get("localWorkspaceFilesPath") || "";
-      const relativeDir = configuredPath.trim() || ".vscode";
+      const relativeDir = normalizeLocalWorkspaceDir(configuredPath);
       const watcher = vscode.workspace.createFileSystemWatcher(
         new vscode.RelativePattern(folder, `${relativeDir}/runbox.data.json`)
       );
