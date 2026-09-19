@@ -771,7 +771,7 @@ function validateCommandForm() {
     return false;
   }
   if (!commandFormBuffer.groupId) {
-    showError("Please select at least one group from the list below.", icons.exclamationTriangle, "warning");
+    showError("Please select a group from the list below.");
     return false;
   }
   return true;
