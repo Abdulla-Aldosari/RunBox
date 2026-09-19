@@ -42,10 +42,10 @@ npm run build
 
 ## Development Workflow
 
-1. Create a new branch from `development` for your changes:
+1. Create a new branch from `main` for your changes:
 
 ```sh
-git checkout development
+git checkout main
 git checkout -b my-feature-branch
 ```
 
@@ -170,7 +170,7 @@ npm run lint
 npm run prettier:check
 ```
 
-4. Submit a pull request **targeting the `development` branch** with a clear description of your changes. Fill out all relevant sections of the PR template.
+4. Submit a pull request **targeting the `main` branch** with a clear description of your changes. Fill out all relevant sections of the PR template.
 
 5. Wait for approval from the project owner/maintainer. Discuss any requested changes and update your PR accordingly.
 
