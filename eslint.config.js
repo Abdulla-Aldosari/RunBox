@@ -44,6 +44,8 @@ const browserGlobals = {
   UI_PREFERENCE_DEFAULTS: "readonly",
   uiPreferencesHydrated: "writable",
   saveUiPreference: "readonly",
+  connectionLost: "writable",
+  renderConnectionLostModal: "readonly",
   noticeTimer: "writable",
   hydrateState: "readonly",
   _originalSettingsModelId: "writable",

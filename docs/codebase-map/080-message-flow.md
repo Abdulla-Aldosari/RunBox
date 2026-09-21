@@ -6,6 +6,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 
 | `message.type` | Call site | Handler (in `lib/handlers.js`) |
 | - | - | - |
+| `ping` | `media/connection-watchdog.js` (heartbeat interval) | first branch of the dispatch table in `extension.js` — replies with `pong` immediately, independent of any business state or file I/O |
 | `ready` | `media/main.js` (startup) | `postState(panel)` in `extension.js` |
 | `requestState` | `media/messages.js` (on `aiSaveSettingsResult`) | `postState(panel)` in `extension.js` |
 | `saveData` | `media/utils.js` (`persistDataThenRender`) | `handleSaveCommandsData` |
@@ -41,6 +42,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 
 | `message.type` | Handled by (in `media/messages.js`) | Effect |
 | - | - | - |
+| `pong` | inline `window.addEventListener("message", ...)` in `media/connection-watchdog.js` (not `media/messages.js`) | Clears the pong-wait timer; if `connectionLost` was `true`, resets it to `false` and calls `render()` so the "Service connection lost" modal disappears |
 | `state` | `handleState` | Updates `state` + calls `render()`. Payload includes `workspaceFolder` (the resolved active folder) and `workspaceFolders: Array<{ name, fsPath }>` (all open folders — empty array in single-root or no-workspace mode). |
 | `saveResult` | `handleSaveResult` | Shows success/error notice |
 | `saveWorkspaceCommandsDataResult` | inline in message dispatcher | Shows success/error notice for a full "Current Workspace" section overwrite; on failure, requests a fresh `state` to roll back the optimistic render |

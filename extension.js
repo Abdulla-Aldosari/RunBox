@@ -66,6 +66,26 @@ function activate(context) {
 
   // ─── postState ────────────────────────────────────────────────────────────────
   /**
+   * Posts a message to a webview panel, silently swallowing the "Webview is
+   * disposed" error VS Code throws when the panel was closed while this call's
+   * caller was still awaiting async work (e.g. disk reads in collectAndPostState,
+   * or the connection-watchdog heartbeat racing a panel close). There is nothing
+   * useful to do in that case: the panel is gone and nothing is listening, so
+   * letting the error propagate unhandled would otherwise destabilize the entire
+   * extension host (VS Code force-restarts it after enough unhandled rejections),
+   * taking down every other open panel/session, not just this one.
+   * @param {import('vscode').WebviewPanel} targetPanel
+   * @param {object} message
+   */
+  async function safePostMessage(targetPanel, message) {
+    try {
+      await targetPanel.webview.postMessage(message);
+    } catch {
+      // Panel was disposed mid-flight; nothing to recover, safe to ignore.
+    }
+  }
+
+  /**
    * Collects all extension state (commands, variables, terminal profiles, favorites,
    * auto-variables) and sends it to the webview as a single "state" message.
    * Defined as a closure inside activate() so it can access `context.workspaceState`
@@ -106,7 +126,7 @@ function activate(context) {
     const workspaceId = readWorkspaceId(workspaceFolder);
     const workspaceCommands = await readWorkspaceCommandsSection(workspaceFolder);
 
-    await targetPanel.webview.postMessage({
+    await safePostMessage(targetPanel, {
       type: "state",
       payload: {
         data,
@@ -329,29 +349,23 @@ function activate(context) {
   }
   // ─────────────────────────────────────────────────────────────────────────────
 
-  // Registers the primary command that opens (or focuses) the RunBox panel.
-  const openPanelCommand = vscode.commands.registerCommand("runBox.openPanel", async function () {
-    // If the panel already exists, bring it to focus and refresh its state instead
-    // of creating a duplicate panel.
-    if (panel) {
-      panel.reveal(vscode.ViewColumn.One);
-      await postState(panel);
-      return;
-    }
+  // ─── Panel Setup ────────────────────────────────────────────────────────────────
+  /**
+   * Wires up a webview panel (HTML content, message dispatch table, dispose handler)
+   * and pushes the initial state. Only called by runBox.openPanel, right after
+   * createWebviewPanel(), for a brand-new panel -- there is no panel-revival path
+   * (see the comment above runBox.openPanel's command registration for why).
+   * Kept as its own function purely for readability.
+   * @param {import('vscode').WebviewPanel} targetPanel
+   */
+  async function setupPanel(targetPanel) {
+    // Re-asserts the same options already passed to createWebviewPanel() below. A
+    // harmless no-op today, kept only as a cheap safety net: if this project ever
+    // adds a panel-revival path back, a revived panel would come back with scripts
+    // disabled by default, silently blocking every <script> tag in the HTML below.
+    targetPanel.webview.options = { enableScripts: true };
 
-    // Runs once per session, only now that the user has actually opened the panel
-    // (see the comment above checkDuplicateShellProfiles's definition for why).
-    if (!hasCheckedDuplicateShellProfilesThisSession) {
-      hasCheckedDuplicateShellProfilesThisSession = true;
-      checkDuplicateShellProfiles();
-    }
-
-    panel = vscode.window.createWebviewPanel("runBoxPanel", "RunBox", vscode.ViewColumn.One, {
-      enableScripts: true,
-      retainContextWhenHidden: true,
-    });
-
-    panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "icon.png");
+    targetPanel.iconPath = vscode.Uri.joinPath(context.extensionUri, "media", "icon.png");
 
     // isDev is true only when running in Development mode AND the dev tools entry point
     // exists on disk. Both conditions must be met to avoid injecting dev scripts in CI
@@ -383,12 +397,24 @@ function activate(context) {
     }
     // ─────────────────────────────────────────────────────────────────────────────
 
-    panel.webview.html = getWebviewHtml(panel.webview, context.extensionUri, isDev, devModuleFiles);
+    targetPanel.webview.html = getWebviewHtml(targetPanel.webview, context.extensionUri, isDev, devModuleFiles);
 
-    panel.webview.onDidReceiveMessage(
+    targetPanel.webview.onDidReceiveMessage(
       async function (message) {
         // Guard: ignore malformed messages that lack a string type.
         if (!message || typeof message.type !== "string") {
+          return;
+        }
+
+        // Dedicated connection-watchdog heartbeat (media/connection-watchdog.js).
+        // Dependency-free and independent of business message traffic, so it
+        // always replies immediately regardless of any other in-flight work.
+        // Uses targetPanel (not the outer panel) and safePostMessage since this
+        // handler is bound to targetPanel specifically -- it must reply on the
+        // panel that sent the ping, and must never throw if that exact panel was
+        // disposed between receiving the ping and this reply going out.
+        if (message.type === "ping") {
+          await safePostMessage(targetPanel, { type: "pong" });
           return;
         }
 
@@ -604,15 +630,63 @@ function activate(context) {
     );
 
     // Reset the panel reference when the user closes it, allowing a new one to be created
-    // on the next command invocation.
-    panel.onDidDispose(function () {
-      panel = null;
+    // on the next command invocation. Only clears the outer `panel` variable when this
+    // dispose event belongs to the panel currently tracked there, so a stale dispose
+    // from a superseded panel can never null out a newer, still-open one.
+    targetPanel.onDidDispose(function () {
+      if (panel === targetPanel) {
+        panel = null;
+      }
     });
 
-    await postState(panel);
+    await postState(targetPanel);
+  }
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  // Registers the primary command that opens (or focuses) the RunBox panel.
+  const openPanelCommand = vscode.commands.registerCommand("runBox.openPanel", async function () {
+    // If the panel already exists, bring it to focus and refresh its state instead
+    // of creating a duplicate panel.
+    if (panel) {
+      panel.reveal(vscode.ViewColumn.One);
+      await postState(panel);
+      return;
+    }
+
+    // Runs once per session, only now that the user has actually opened the panel
+    // (see the comment above checkDuplicateShellProfiles's definition for why).
+    if (!hasCheckedDuplicateShellProfilesThisSession) {
+      hasCheckedDuplicateShellProfilesThisSession = true;
+      checkDuplicateShellProfiles();
+    }
+
+    panel = vscode.window.createWebviewPanel("runBoxPanel", "RunBox", vscode.ViewColumn.One, {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+    });
+
+    await setupPanel(panel);
   });
 
   context.subscriptions.push(openPanelCommand);
+
+  // Intentionally does NOT register a vscode.window.registerWebviewPanelSerializer
+  // for "runBoxPanel". VS Code's own webview-revival mechanism is currently unreliable
+  // across extension host restarts / window reloads (confirmed against VS Code 1.138.0
+  // stable and 1.139.0-insider): a revived panel frequently gets stuck as a permanently
+  // blank screen with an endless loading indicator instead of restoring correctly. See
+  // https://github.com/microsoft/vscode/issues/225410 (extension host restarts/crashes
+  // are not handled for webviews, no extension-facing API exists to detect it) and
+  // https://github.com/microsoft/vscode/pull/226069 (the fix for this, still open/
+  // unmerged as of VS Code 1.139.0-insider). Without a serializer, VS Code does not
+  // persist the panel across a reload at all, so it simply closes instead of coming
+  // back as an unrecoverable orphaned blank screen -- the user just reopens it via the
+  // command/status bar/keybinding, which always creates a clean new panel. The
+  // connection-watchdog heartbeat (media/connection-watchdog.js, "ping"/"pong" above)
+  // still covers the case where the panel's DOM survives a host restart while the
+  // extension side does not (e.g. certain host crash-recovery paths): it detects the
+  // dead connection and tells the user to close and reopen the panel, which is
+  // guaranteed to work since it always creates a brand-new panel via runBox.openPanel.
 
   // Status bar item shown on the right side of the VS Code status bar.
   // Clicking it triggers runBox.openPanel to open or focus the panel.
@@ -646,6 +720,12 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   const stateUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "state.js"));
   const iconsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "icons.js"));
   const utilsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "utils.js"));
+
+  // 1a. Connection watchdog (independent heartbeat — only depends on icons and vscode,
+  // both already defined earlier)
+  const connectionWatchdogUri = webview.asWebviewUri(
+    vscode.Uri.joinPath(extensionUri, "media", "connection-watchdog.js")
+  );
 
   // 1b. Markdown parser (utility — must load before ai-explain.js)
   const markdownParserUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "markdown-parser.js"));
@@ -710,6 +790,7 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   <script nonce="${nonce}" src="${stateUri}"></script>
   <script nonce="${nonce}" src="${iconsUri}"></script>
   <script nonce="${nonce}" src="${utilsUri}"></script>
+  <script nonce="${nonce}" src="${connectionWatchdogUri}"></script>
   <script nonce="${nonce}" src="${markdownParserUri}"></script>
 
   <!-- 2. Modals (must exist before tab renderers that reference renderCommandCard, etc.) -->

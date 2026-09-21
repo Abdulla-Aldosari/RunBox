@@ -264,6 +264,7 @@ function render() {
       }
       ${renderVariableInputModal()}
       ${renderRunConfirmModal()}
+      ${renderConnectionLostModal()}
       ${renderDeleteConfirmModal()}
       ${favoriteModalState.visible ? renderFavoriteModal() : ""}
       ${unfavoriteConfirmState.visible ? renderUnfavoriteConfirmModal() : ""}
