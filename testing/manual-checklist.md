@@ -256,7 +256,18 @@ Close the Extension Development Host completely and reopen it (F5 again):
 
 ---
 
-## 16. Build & Linting
+## 16. Connection Watchdog
+
+- [ ] Open the panel normally — confirm no "Connection lost" modal ever appears during normal use
+- [ ] Click through several Category/Group items in a row on "Categories & Groups" (each sends a fire-and-forget `saveUiPreference` message) — confirm the modal never appears
+- [ ] Open the Command Palette and run **Developer: Restart Extension Host** while the panel is open — confirm either:
+  - the panel reconnects automatically within a few seconds with no modal shown, or
+  - the "Connection lost" modal appears within a few seconds if reconnection did not succeed
+- [ ] If the modal appeared, close the panel and reopen it — confirm the panel works normally again
+
+---
+
+## 17. Build & Linting
 
 Run these commands from the terminal in the project root and confirm no errors:
 
