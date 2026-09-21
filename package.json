@@ -149,7 +149,7 @@
     "@mistralai/mistralai": "^2.7.0",
     "cohere-ai": "^8.0.0",
     "groq-sdk": "^1.6.0",
-    "openai": "^6.46.0"
+    "openai": "^7.18.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
