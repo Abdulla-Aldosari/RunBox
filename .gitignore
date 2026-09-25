@@ -1,6 +1,7 @@
 .vscode/settings.json
 .clinerules
-.vsenv
+.vsenv/
+.mindstream/
 media/dev/
 dist/
 node_modules/
