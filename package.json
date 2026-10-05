@@ -3,7 +3,7 @@
   "displayName": "RunBox",
   "description": "Manage categorized terminal commands and run, use, or copy them with variable support.",
   "version": "1.0.0",
-  "publisher": "abdulla-aldosari",
+  "publisher": "Abdulla-Aldosari",
   "icon": "media/icon.png",
   "homepage": "https://github.com/Abdulla-Aldosari/runbox#readme",
   "license": "Apache-2.0",
