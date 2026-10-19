@@ -2,8 +2,6 @@
 
 All settings are available via **File > Preferences > Settings** > search for `RunBox`, or by editing your `settings.json` directly.
 
----
-
 ## Settings
 
 | Setting                            | Type      | Default      | Description                                                                                                                                                                                                                                                                                                                                                                                                   |
