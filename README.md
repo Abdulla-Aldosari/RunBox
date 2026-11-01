@@ -15,7 +15,7 @@ RunBox gives you a central panel inside VS Code to store and run your frequently
 
 Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
 
-![Categorized Command Management](docs/images/categorized-command-management.gif)
+![Categorized Command Management](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/categorized-command-management.gif)
 
 ---
 
@@ -23,7 +23,7 @@ Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Buil
 
 A special category that always appears first in the list whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately inside `.vscode/runbox.data.json` (or your configured `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they only ever show up in this exact workspace folder, never in any other project.
 
-![Current Workspace](docs/images/current-workspace.gif)
+![Current Workspace](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/current-workspace.gif)
 
 This is useful for commands that only make sense for one specific project, such as a project-specific build script or a database connection string, that you never want showing up when you open a different project.
 
@@ -39,7 +39,7 @@ This is useful for commands that only make sense for one specific project, such 
 | **Use**  | Pastes it into the terminal input so you can review or edit before running |
 | **Copy** | Copies the resolved command to your clipboard                              |
 
-![Run, Use, and Copy](docs/images/three-ways-to-run-a-command.gif)
+![Run, Use, and Copy](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/three-ways-to-run-a-command.gif)
 
 ---
 
