@@ -137,6 +137,38 @@ function findMatchingShellProfile(targetShell) {
 }
 
 /**
+ * Resolves the terminal shell a command should run with, from the command
+ * itself only - never from a shell picked for another command.
+ *
+ * Order: the profile matching the command's own targetShell, then VS Code's
+ * default terminal profile (also used when targetShell is empty / "Any
+ * Shell"), then the first configured profile. Returns nulls when no profile
+ * is configured at all.
+ * @param {{targetShell?: string}|null|undefined} command
+ * @returns {{shellName: string|null, shellPath: string|null}}
+ */
+function resolveRunShell(command) {
+  const matched = findMatchingShellProfile(command ? command.targetShell : "");
+  if (matched) {
+    return { shellName: matched.name, shellPath: matched.shellPath };
+  }
+
+  const profiles = (state.terminalProfiles && state.terminalProfiles.profiles) || [];
+  const defaultName = (state.terminalProfiles && state.terminalProfiles.defaultProfile) || "";
+  const fallback =
+    profiles.find(function (p) {
+      return p.name === defaultName;
+    }) ||
+    profiles[0] ||
+    null;
+
+  return {
+    shellName: fallback ? fallback.name : null,
+    shellPath: fallback ? fallback.shellPath : null,
+  };
+}
+
+/**
  * Describes how a Target Shell selection resolves against the terminal
  * profiles actually configured on this machine, for the transparency
  * indicator shown below the "Target Shell" field in the Command form.

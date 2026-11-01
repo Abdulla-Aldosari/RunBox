@@ -149,6 +149,7 @@ const browserGlobals = {
   TARGET_SHELL_OPTIONS: "readonly",
   findMatchingShellProfile: "readonly",
   describeShellSelection: "readonly",
+  resolveRunShell: "readonly",
   CURRENT_WORKSPACE_CATEGORY_ID: "readonly",
   isCurrentWorkspaceCategory: "readonly",
   isWorkspaceCommand: "readonly",

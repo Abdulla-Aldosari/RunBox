@@ -85,15 +85,23 @@ restriction. "Any Shell" is never dimmed.
 
 When the Run Confirm modal is opened for a command (Run button click, or
 after resolving missing variables), `media/tabs/commands.js` calls
-`findMatchingShellProfile(command.targetShell)`:
+`resolveRunShell(command)` (`media/utils.js`), which depends only on that
+command and the configured profiles:
 
-- **Match found** → that profile's `shellPath`/`name` pre-select the shell
-  dropdown in the Run Confirm modal (`renderShellSelector()` in
+- **Match found** → the profile matching `command.targetShell` pre-selects
+  the shell dropdown in the Run Confirm modal (`renderShellSelector()` in
   `media/modals/run-confirm.js`).
-- **No match** (empty `targetShell`, or no configured profile has that
-  `shellType`) → falls back to whatever shell was previously selected in
-  `runConfirmState`, preserving prior behavior exactly.
+- **No match** (empty `targetShell` / "Any Shell", or no configured profile
+  has that `shellType`) → VS Code's default terminal profile
+  (`state.terminalProfiles.defaultProfile`), then the first configured
+  profile; `null` when no profile exists (the extension side then uses the
+  VS Code default terminal).
+
+`runConfirmState.selectedShell*` is scoped to a single Run Confirm session:
+it is reset to `null` on Run, Cancel, outside-click dismissal, and command
+deletion, so a shell picked manually for one run never carries over to
+another command. Returning from the "Edit Variables" modal into the same
+Run Confirm session keeps the manually picked shell.
 
 The user can still override the auto-selected shell manually via the
-dropdown before confirming — this system only changes the pre-selected
-default, never the final choice.
+dropdown before confirming; the override applies to that run only.

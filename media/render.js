@@ -52,20 +52,6 @@ function hydrateState(payload) {
     uiState.favoritesScope = "global";
   }
 
-  // Initialize selected shell from default profile if not already set
-  if (runConfirmState.selectedShellName == null) {
-    const profiles = state.terminalProfiles.profiles || [];
-    const defaultName = state.terminalProfiles.defaultProfile || "";
-    const defaultProfileEntry =
-      profiles.find(function (p) {
-        return p.name === defaultName;
-      }) ||
-      profiles[0] ||
-      null;
-    runConfirmState.selectedShellName = defaultProfileEntry ? defaultProfileEntry.name : null;
-    runConfirmState.selectedShellPath = defaultProfileEntry ? defaultProfileEntry.shellPath : null;
-  }
-
   const workspaceFolderChanged = state.workspaceFolder !== prevWorkspaceFolder;
   const localCmds = state.commandVariables.commands || {};
   const globalCmds = state.globalCommandVariables.commands || {};
@@ -341,8 +327,8 @@ const modalDismissHandlers = {
     runConfirmState = {
       commandId: null,
       resolvedCommand: "",
-      selectedShellPath: runConfirmState.selectedShellPath,
-      selectedShellName: runConfirmState.selectedShellName,
+      selectedShellPath: null,
+      selectedShellName: null,
     };
     render();
   },

@@ -596,12 +596,12 @@ function bindCommandActionButtons() {
         return;
       }
 
-      const matchedProfile = findMatchingShellProfile(command.targetShell);
+      const runShell = resolveRunShell(command);
       runConfirmState = {
         commandId,
         resolvedCommand: resolveCommandTemplate(command),
-        selectedShellPath: matchedProfile ? matchedProfile.shellPath : runConfirmState.selectedShellPath,
-        selectedShellName: matchedProfile ? matchedProfile.name : runConfirmState.selectedShellName,
+        selectedShellPath: runShell.shellPath,
+        selectedShellName: runShell.shellName,
       };
 
       render();
@@ -861,8 +861,8 @@ function bindCommandActionButtons() {
       runConfirmState = {
         commandId: null,
         resolvedCommand: "",
-        selectedShellPath: shellPath,
-        selectedShellName: shellName,
+        selectedShellPath: null,
+        selectedShellName: null,
       };
       render();
 
@@ -879,8 +879,8 @@ function bindCommandActionButtons() {
       runConfirmState = {
         commandId: null,
         resolvedCommand: "",
-        selectedShellPath: runConfirmState.selectedShellPath,
-        selectedShellName: runConfirmState.selectedShellName,
+        selectedShellPath: null,
+        selectedShellName: null,
       };
       render();
     });
@@ -1286,12 +1286,15 @@ function bindCommandActionButtons() {
         const command = findCommandById(commandId);
 
         if (command) {
-          const matchedProfile = findMatchingShellProfile(command.targetShell);
+          // Returning from "Edit Variables" inside the same Run Confirm session
+          // keeps the shell picked there; a fresh run resolves it per command.
+          const keepSessionShell = runConfirmState.commandId === commandId;
+          const runShell = resolveRunShell(command);
           runConfirmState = {
             commandId,
             resolvedCommand: resolveCommandTemplate(command),
-            selectedShellPath: matchedProfile ? matchedProfile.shellPath : runConfirmState.selectedShellPath,
-            selectedShellName: matchedProfile ? matchedProfile.name : runConfirmState.selectedShellName,
+            selectedShellPath: keepSessionShell ? runConfirmState.selectedShellPath : runShell.shellPath,
+            selectedShellName: keepSessionShell ? runConfirmState.selectedShellName : runShell.shellName,
           };
         }
 
@@ -1320,8 +1323,8 @@ function bindCommandActionButtons() {
         runConfirmState = {
           commandId: null,
           resolvedCommand: "",
-          selectedShellPath: runConfirmState.selectedShellPath,
-          selectedShellName: runConfirmState.selectedShellName,
+          selectedShellPath: null,
+          selectedShellName: null,
         };
       }
 
@@ -1479,8 +1482,8 @@ function executeDeleteConfirm() {
       runConfirmState = {
         commandId: null,
         resolvedCommand: "",
-        selectedShellPath: runConfirmState.selectedShellPath,
-        selectedShellName: runConfirmState.selectedShellName,
+        selectedShellPath: null,
+        selectedShellName: null,
       };
       uiState.activeTab = "commands";
     }
