@@ -177,4 +177,4 @@ Open RunBox in as many VS Code windows as you like — the same project twice, o
 
 ## License
 
-[Apache-2.0](LICENSE)
+[MIT](LICENSE)

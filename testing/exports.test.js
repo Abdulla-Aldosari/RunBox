@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -178,10 +178,7 @@ test("GLOBAL_DIR contains '.runbox'", function () {
 });
 
 test("GLOBAL_COMMANDS_FILE ends with 'commands.json'", function () {
-  assert.ok(
-    storage.GLOBAL_COMMANDS_FILE.endsWith("commands.json"),
-    `GLOBAL_COMMANDS_FILE = "${storage.GLOBAL_COMMANDS_FILE}"`
-  );
+  assert.ok(storage.GLOBAL_COMMANDS_FILE.endsWith("commands.json"), `GLOBAL_COMMANDS_FILE = "${storage.GLOBAL_COMMANDS_FILE}"`);
 });
 
 test("GLOBAL_DATA_FILE ends with 'data.json'", function () {

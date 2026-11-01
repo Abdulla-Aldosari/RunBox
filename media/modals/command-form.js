@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -347,10 +347,7 @@ function renderCommandForm(mode) {
     `;
     }
     if (commandFormBuffer.mode !== "add") {
-      commandFormBuffer.captureNew(
-        selectedCategory,
-        uiState.selectedGroupId && uiState.selectedGroupId !== "all" ? uiState.selectedGroupId : ""
-      );
+      commandFormBuffer.captureNew(selectedCategory, uiState.selectedGroupId && uiState.selectedGroupId !== "all" ? uiState.selectedGroupId : "");
     }
   }
 
@@ -363,9 +360,7 @@ function renderCommandForm(mode) {
       }) || null;
   const groups = category ? category.groups || [] : [];
   const variables = getUserVariableNames(commandFormBuffer.template);
-  const originalCategoryId = isEdit
-    ? command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "")
-    : "";
+  const originalCategoryId = isEdit ? command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "") : "";
   const isMoved = isEdit && commandFormBuffer.categoryId !== originalCategoryId;
 
   return `
@@ -546,13 +541,7 @@ function bindCommandFormVariableInputs() {
       const scope = input.dataset.scope || commandFormBuffer.remember[variableName] || "off";
       commandFormBuffer.scopeDraft(scope)[variableName] = input.value;
 
-      const toggleContainer = document.querySelector(
-        '.variable-remember-toggle[data-command-id="' +
-          COMMAND_FORM_CTX +
-          '"][data-variable-name="' +
-          variableName +
-          '"]'
-      );
+      const toggleContainer = document.querySelector('.variable-remember-toggle[data-command-id="' + COMMAND_FORM_CTX + '"][data-variable-name="' + variableName + '"]');
       updateScopeIndicatorDots(toggleContainer, variableName, commandFormBuffer.scopeSource());
     });
 
@@ -592,58 +581,54 @@ function bindCommandFormVariableInputs() {
  * in place without a full re-render.
  */
 function bindCommandFormScopeToggles() {
-  document
-    .querySelectorAll('.variable-remember-toggle[data-command-id="' + COMMAND_FORM_CTX + '"]')
-    .forEach(function (container) {
-      container.querySelectorAll(".toggle-option-3").forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          if (btn.disabled) {
-            return;
-          }
+  document.querySelectorAll('.variable-remember-toggle[data-command-id="' + COMMAND_FORM_CTX + '"]').forEach(function (container) {
+    container.querySelectorAll(".toggle-option-3").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (btn.disabled) {
+          return;
+        }
 
-          const variableName = container.dataset.variableName;
-          const newScope = btn.dataset.value;
-          const inputEl = document.querySelector(
-            '.variable-input[data-command-id="' + COMMAND_FORM_CTX + '"][data-variable-name="' + variableName + '"]'
-          );
+        const variableName = container.dataset.variableName;
+        const newScope = btn.dataset.value;
+        const inputEl = document.querySelector('.variable-input[data-command-id="' + COMMAND_FORM_CTX + '"][data-variable-name="' + variableName + '"]');
 
-          // Step 1: Save the current input value into the currently active scope
-          if (inputEl) {
-            const currentActiveBtn = container.querySelector(".toggle-option-3.active");
-            const currentScope = currentActiveBtn ? currentActiveBtn.dataset.value : "off";
-            const currentVal = inputEl.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : inputEl.value;
-            commandFormBuffer.scopeDraft(currentScope)[variableName] = currentVal;
-          }
+        // Step 1: Save the current input value into the currently active scope
+        if (inputEl) {
+          const currentActiveBtn = container.querySelector(".toggle-option-3.active");
+          const currentScope = currentActiveBtn ? currentActiveBtn.dataset.value : "off";
+          const currentVal = inputEl.dataset.isEmptyValue === "true" ? RUNBOX_EMPTY_VALUE : inputEl.value;
+          commandFormBuffer.scopeDraft(currentScope)[variableName] = currentVal;
+        }
 
-          // Step 2: Move the active class
-          container.querySelectorAll(".toggle-option-3").forEach(function (b) {
-            b.classList.remove("active");
-          });
-          btn.classList.add("active");
-
-          // Step 3: Update the scope preference
-          commandFormBuffer.remember[variableName] = newScope;
-
-          // Step 4: Load the new scope value into the input
-          if (inputEl) {
-            const newVal = commandFormBuffer.scopeDraft(newScope)[variableName] || "";
-            const isEmptyValue = newVal === RUNBOX_EMPTY_VALUE;
-            inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;
-            inputEl.readOnly = isEmptyValue;
-            if (isEmptyValue) {
-              inputEl.setAttribute("data-is-empty-value", "true");
-            } else {
-              inputEl.removeAttribute("data-is-empty-value");
-            }
-            inputEl.removeAttribute("data-pre-empty-value");
-            inputEl.setAttribute("data-scope", newScope);
-          }
-
-          // Step 5: Repaint the scope indicator dots
-          updateScopeIndicatorDots(container, variableName, commandFormBuffer.scopeSource());
+        // Step 2: Move the active class
+        container.querySelectorAll(".toggle-option-3").forEach(function (b) {
+          b.classList.remove("active");
         });
+        btn.classList.add("active");
+
+        // Step 3: Update the scope preference
+        commandFormBuffer.remember[variableName] = newScope;
+
+        // Step 4: Load the new scope value into the input
+        if (inputEl) {
+          const newVal = commandFormBuffer.scopeDraft(newScope)[variableName] || "";
+          const isEmptyValue = newVal === RUNBOX_EMPTY_VALUE;
+          inputEl.value = isEmptyValue ? "[EmptyValue]" : newVal;
+          inputEl.readOnly = isEmptyValue;
+          if (isEmptyValue) {
+            inputEl.setAttribute("data-is-empty-value", "true");
+          } else {
+            inputEl.removeAttribute("data-is-empty-value");
+          }
+          inputEl.removeAttribute("data-pre-empty-value");
+          inputEl.setAttribute("data-scope", newScope);
+        }
+
+        // Step 5: Repaint the scope indicator dots
+        updateScopeIndicatorDots(container, variableName, commandFormBuffer.scopeSource());
       });
     });
+  });
 }
 
 /**
@@ -1066,20 +1051,14 @@ function bindCommandFormEvents(mode) {
   });
 
   if (isEdit) {
-    const originalCategoryId =
-      command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
-    bindCustomSelect(
-      "command-form-category-wrap",
-      "command-form-category-btn",
-      "command-form-category-menu",
-      function (newCategoryId) {
-        commandFormBuffer.categoryId = newCategoryId;
-        // Restore the original group when reverting to the original category,
-        // otherwise reset it — a group belongs to a single category
-        commandFormBuffer.groupId = newCategoryId === originalCategoryId ? command.groupId || "" : "";
-        render();
-      }
-    );
+    const originalCategoryId = command.categoryId || (isWorkspaceCommand(command.id) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
+    bindCustomSelect("command-form-category-wrap", "command-form-category-btn", "command-form-category-menu", function (newCategoryId) {
+      commandFormBuffer.categoryId = newCategoryId;
+      // Restore the original group when reverting to the original category,
+      // otherwise reset it — a group belongs to a single category
+      commandFormBuffer.groupId = newCategoryId === originalCategoryId ? command.groupId || "" : "";
+      render();
+    });
   }
 
   bindCustomSelect("command-form-shell-wrap", "command-form-shell-btn", "command-form-shell-menu", function (newShell) {
@@ -1104,9 +1083,7 @@ function bindCommandFormEvents(mode) {
 
     // Read the text fields from the DOM into the buffer
     commandFormBuffer.title = titleInput ? titleInput.value.trim() : "";
-    commandFormBuffer.template = document.getElementById("command-form-template")
-      ? document.getElementById("command-form-template").value.trim()
-      : "";
+    commandFormBuffer.template = document.getElementById("command-form-template") ? document.getElementById("command-form-template").value.trim() : "";
     commandFormBuffer.description = descriptionInput ? descriptionInput.value.trim() : "";
     commandFormBuffer.helpUrl = helpUrlInput ? helpUrlInput.value.trim() : "";
 

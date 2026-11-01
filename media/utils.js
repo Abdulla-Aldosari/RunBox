@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -13,12 +13,7 @@
 // ─── HTML Helpers ─────────────────────────────────────────────────────────────
 
 function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  return String(value).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
 function escapeAttr(value) {
@@ -265,9 +260,7 @@ function resolveCommandTemplate(command) {
     if (value === "") {
       // Remove " ${name} " (space on both sides) → single space to avoid extra gaps.
       // Then remove any remaining bare placeholder (no surrounding spaces).
-      resolved = resolved
-        .replace(new RegExp(" \\$\\{" + escapeRegExp(name) + "\\} ", "g"), " ")
-        .replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), "");
+      resolved = resolved.replace(new RegExp(" \\$\\{" + escapeRegExp(name) + "\\} ", "g"), " ").replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), "");
     } else {
       resolved = resolved.replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), value);
     }
@@ -298,8 +291,7 @@ function resolveGroupTitle(groupId, groups) {
  */
 function getCommandLocalDraft(commandId) {
   if (!uiState.commandLocalDrafts[commandId]) {
-    const localVars =
-      (state.commandVariables && state.commandVariables.commands && state.commandVariables.commands[commandId]) || {};
+    const localVars = (state.commandVariables && state.commandVariables.commands && state.commandVariables.commands[commandId]) || {};
     uiState.commandLocalDrafts[commandId] = Object.assign({}, localVars);
   }
   return uiState.commandLocalDrafts[commandId];
@@ -313,11 +305,7 @@ function getCommandLocalDraft(commandId) {
  */
 function getCommandGlobalDraft(commandId) {
   if (!uiState.commandGlobalDrafts[commandId]) {
-    const globalVars =
-      (state.globalCommandVariables &&
-        state.globalCommandVariables.commands &&
-        state.globalCommandVariables.commands[commandId]) ||
-      {};
+    const globalVars = (state.globalCommandVariables && state.globalCommandVariables.commands && state.globalCommandVariables.commands[commandId]) || {};
     uiState.commandGlobalDrafts[commandId] = Object.assign({}, globalVars);
   }
   return uiState.commandGlobalDrafts[commandId];
@@ -394,13 +382,8 @@ function getCommandDraft(commandId) {
 function getCommandRemember(commandId) {
   if (!uiState.commandRemember[commandId]) {
     var remembered = {};
-    var globalVars =
-      (state.globalCommandVariables &&
-        state.globalCommandVariables.commands &&
-        state.globalCommandVariables.commands[commandId]) ||
-      {};
-    var localVars =
-      (state.commandVariables && state.commandVariables.commands && state.commandVariables.commands[commandId]) || {};
+    var globalVars = (state.globalCommandVariables && state.globalCommandVariables.commands && state.globalCommandVariables.commands[commandId]) || {};
+    var localVars = (state.commandVariables && state.commandVariables.commands && state.commandVariables.commands[commandId]) || {};
 
     var allKeys = {};
     Object.keys(globalVars).forEach(function (k) {
@@ -732,14 +715,9 @@ function highlightResolvedHtml(command) {
     if (value === "") {
       // Remove " ${name} " (space on both sides) → single space to avoid extra gaps.
       // Then remove any remaining bare placeholder (no surrounding spaces).
-      result = result
-        .replace(new RegExp(" \\$\\{" + escapeRegExp(name) + "\\} ", "g"), " ")
-        .replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), "");
+      result = result.replace(new RegExp(" \\$\\{" + escapeRegExp(name) + "\\} ", "g"), " ").replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), "");
     } else {
-      result = result.replace(
-        new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"),
-        '<span class="' + cls + '">' + escapeHtml(value) + "</span>"
-      );
+      result = result.replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), '<span class="' + cls + '">' + escapeHtml(value) + "</span>");
     }
   });
 
@@ -1149,9 +1127,7 @@ function renderActionsCell(command, options) {
   });
   var _useMissing = getMissingVariables(command);
   var _useCtrlHint = _useVars.length > 0 && _useMissing.length === 0;
-  var _useTitle = _useCtrlHint
-    ? "Insert into terminal (without running)<br>Press CTRL key to edit the variables"
-    : "Insert into terminal (without running)";
+  var _useTitle = _useCtrlHint ? "Insert into terminal (without running)<br>Press CTRL key to edit the variables" : "Insert into terminal (without running)";
 
   var useBtn = command.command.includes("\n")
     ? `<button class="btn icon-btn secondary d-focus" disabled data-tooltip="Use is not available for multi-line commands">${icons.use}</button>`
@@ -1176,14 +1152,7 @@ function renderActionsCell(command, options) {
   var favBtn = "";
   if (favoriteStyle === "favorite") {
     var _fs = getFavoriteScope(command.id);
-    var _cls =
-      _fs === "none"
-        ? "secondary"
-        : _fs === "local"
-          ? "fav-state-local"
-          : _fs === "global"
-            ? "fav-state-global"
-            : "fav-state-both";
+    var _cls = _fs === "none" ? "secondary" : _fs === "local" ? "fav-state-local" : _fs === "global" ? "fav-state-global" : "fav-state-both";
     var _icon = _fs === "none" ? icons.heartPlus : icons.heartActive;
     // "Current Workspace" commands never leave this workspace folder, so all Global
     // shortcuts are meaningless for them and are omitted from the tooltip entirely.
@@ -1334,8 +1303,7 @@ function bindCustomSelect(wrapperId, btnId, menuId, onChange) {
         // Scroll the selected item to the center of the visible menu area
         var itemsWrapper = menu.querySelector(".cs-menu-items-wrapper");
         if (itemsWrapper) {
-          itemsWrapper.scrollTop =
-            highlightedItem.offsetTop - itemsWrapper.clientHeight / 2 + highlightedItem.offsetHeight / 2;
+          itemsWrapper.scrollTop = highlightedItem.offsetTop - itemsWrapper.clientHeight / 2 + highlightedItem.offsetHeight / 2;
         }
       }
       document.addEventListener("pointerdown", onPointerDown, true);

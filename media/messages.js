@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -52,11 +52,7 @@ window.addEventListener("message", function (event) {
     if (message.payload && message.payload.success) {
       showNotice(pendingMessage || "Saved successfully.", icons.circleCheck, "success");
     } else {
-      showNotice(
-        `Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`, icons.circleX, "error");
       // Rollback optimistic render — reload authoritative state from disk
       vscode.postMessage({ type: "requestState" });
     }
@@ -79,11 +75,7 @@ window.addEventListener("message", function (event) {
       // discard, rather than silently losing one side or the other.
       handleEditConflict(message.payload.currentCommand);
     } else {
-      showNotice(
-        `Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`, icons.circleX, "error");
       // Rollback optimistic render — reload authoritative state from disk
       vscode.postMessage({ type: "requestState" });
     }
@@ -98,11 +90,7 @@ window.addEventListener("message", function (event) {
     if (message.payload && message.payload.success) {
       showNotice(pendingMessage || "Saved successfully.", icons.circleCheck, "success");
     } else {
-      showNotice(
-        `Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Save failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`, icons.circleX, "error");
       vscode.postMessage({ type: "requestState" });
     }
     paintNotice();
@@ -113,11 +101,7 @@ window.addEventListener("message", function (event) {
     if (message.payload && message.payload.success) {
       showNotice(`Action "${message.payload.action}" completed.`, icons.circleCheck, "info");
     } else {
-      showNotice(
-        `Action failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Action failed: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`, icons.circleX, "error");
     }
 
     render();
@@ -178,11 +162,7 @@ window.addEventListener("message", function (event) {
       vscode.postMessage({ type: "aiGetSettings" });
       showNotice("AI settings saved.", icons.circleCheck, "success");
     } else {
-      showNotice(
-        `Failed to save settings: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Failed to save settings: ${message.payload && message.payload.message ? message.payload.message : "Unknown error"}`, icons.circleX, "error");
       render();
     }
     return;
@@ -194,11 +174,7 @@ window.addEventListener("message", function (event) {
       vscode.postMessage({ type: "aiGetSettings" });
       showNotice("API key removed.", icons.circleCheck, "success");
     } else {
-      showNotice(
-        `Failed to remove key: ${message.payload && message.payload.error ? message.payload.error : "Unknown error"}`,
-        icons.circleX,
-        "error"
-      );
+      showNotice(`Failed to remove key: ${message.payload && message.payload.error ? message.payload.error : "Unknown error"}`, icons.circleX, "error");
     }
     return;
   }
@@ -244,11 +220,7 @@ window.addEventListener("message", function (event) {
     if (message.payload && message.payload.success) {
       showNotice("Auto variables settings saved.", icons.circleCheck, "success");
     } else {
-      showNotice(
-        "Failed to save: " + (message.payload && message.payload.message ? message.payload.message : "Unknown error"),
-        icons.circleX,
-        "error"
-      );
+      showNotice("Failed to save: " + (message.payload && message.payload.message ? message.payload.message : "Unknown error"), icons.circleX, "error");
     }
     // Page is already rendered — just append the notice to document.body (outside #app, survives any future render)
     paintNotice();
@@ -258,22 +230,14 @@ window.addEventListener("message", function (event) {
   if (message.type === "aiListModelsResult") {
     const resultProvider = message.payload && message.payload.providerName;
     // Persist to cache and apply to aiState on success
-    if (
-      message.payload &&
-      message.payload.success &&
-      Array.isArray(message.payload.models) &&
-      message.payload.models.length > 0
-    ) {
+    if (message.payload && message.payload.success && Array.isArray(message.payload.models) && message.payload.models.length > 0) {
       setModelsCache(resultProvider, message.payload.models);
       if (aiState.aiProviderSetup && aiState.aiProviderSetup[resultProvider]) {
         aiState.aiProviderSetup[resultProvider].models = message.payload.models;
       }
     } else {
       // Fetch failed or returned empty — cache static models to prevent re-fetching on next open
-      const staticModels =
-        aiState.aiProviderSetup && aiState.aiProviderSetup[resultProvider]
-          ? aiState.aiProviderSetup[resultProvider].models
-          : null;
+      const staticModels = aiState.aiProviderSetup && aiState.aiProviderSetup[resultProvider] ? aiState.aiProviderSetup[resultProvider].models : null;
       if (staticModels && staticModels.length > 0) {
         setModelsCache(resultProvider, staticModels);
       }

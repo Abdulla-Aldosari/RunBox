@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -355,30 +355,25 @@ function bindAiSettingsEvents() {
   // --- Settings modal events ---
   if (aiState.view === "settings") {
     // Bind AI provider custom select
-    bindCustomSelect(
-      "ai-provider-select-wrap",
-      "ai-provider-select-btn",
-      "ai-provider-select-menu",
-      function (newProvider) {
-        aiState.settingsProviderName = newProvider;
-        aiState.settingsModelId = ""; // reset so resolveSettingsModelId picks the new provider's default
-        aiState.apiKeyInput = "";
-        // Use cache if fresh; otherwise fetch from API
-        if (aiState.keyStatus[newProvider]) {
-          const cached = getCachedModels(newProvider);
-          if (cached && aiState.aiProviderSetup && aiState.aiProviderSetup[newProvider]) {
-            aiState.aiProviderSetup[newProvider].models = cached;
-            aiState.modelsLoading = false;
-          } else {
-            aiState.modelsLoading = true;
-            vscode.postMessage({ type: "aiListModels", payload: { providerName: newProvider } });
-          }
-        } else {
+    bindCustomSelect("ai-provider-select-wrap", "ai-provider-select-btn", "ai-provider-select-menu", function (newProvider) {
+      aiState.settingsProviderName = newProvider;
+      aiState.settingsModelId = ""; // reset so resolveSettingsModelId picks the new provider's default
+      aiState.apiKeyInput = "";
+      // Use cache if fresh; otherwise fetch from API
+      if (aiState.keyStatus[newProvider]) {
+        const cached = getCachedModels(newProvider);
+        if (cached && aiState.aiProviderSetup && aiState.aiProviderSetup[newProvider]) {
+          aiState.aiProviderSetup[newProvider].models = cached;
           aiState.modelsLoading = false;
+        } else {
+          aiState.modelsLoading = true;
+          vscode.postMessage({ type: "aiListModels", payload: { providerName: newProvider } });
         }
-        render();
+      } else {
+        aiState.modelsLoading = false;
       }
-    );
+      render();
+    });
 
     // Bind model custom select (if rendered)
     bindCustomSelect("ai-model-select-wrap", "ai-model-select-btn", "ai-model-select-menu", function (newModelId) {

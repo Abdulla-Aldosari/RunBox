@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -208,9 +208,7 @@ function activate(context) {
   // Wrapping the path in a RelativePattern (rooted at its containing
   // directory) forces VS Code to use its directory-level watch service
   // instead, which survives rename-based atomic writes indefinitely.
-  const globalCommandsWatcher = vscode.workspace.createFileSystemWatcher(
-    new vscode.RelativePattern(vscode.Uri.file(GLOBAL_DIR), "commands.json")
-  );
+  const globalCommandsWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(GLOBAL_DIR), "commands.json"));
   const refreshOnExternalChange = function () {
     if (panel) {
       postState(panel);
@@ -241,12 +239,9 @@ function activate(context) {
     // createFileSystemWatcher accepts one RelativePattern base per call — so a
     // dedicated watcher is created per open folder in a multi-root workspace.
     workspaceDataWatchers = vscode.workspace.workspaceFolders.map(function (folder) {
-      const configuredPath =
-        vscode.workspace.getConfiguration("runBox", folder.uri).get("localWorkspaceFilesPath") || "";
+      const configuredPath = vscode.workspace.getConfiguration("runBox", folder.uri).get("localWorkspaceFilesPath") || "";
       const relativeDir = normalizeLocalWorkspaceDir(configuredPath);
-      const watcher = vscode.workspace.createFileSystemWatcher(
-        new vscode.RelativePattern(folder, `${relativeDir}/runbox.data.json`)
-      );
+      const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(folder, `${relativeDir}/runbox.data.json`));
       watcher.onDidChange(refreshOnExternalChange);
       watcher.onDidCreate(refreshOnExternalChange);
       watcher.onDidDelete(refreshOnExternalChange);
@@ -328,8 +323,7 @@ function activate(context) {
 
     vscode.window
       .showWarningMessage(
-        `RunBox detected terminal profiles that run the exact same shell: ${groupsText}. ` +
-          `Selecting either option in the Run confirmation dialog uses the same shell.`,
+        `RunBox detected terminal profiles that run the exact same shell: ${groupsText}. ` + `Selecting either option in the Run confirmation dialog uses the same shell.`,
         "Learn More",
         "Open Settings",
         "Don't Show Again"
@@ -436,11 +430,7 @@ function activate(context) {
         if (message.type === "saveWorkspaceCommandsData") {
           // Inject activeFsPath so workspace commands are written to the correct .vscode/ folder.
           const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
-          await H.handleSaveWorkspaceCommandsData(
-            panel,
-            Object.assign({}, message.payload, { activeFsPath }),
-            postState
-          );
+          await H.handleSaveWorkspaceCommandsData(panel, Object.assign({}, message.payload, { activeFsPath }), postState);
           return;
         }
 
@@ -604,10 +594,7 @@ function activate(context) {
           const key = message.payload && typeof message.payload.key === "string" ? message.payload.key : null;
           if (key && Object.prototype.hasOwnProperty.call(UI_PREFERENCE_DEFAULTS, key)) {
             const current = context.workspaceState.get("uiPreferences") || {};
-            await context.workspaceState.update(
-              "uiPreferences",
-              Object.assign({}, current, { [key]: message.payload.value })
-            );
+            await context.workspaceState.update("uiPreferences", Object.assign({}, current, { [key]: message.payload.value }));
           }
           return;
         }
@@ -723,35 +710,19 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
 
   // 1a. Connection watchdog (independent heartbeat — only depends on icons and vscode,
   // both already defined earlier)
-  const connectionWatchdogUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "connection-watchdog.js")
-  );
+  const connectionWatchdogUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "connection-watchdog.js"));
 
   // 1b. Markdown parser (utility — must load before ai-explain.js)
   const markdownParserUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "markdown-parser.js"));
 
   // 2. Modals
-  const modalsRunConfirmUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "run-confirm.js")
-  );
-  const modalsCommandFormUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "command-form.js")
-  );
-  const modalsAiSettingsUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-settings.js")
-  );
-  const modalsAiGenerateUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-generate.js")
-  );
-  const modalsAiExplainUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-explain.js")
-  );
-  const modalsAiCheckStatusUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-check-status.js")
-  );
-  const modalsEnumManagerUri = webview.asWebviewUri(
-    vscode.Uri.joinPath(extensionUri, "media", "modals", "enum-manager.js")
-  );
+  const modalsRunConfirmUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "run-confirm.js"));
+  const modalsCommandFormUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "command-form.js"));
+  const modalsAiSettingsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-settings.js"));
+  const modalsAiGenerateUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-generate.js"));
+  const modalsAiExplainUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-explain.js"));
+  const modalsAiCheckStatusUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "ai-check-status.js"));
+  const modalsEnumManagerUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "modals", "enum-manager.js"));
 
   // 3. Tabs
   const tabsRecentUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "tabs", "recent.js"));

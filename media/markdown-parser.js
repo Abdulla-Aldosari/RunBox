@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -42,12 +42,7 @@ function renderMarkdown(md) {
         i++;
       }
       i++; // skip closing ```
-      html +=
-        '<pre class="md-pre"><code' +
-        (lang ? ' class="md-lang-' + escapeHtml(lang) + '"' : "") +
-        ">" +
-        escapeHtml(codeLines.join("\n")) +
-        "</code></pre>\n";
+      html += '<pre class="md-pre"><code' + (lang ? ' class="md-lang-' + escapeHtml(lang) + '"' : "") + ">" + escapeHtml(codeLines.join("\n")) + "</code></pre>\n";
       continue;
     }
 

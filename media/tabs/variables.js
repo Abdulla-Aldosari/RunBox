@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -130,24 +130,19 @@ function bindVariablesTabEvents() {
   });
 
   // Change the date format
-  bindCustomSelect(
-    "auto-var-date-format-wrap",
-    "auto-var-date-format-btn",
-    "auto-var-date-format-menu",
-    function (selectedFormat) {
-      const newSettings = JSON.parse(JSON.stringify(state.autoVariablesSettings || {}));
-      if (!newSettings["date"]) {
-        newSettings["date"] = { enabled: true };
-      }
-      if (!newSettings["date"].config) {
-        newSettings["date"].config = {};
-      }
-      newSettings["date"].config.format = selectedFormat;
-      state.autoVariablesSettings = newSettings;
-      vscode.postMessage({
-        type: "saveAutoVariablesSettings",
-        payload: newSettings,
-      });
+  bindCustomSelect("auto-var-date-format-wrap", "auto-var-date-format-btn", "auto-var-date-format-menu", function (selectedFormat) {
+    const newSettings = JSON.parse(JSON.stringify(state.autoVariablesSettings || {}));
+    if (!newSettings["date"]) {
+      newSettings["date"] = { enabled: true };
     }
-  );
+    if (!newSettings["date"].config) {
+      newSettings["date"].config = {};
+    }
+    newSettings["date"].config.format = selectedFormat;
+    state.autoVariablesSettings = newSettings;
+    vscode.postMessage({
+      type: "saveAutoVariablesSettings",
+      payload: newSettings,
+    });
+  });
 }

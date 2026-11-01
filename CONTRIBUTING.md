@@ -182,4 +182,4 @@ For bug fixes, please include a test case that demonstrates the fix when possibl
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](./LICENSE).
+By contributing, you agree that your contributions will be licensed under the [MIT License](./LICENSE).

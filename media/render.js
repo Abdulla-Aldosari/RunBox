@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -21,19 +21,16 @@ function hydrateState(payload) {
   state.globalCommandsFile = payload && payload.globalCommandsFile ? payload.globalCommandsFile : "";
   state.workspaceFolder = payload ? payload.workspaceFolder : null;
   state.commandVariables = payload && payload.commandVariables ? payload.commandVariables : { commands: {} };
-  state.globalCommandVariables =
-    payload && payload.globalCommandVariables ? payload.globalCommandVariables : { commands: {} };
+  state.globalCommandVariables = payload && payload.globalCommandVariables ? payload.globalCommandVariables : { commands: {} };
 
-  state.terminalProfiles =
-    payload && payload.terminalProfiles ? payload.terminalProfiles : { defaultProfile: "", profiles: [] };
+  state.terminalProfiles = payload && payload.terminalProfiles ? payload.terminalProfiles : { defaultProfile: "", profiles: [] };
   state.autoVariables = payload && Array.isArray(payload.autoVariables) ? payload.autoVariables : [];
   state.autoVariablesSettings = payload && payload.autoVariablesSettings ? payload.autoVariablesSettings : {};
   state.globalFavorites = payload && Array.isArray(payload.globalFavorites) ? payload.globalFavorites : [];
   state.localFavorites = payload && Array.isArray(payload.localFavorites) ? payload.localFavorites : [];
   state.workspaceFolders = payload && Array.isArray(payload.workspaceFolders) ? payload.workspaceFolders : [];
   state.workspaceId = payload && typeof payload.workspaceId === "string" ? payload.workspaceId : "";
-  state.workspaceCommands =
-    payload && payload.workspaceCommands ? payload.workspaceCommands : { groups: [], commands: [] };
+  state.workspaceCommands = payload && payload.workspaceCommands ? payload.workspaceCommands : { groups: [], commands: [] };
 
   // Apply the workspace's saved UI selection preferences (active tab, selected
   // category/group, favorites scope) only once, on the very first "state" message
@@ -43,9 +40,7 @@ function hydrateState(payload) {
   if (!uiPreferencesHydrated) {
     uiPreferencesHydrated = true;
     const uiPreferences = Object.assign({}, UI_PREFERENCE_DEFAULTS, payload && payload.uiPreferences);
-    uiState.activeTab = PERSISTABLE_TABS.includes(uiPreferences.selectedTab)
-      ? uiPreferences.selectedTab
-      : UI_PREFERENCE_DEFAULTS.selectedTab;
+    uiState.activeTab = PERSISTABLE_TABS.includes(uiPreferences.selectedTab) ? uiPreferences.selectedTab : UI_PREFERENCE_DEFAULTS.selectedTab;
     uiState.selectedCategoryId = uiPreferences.selectedCategoryId;
     uiState.selectedGroupId = uiPreferences.selectedGroupId;
     uiState.categoriesSelectedGroupId = uiPreferences.categoriesSelectedGroupId;
@@ -176,19 +171,11 @@ function renderWorkspaceLabel() {
     const options = state.workspaceFolders.map(function (f) {
       return { value: f.fsPath, label: f.name };
     });
-    const currentFsPath =
-      state.workspaceFolder || (state.workspaceFolders[0] && state.workspaceFolders[0].fsPath) || "";
+    const currentFsPath = state.workspaceFolder || (state.workspaceFolders[0] && state.workspaceFolders[0].fsPath) || "";
     return `
       <div class="workspace-selector-bar">
         <span class="workspace-selector-label">${icons.folder} Workspace folder:</span>
-        ${renderCustomSelect(
-          "workspace-folder-select",
-          "workspace-folder-btn",
-          "workspace-folder-menu",
-          options,
-          currentFsPath,
-          "cs-btn-sm"
-        )}
+        ${renderCustomSelect("workspace-folder-select", "workspace-folder-btn", "workspace-folder-menu", options, currentFsPath, "cs-btn-sm")}
       </div>
     `;
   }

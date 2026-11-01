@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -145,10 +145,7 @@ function renderCommandsTable(commands, groups) {
               const titleHtml = command.helpUrl
                 ? `<a class="cmd-title-link" data-url="${escapeAttr(command.helpUrl)}" data-tooltip="Open documentation">${escapeHtml(command.title)}</a>`
                 : `<strong>${escapeHtml(command.title)}</strong>`;
-              var _rowClass =
-                !uiState.sortingMode && command.id === uiState.commandsSelectedCommandRowId
-                  ? ' class="selected-command-row"'
-                  : "";
+              var _rowClass = !uiState.sortingMode && command.id === uiState.commandsSelectedCommandRowId ? ' class="selected-command-row"' : "";
               return `
               <tr data-command-id="${escapeAttr(command.id)}"${_rowClass} draggable="${isSorting ? "true" : "false"}">
                 ${isSorting ? `<td class="main-t-drag-handle-column drag-handle-cell"><span class="drag-handle" data-tooltip="Drag to reorder">${icons.dragHandle}</span></td>` : ""}
@@ -351,10 +348,7 @@ function bindCommandsTabEvents() {
   var addNewCommandBtn = document.getElementById("btn-add-new-command");
   if (addNewCommandBtn) {
     addNewCommandBtn.addEventListener("click", function () {
-      commandFormBuffer.captureNew(
-        getSelectedCategory(),
-        uiState.selectedGroupId && uiState.selectedGroupId !== "all" ? uiState.selectedGroupId : ""
-      );
+      commandFormBuffer.captureNew(getSelectedCategory(), uiState.selectedGroupId && uiState.selectedGroupId !== "all" ? uiState.selectedGroupId : "");
       uiState.activeTab = "add";
       render();
     });
@@ -473,12 +467,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
       globalScopeBuffer[name] = gv !== undefined ? gv : "";
       sessionScopeBuffer[name] = sv !== undefined ? sv : "";
       rememberFlags[name] = pref;
-      inputValues[name] =
-        pref === "local"
-          ? localScopeBuffer[name]
-          : pref === "global"
-            ? globalScopeBuffer[name]
-            : sessionScopeBuffer[name];
+      inputValues[name] = pref === "local" ? localScopeBuffer[name] : pref === "global" ? globalScopeBuffer[name] : sessionScopeBuffer[name];
     });
     variableInputState = {
       commandId,
@@ -514,12 +503,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
       globalScopeBuffer[name] = gv !== undefined ? gv : "";
       sessionScopeBuffer[name] = sv !== undefined ? sv : "";
       rememberFlags[name] = pref;
-      inputValues[name] =
-        pref === "local"
-          ? localScopeBuffer[name]
-          : pref === "global"
-            ? globalScopeBuffer[name]
-            : sessionScopeBuffer[name];
+      inputValues[name] = pref === "local" ? localScopeBuffer[name] : pref === "global" ? globalScopeBuffer[name] : sessionScopeBuffer[name];
     });
     variableInputState = {
       commandId,
@@ -595,12 +579,7 @@ function bindCommandActionButtons() {
           globalScopeBuffer[name] = gv !== undefined ? gv : "";
           sessionScopeBuffer[name] = sv !== undefined ? sv : "";
           rememberFlags[name] = pref;
-          inputValues[name] =
-            pref === "local"
-              ? localScopeBuffer[name]
-              : pref === "global"
-                ? globalScopeBuffer[name]
-                : sessionScopeBuffer[name];
+          inputValues[name] = pref === "local" ? localScopeBuffer[name] : pref === "global" ? globalScopeBuffer[name] : sessionScopeBuffer[name];
         });
         variableInputState = {
           commandId,
@@ -695,8 +674,7 @@ function bindCommandActionButtons() {
       if (!command) {
         return;
       }
-      const targetCategoryId =
-        command.categoryId || (isWorkspaceCommand(commandId) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
+      const targetCategoryId = command.categoryId || (isWorkspaceCommand(commandId) ? CURRENT_WORKSPACE_CATEGORY_ID : "");
       if (targetCategoryId) {
         uiState.selectedCategoryId = targetCategoryId;
         saveUiPreference("selectedCategoryId", targetCategoryId);
@@ -728,40 +706,26 @@ function bindCommandActionButtons() {
           if (!hasWorkspace) {
             return;
           }
-          const newLocal = state.localFavorites.includes(commandId)
-            ? state.localFavorites
-            : state.localFavorites.concat([commandId]);
+          const newLocal = state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId]);
           state.localFavorites = newLocal;
           persistFavorites({ global: state.globalFavorites, local: newLocal });
           showNotice("Added to Local Favorites.", icons.heartPlus, "success");
           render();
           return;
         }
-        const newGlobal = state.globalFavorites.includes(commandId)
-          ? state.globalFavorites
-          : state.globalFavorites.concat([commandId]);
-        const newLocal = hasWorkspace
-          ? state.localFavorites.includes(commandId)
-            ? state.localFavorites
-            : state.localFavorites.concat([commandId])
-          : state.localFavorites;
+        const newGlobal = state.globalFavorites.includes(commandId) ? state.globalFavorites : state.globalFavorites.concat([commandId]);
+        const newLocal = hasWorkspace ? (state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId])) : state.localFavorites;
         state.globalFavorites = newGlobal;
         state.localFavorites = newLocal;
         persistFavorites({ global: newGlobal, local: newLocal });
-        showNotice(
-          hasWorkspace ? "Added to Global & Local Favorites." : "Added to Global Favorites. (No workspace for local)",
-          icons.heartPlus,
-          "success"
-        );
+        showNotice(hasWorkspace ? "Added to Global & Local Favorites." : "Added to Global Favorites. (No workspace for local)", icons.heartPlus, "success");
         render();
       } else if (ctrlOrMeta) {
         // Ctrl+Click → Add to Global (ignored for "Current Workspace" commands)
         if (isWsCmd) {
           return;
         }
-        const newGlobal = state.globalFavorites.includes(commandId)
-          ? state.globalFavorites
-          : state.globalFavorites.concat([commandId]);
+        const newGlobal = state.globalFavorites.includes(commandId) ? state.globalFavorites : state.globalFavorites.concat([commandId]);
         state.globalFavorites = newGlobal;
         persistFavorites({ global: newGlobal, local: state.localFavorites });
         showNotice("Added to Global Favorites.", icons.heartPlus, "success");
@@ -773,9 +737,7 @@ function bindCommandActionButtons() {
           paintNotice();
           return;
         }
-        const newLocal = state.localFavorites.includes(commandId)
-          ? state.localFavorites
-          : state.localFavorites.concat([commandId]);
+        const newLocal = state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId]);
         state.localFavorites = newLocal;
         persistFavorites({ global: state.globalFavorites, local: newLocal });
         showNotice("Added to Local Favorites.", icons.heartPlus, "success");
@@ -959,12 +921,7 @@ function bindCommandActionButtons() {
         globalScopeBuffer[name] = gv !== undefined ? gv : "";
         sessionScopeBuffer[name] = sv !== undefined ? sv : "";
         rememberFlags[name] = pref;
-        inputValues[name] =
-          pref === "local"
-            ? localScopeBuffer[name]
-            : pref === "global"
-              ? globalScopeBuffer[name]
-              : sessionScopeBuffer[name];
+        inputValues[name] = pref === "local" ? localScopeBuffer[name] : pref === "global" ? globalScopeBuffer[name] : sessionScopeBuffer[name];
       });
 
       variableInputState = {
@@ -1081,32 +1038,27 @@ function bindCommandActionButtons() {
     if (!varName) {
       return;
     }
-    bindCustomSelect(
-      "enum-var-wrap-" + varName,
-      "enum-var-btn-" + varName,
-      "enum-var-menu-" + varName,
-      function (selectedValue) {
-        const customInput = wrapEl.querySelector(".variable-modal-custom-input");
-        if (selectedValue === "__custom__") {
-          if (customInput) {
-            customInput.classList.remove("hidden");
-            customInput.value = "";
-            customInput.removeAttribute("data-is-empty-value");
-            customInput.readOnly = false;
-            customInput.focus();
-          }
-          variableInputState.inputValues[varName] = "";
-        } else {
-          if (customInput) {
-            customInput.classList.add("hidden");
-            customInput.value = selectedValue;
-            customInput.removeAttribute("data-is-empty-value");
-            customInput.readOnly = false;
-          }
-          variableInputState.inputValues[varName] = selectedValue;
+    bindCustomSelect("enum-var-wrap-" + varName, "enum-var-btn-" + varName, "enum-var-menu-" + varName, function (selectedValue) {
+      const customInput = wrapEl.querySelector(".variable-modal-custom-input");
+      if (selectedValue === "__custom__") {
+        if (customInput) {
+          customInput.classList.remove("hidden");
+          customInput.value = "";
+          customInput.removeAttribute("data-is-empty-value");
+          customInput.readOnly = false;
+          customInput.focus();
         }
+        variableInputState.inputValues[varName] = "";
+      } else {
+        if (customInput) {
+          customInput.classList.add("hidden");
+          customInput.value = selectedValue;
+          customInput.removeAttribute("data-is-empty-value");
+          customInput.readOnly = false;
+        }
+        variableInputState.inputValues[varName] = selectedValue;
       }
-    );
+    });
   });
 
   // Bind toggle switches in variable input modal — switches active scope + updates input/dropdown value
@@ -1491,10 +1443,7 @@ function executeDeleteConfirm() {
       saveUiPreference("categoriesSelectedGroupId", "all");
     }
 
-    persistGlobalOperation(
-      { type: "deleteGroup", categoryId: selectedCategory ? selectedCategory.id : "", groupId: id },
-      "Group deleted."
-    );
+    persistGlobalOperation({ type: "deleteGroup", categoryId: selectedCategory ? selectedCategory.id : "", groupId: id }, "Group deleted.");
     return;
   }
 
@@ -1520,11 +1469,7 @@ function executeDeleteConfirm() {
       delete state.commandVariables.commands[id];
     }
 
-    if (
-      state.globalCommandVariables &&
-      state.globalCommandVariables.commands &&
-      Object.prototype.hasOwnProperty.call(state.globalCommandVariables.commands, id)
-    ) {
+    if (state.globalCommandVariables && state.globalCommandVariables.commands && Object.prototype.hasOwnProperty.call(state.globalCommandVariables.commands, id)) {
       delete state.globalCommandVariables.commands[id];
     }
 

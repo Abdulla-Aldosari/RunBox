@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -132,11 +132,7 @@ function renderAiResultsModal() {
   const isFullMode = aiState.mode === "full";
   const allCommands = isFullMode ? aiState.result.commands || [] : [aiState.result];
   const category = isFullMode ? aiState.result.category : null;
-  const groups = isFullMode
-    ? aiState.result.category
-      ? aiState.result.category.groups || []
-      : []
-    : getSelectedCategoryGroups();
+  const groups = isFullMode ? (aiState.result.category ? aiState.result.category.groups || [] : []) : getSelectedCategoryGroups();
 
   // Filter commands by active group tab
   const filteredCommands =

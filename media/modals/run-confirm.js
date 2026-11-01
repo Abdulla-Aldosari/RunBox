@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -132,16 +132,12 @@ function renderVariableInputModal() {
           ${vars
             .map(function (name) {
               const rememberValue =
-                variableInputState.rememberFlags[name] !== undefined
-                  ? variableInputState.rememberFlags[name]
-                  : getCommandRemember(variableInputState.commandId)[name] || "off";
+                variableInputState.rememberFlags[name] !== undefined ? variableInputState.rememberFlags[name] : getCommandRemember(variableInputState.commandId)[name] || "off";
               // Show the value for the currently selected scope
-              const currentValue =
-                variableInputState.inputValues[name] !== undefined ? variableInputState.inputValues[name] : "";
+              const currentValue = variableInputState.inputValues[name] !== undefined ? variableInputState.inputValues[name] : "";
               // Check if this variable has Enum metadata
               const enumMeta = cmdForMeta && cmdForMeta.variableMeta && cmdForMeta.variableMeta[name];
-              const isEnum =
-                enumMeta && enumMeta.type === "enum" && enumMeta.enumValues && enumMeta.enumValues.length > 0;
+              const isEnum = enumMeta && enumMeta.type === "enum" && enumMeta.enumValues && enumMeta.enumValues.length > 0;
               // Check if current value is one of the enum values
               const isCustomValue =
                 isEnum &&
@@ -162,11 +158,7 @@ function renderVariableInputModal() {
                     return {
                       value: ev.value,
                       label: label,
-                      tooltip: ev.description
-                        ? escapeHtml(ev.description)
-                        : ev.value
-                          ? escapeHtml(ev.value)
-                          : undefined,
+                      tooltip: ev.description ? escapeHtml(ev.description) : ev.value ? escapeHtml(ev.value) : undefined,
                       tooltipFooter: ev.description && ev.value ? escapeHtml(ev.value) : undefined,
                     };
                   })

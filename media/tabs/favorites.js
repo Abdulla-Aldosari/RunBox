@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -15,10 +15,7 @@ function renderFavoritesTab() {
   const scope = uiState.favoritesScope;
   // Local favorites may include "Current Workspace" commands (workspaceCommands.commands),
   // which never appear in Global favorites since the Global option is hidden for them.
-  const allCommands =
-    scope === "local"
-      ? (state.data.commands || []).concat(state.workspaceCommands.commands || [])
-      : state.data.commands || [];
+  const allCommands = scope === "local" ? (state.data.commands || []).concat(state.workspaceCommands.commands || []) : state.data.commands || [];
   const favoriteIds = scope === "local" ? state.localFavorites : state.globalFavorites;
   const favoritedCommands = allCommands.filter(function (cmd) {
     return favoriteIds.includes(cmd.id);
@@ -113,10 +110,7 @@ function renderFavoritesTable(commands) {
             const _groups = _isWsCmd ? state.workspaceCommands.groups || [] : _cat ? _cat.groups || [] : [];
             const _groupTitle = resolveGroupTitle(command.groupId || "", _groups);
             const _hasGroup = !!_groupTitle && _groupTitle !== "-";
-            const _catGroupLabel =
-              _catTitle && _hasGroup
-                ? `${_catTitle} / ${_groupTitle}`
-                : _catTitle || (_hasGroup ? _groupTitle : "") || "-";
+            const _catGroupLabel = _catTitle && _hasGroup ? `${_catTitle} / ${_groupTitle}` : _catTitle || (_hasGroup ? _groupTitle : "") || "-";
             return `
             <tr data-command-id="${escapeAttr(command.id)}"${command.id === uiState.favoritesSelectedCommandRowId ? ' class="selected-command-row"' : ""}>
               <td class="main-t-title-column">${titleHtml}<br><span class="muted">${escapeHtml(command.id)}</span></td>

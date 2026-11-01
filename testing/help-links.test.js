@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -45,10 +45,7 @@ section("getHelpLink");
 
 test("returns the URL for a registered key", function () {
   const url = getHelpLink("faqs-duplicate-terminal-profiles");
-  assert.strictEqual(
-    url,
-    "https://github.com/Abdulla-Aldosari/runbox/blob/main/docs/faqs.md#duplicate-terminal-profiles"
-  );
+  assert.strictEqual(url, "https://github.com/Abdulla-Aldosari/runbox/blob/main/docs/faqs.md#duplicate-terminal-profiles");
 });
 
 test("returns null for an unregistered key", function () {

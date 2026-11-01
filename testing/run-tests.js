@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -104,9 +104,7 @@ const LABEL_WIDTH = Math.max(...results.map((r) => r.label.length));
 
 for (const { label, total, passed, failed } of results) {
   const paddedLabel = label.padEnd(LABEL_WIDTH);
-  console.log(
-    `  ${paddedLabel}  ( Total: ${String(total).padStart(2, "0")} / Passed: ${String(passed).padStart(2, "0")} / Failed: ${String(failed).padStart(2, "0")} )`
-  );
+  console.log(`  ${paddedLabel}  ( Total: ${String(total).padStart(2, "0")} / Passed: ${String(passed).padStart(2, "0")} / Failed: ${String(failed).padStart(2, "0")} )`);
 }
 
 console.log(SEP);

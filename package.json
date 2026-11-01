@@ -6,7 +6,7 @@
   "publisher": "Abdulla-Aldosari",
   "icon": "media/icon.png",
   "homepage": "https://github.com/Abdulla-Aldosari/runbox#readme",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.90.0"
   },

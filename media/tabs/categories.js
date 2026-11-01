@@ -1,7 +1,7 @@
 /*-------------------------------------------------
  * RunBox — VS Code Extension
  * Copyright (c) 2026 Abdulla Aldosari
- * Licensed under the Apache License, Version 2.0.
+ * Licensed under the MIT License.
  * See LICENSE in the project root for details.
  *-------------------------------------------------*/
 
@@ -413,10 +413,7 @@ function executeManageModalConfirm() {
     categoriesModalState = { visible: false, mode: null, value: "" };
 
     if (selectedCategory.isCurrentWorkspace) {
-      persistWorkspaceOperation(
-        { type: "renameGroup", groupId: uiState.categoriesSelectedGroupId, title: value },
-        "Group renamed."
-      );
+      persistWorkspaceOperation({ type: "renameGroup", groupId: uiState.categoriesSelectedGroupId, title: value }, "Group renamed.");
       return;
     }
 
