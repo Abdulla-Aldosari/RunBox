@@ -19,7 +19,7 @@ media/dev/
 .gitignore
 .prettierignore
 .prettierrc
-.clinerules
+.cline/
 .husky/
 eslint.config.js
 commitlint.config.js

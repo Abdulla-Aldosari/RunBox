@@ -1,5 +1,5 @@
 .vscode/settings.json
-.clinerules
+.cline/
 .vsenv/
 .mindstream/
 media/dev/
