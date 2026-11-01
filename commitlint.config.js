@@ -15,7 +15,6 @@ const baseScopes = [
   "categories", // media/tabs/categories.js: Categories & Groups tab
   "changelog", // CHANGELOG.md content
   "cliff", // cliff.toml: git-cliff changelog generation configuration
-  "code-of-conduct", // CODE_OF_CONDUCT.md
   "codebase-map", // docs/codebase-map/*: codebase documentation sub-files
   "cohere", // lib/ai/providers/cohere.js
   "command-form", // media/modals/command-form.js: add/edit command form and commandFormBuffer
@@ -128,11 +127,7 @@ module.exports = {
     "body-max-line-length": [2, "always", 72],
 
     // Allowed commit types (fixed, do not change).
-    "type-enum": [
-      2,
-      "always",
-      ["feat", "fix", "perf", "style", "refactor", "docs", "test", "chore", "build", "ci", "revert"],
-    ],
+    "type-enum": [2, "always", ["feat", "fix", "perf", "style", "refactor", "docs", "test", "chore", "build", "ci", "revert"]],
 
     // RunBox project scopes using the dynamically generated list.
     "scope-enum": [2, "always", allowedScopes],

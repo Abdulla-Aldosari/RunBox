@@ -4,8 +4,6 @@ Thank you for your interest in contributing to the [runbox](https://github.com/A
 
 When contributing, please first discuss the change you wish to make via an [issue](https://github.com/Abdulla-Aldosari/runbox/issues) or any other method with the owner of this repository before making a change.
 
-Note that we have a [Code of Conduct](./CODE_OF_CONDUCT.md), please follow it in all your interactions with the project.
-
 ---
 
 ## Prerequisites
@@ -17,7 +15,7 @@ Note that we have a [Code of Conduct](./CODE_OF_CONDUCT.md), please follow it in
 
 ## Getting Started
 
-1. Fork this repository and create your branch from `development`.
+1. Fork this repository and create your branch from `main`.
 
 2. Clone your forked repository:
 
