@@ -30,3 +30,12 @@ Each element in the `options` array passed to `renderCustomSelect()` supports th
 The label and badge are always wrapped together inside `<span class="cs-item-label-group">`, keeping them visually grouped and separated from the checkmark which sits at the far right.
 
 **Current usage of `badge`:** The AI Provider dropdown (`ai-provider-select-wrap`) renders a key icon (`icons.key`) for every provider. The icon uses `.key-active` (green) when the provider has a saved API key, and `.key-inactive` (muted) when it does not. `badgePosition` is set to `"start"` so the icon appears to the left of the provider name.
+
+## Dropdown Opening Direction
+
+The `menuUp` argument of `renderCustomSelect()` (forwarded to the `cs-menu` class) controls the opening direction:
+
+- `menuUp: true` — the menu always opens upward (`cs-menu-up`). It is never auto-flipped.
+- `false` / omitted — the menu opens downward by default. `bindCustomSelect()` measures the rendered menu height (already capped by `.cs-menu-items-wrapper { max-height: 300px }`) against the space below the button at open time; when that space is insufficient, the menu flips upward via `cs-menu-up`. If neither side fits, it uses the side with more space.
+
+Direction is computed on every open, so it re-evaluates as the page scrolls or the panel resizes.

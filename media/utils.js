@@ -1233,7 +1233,8 @@ function renderActionsCell(command, options) {
  * @param {Array<{value:string,label:string}>} options - the menu items
  * @param {string} selectedValue  - the currently selected value
  * @param {string} [btnExtraClass]  - extra CSS classes for the button
- * @param {boolean} [menuUp]        - true = menu opens upward
+ * @param {boolean} [menuUp]        - true = always open upward; false/omitted = auto
+ *   (opens downward by default, flips upward when there is not enough space below)
  * @param {string} [wrapExtraClass] - extra CSS classes for the .cs-wrap wrapper
  *   Use 'cs-wrap-full' to make the dropdown stretch to 100% width.
  * @returns {string} HTML string
@@ -1288,6 +1289,11 @@ function renderCustomSelect(wrapperId, btnId, menuId, options, selectedValue, bt
  * @param {string} btnId     - id of the toggle button
  * @param {string} menuId    - id of the .cs-menu element
  * @param {function(string):void} onChange - callback receiving the selected value
+ *
+ * Menus rendered without `menuUp` (i.e. without the `cs-menu-up` class) open
+ * downward by default and flip upward automatically when the space below is
+ * insufficient. Menus rendered with `menuUp: true` keep the `cs-menu-up` class
+ * and are never auto-flipped.
  */
 function bindCustomSelect(wrapperId, btnId, menuId, onChange) {
   const wrap = document.getElementById(wrapperId);
@@ -1296,6 +1302,32 @@ function bindCustomSelect(wrapperId, btnId, menuId, onChange) {
 
   if (!btn || !menu) {
     return;
+  }
+
+  // Menus that renderCustomSelect built with menuUp=true carry `cs-menu-up`
+  // and must stay upward; only non-explicit menus get auto-direction.
+  const explicitUp = menu.classList.contains("cs-menu-up");
+  // Matches the +4px offset used by .cs-menu / .cs-menu-up in styles.css.
+  const MENU_GAP = 4;
+
+  function applyAutoDirection() {
+    if (explicitUp) {
+      return;
+    }
+    const menuHeight = menu.getBoundingClientRect().height;
+    const btnRect = btn.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - btnRect.bottom - MENU_GAP;
+    const spaceAbove = btnRect.top - MENU_GAP;
+
+    let openUp;
+    if (spaceBelow >= menuHeight) {
+      openUp = false; // enough room below → open downward
+    } else if (spaceAbove >= menuHeight) {
+      openUp = true; // not enough below, enough above → open upward
+    } else {
+      openUp = spaceAbove > spaceBelow; // fallback: use the larger side
+    }
+    menu.classList.toggle("cs-menu-up", openUp);
   }
 
   function closeMenu() {
@@ -1323,6 +1355,7 @@ function bindCustomSelect(wrapperId, btnId, menuId, onChange) {
       closeMenu();
     } else {
       menu.hidden = false;
+      applyAutoDirection();
       btn.setAttribute("aria-expanded", "true");
       // Highlight the currently selected item when the menu opens
       menu.querySelectorAll(".cs-item").forEach(function (el) {
