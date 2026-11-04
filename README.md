@@ -1,101 +1,140 @@
 <div align="center">
 
+<img src="https://raw.githubusercontent.com/Abdulla-Aldosari/RunBox/refs/heads/main/media/icon.png" alt="RunBox icon" width="96" height="96">
+
 # RunBox
 
-**Organize, run, and generate terminal commands with variables, favorites, and a built-in AI assistant.**
+**Your terminal command library inside VS Code: store, organize, and launch your everyday commands in one click, with reusable variables, favorites, automatic shell matching, and AI that writes and explains commands for you.**
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 </div>
 
-![RunBox Overview](docs/images/hero-screenshot.png)
+![RunBox Overview](https://raw.githubusercontent.com/Abdulla-Aldosari/RunBox/refs/heads/main/docs/images/hero-screenshot.png)
 
-RunBox gives you a central panel inside VS Code to store and run your frequently used terminal commands. Organize them by category and group, define reusable variables, and execute them with a single click across every project you work on.
+RunBox gives you a central panel inside VS Code for the terminal commands you use again and again. Store them once, organize them by category and group, fill in their changing parts with variables, and run them in the right shell and folder with a single click, in every project you open.
+
+## Why RunBox?
+
+- **Stop retyping and hunting for commands.** Long or rarely used commands live in one organized place instead of your shell history, notes, or browser tabs.
+- **One template, many values.** `${variableName}` placeholders turn a command into a reusable template, and the values you enter can be remembered per project or globally.
+- **The right shell, every time.** Tag a command with the shell it was written for, and RunBox pre-selects a matching terminal profile when you run it.
+- **AI when you need it.** Generate a complete set of commands from a plain-language description, or get any command explained, using your own API key from one of 8 providers.
 
 ## Key Features
 
-### 📂 Categorized Command Management
+### 📂 Categories & Groups
 
-Organize commands into **categories** and **groups** (e.g. MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
+Organize commands into **categories** and **groups** (for example, MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
 
-![Categorized Command Management](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/categorized-command-management.gif)
-
-<br>
-
-### 🗂️ Current Workspace
-
-A special category that always appears first in the list whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately in `.vscode/runbox.data.json` (or in the path set by `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they appear only in this exact workspace folder and never in any other project.
-
-![Current Workspace](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/current-workspace.gif)
-
-This is useful for commands that only make sense for one specific project, such as a project-specific build script or a database connection string, that you never want showing up when you open a different project.
-
-> [!NOTE]
-> Commands under **Current Workspace** can only be added to **Local Workspace favorites** (never Global), and their variables can only use the **Local** or **Off** scope (never Global).
+![Categories & Groups](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/categorized-command-management.gif)
 
 <br>
 
-### ⚡ Three Ways to Run a Command
+### ⚡ Run, Use, or Copy
 
-| Action   | What it does                                                               |
-| -------- | -------------------------------------------------------------------------- |
-| **Run**  | Executes the command immediately (with a confirmation dialog)              |
-| **Use**  | Pastes it into the terminal input so you can review or edit before running |
-| **Copy** | Copies the resolved command to your clipboard                              |
+| Action   | What it does                                                                           |
+| -------- | -------------------------------------------------------------------------------------- |
+| **Run**  | Executes the command after a confirmation dialog where you can choose the shell to use |
+| **Use**  | Pastes it into the terminal input so you can review or edit it before running          |
+| **Copy** | Copies the resolved command to your clipboard                                          |
 
 ![Run, Use, and Copy](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/three-ways-to-run-a-command.gif)
 
 <br>
 
-### 🖥️ Target Shell Selection
+### 🔤 Variables
 
-Assign a target shell (Windows PowerShell, PowerShell, Command Prompt, Bash, and more) to any command from the Add/Edit form. Windows PowerShell (5.1, built into Windows) and PowerShell (7+, installed separately) are listed as distinct options because they are different programs with real syntax differences. When you click **Run**, RunBox detects a matching terminal profile on your machine and pre-selects it in the confirmation dialog. You can still override it before confirming. AI-generated commands can also target a specific shell so that the syntax matches.
+Add `${variableName}` placeholders to any command template. When you run or use the command, a dialog prompts you to fill in the values.
 
-![Target Shell Selection](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/target-shell-selection.gif)
+#### Three Independent Scopes
 
-> [!NOTE]
-> The Target Shell field in the Add/Edit form is a fixed shell _type_ (for example `bash`), independent of profile _names_. The confirmation dialog's shell picker, on the other hand, lists the terminal profiles actually configured on your machine (from VS Code's `terminal.integrated.profiles` settings), which is why the two lists can look different.
->
-> RunBox compares your command's target shell type with the detected type of each profile (based on its executable path) and pre-selects the first match. If no profile matches, VS Code's default terminal profile is used and the command still runs normally. The pre-selection is a convenience, not a restriction: you can pick any other profile in the confirmation dialog, and that choice applies to that run only. Leaving Target Shell as **Any Shell** uses VS Code's default terminal profile.
->
-> The Add/Edit form also shows a small indicator below the field that tells you whether your selection matches a profile on your machine. Hover over it to see the full path it resolves to.
+Each variable value can be saved in one of three independent scopes:
 
-<br>
-
-### 🔤 Variables: Three Independent Scopes
-
-Add `${variableName}` placeholders to any command template. When you run or use a command, a dialog prompts you to fill in the values.
-
-Each variable can be saved in one of three independent scopes:
-
-| Scope      | Saved to                                   | Best for                               |
-| ---------- | ------------------------------------------ | -------------------------------------- |
-| **Local**  | `.vscode/runbox.data.json`                 | Values that differ per project         |
-| **Global** | `~/.runbox/data.json`                      | Values shared across all projects      |
-| **Off**    | Session memory only, never written to disk | One-time values you don't need to keep |
+| Scope      | Saved to                                                                           | Best for                               |
+| ---------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
+| **Local**  | `.vscode/runbox.data.json` (or the folder set by `runBox.localWorkspaceFilesPath`) | Values that differ per project         |
+| **Global** | `~/.runbox/data.json`                                                              | Values shared across all projects      |
+| **Off**    | Session memory only, never written to disk                                         | One-time values you don't need to keep |
 
 Switching the scope toggle never deletes the value stored in the other scopes.
 
 ![Variables: Three Independent Scopes](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/variables-three-independent-scopes.gif)
 
-<br>
+#### Auto Variables
 
-### 🔤 Auto Variables
-
-**Auto Variables** (`${date}`, `${username}`, `${workspaceFolder}`, `${workspaceName}`) are resolved automatically, with no input required.
+`${date}`, `${username}`, `${workspaceFolder}`, and `${workspaceName}` are resolved automatically, with no input required.
 
 ![Auto Variables](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/auto-variables.gif)
 
-<br>
+#### Enum Variables
 
-### 🔤 Enum Variables
-
-**Enum Variables** let you predefine a fixed list of options that appears as a dropdown when you run a command.
+Predefine a fixed list of options for a variable and pick one from a dropdown when you run the command, for example `${env}` with `dev`, `staging`, and `production`.
 
 ![Enum Variables](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/enum-variables.gif)
 
 <br>
 
+### ✨ Generate Commands with AI
+
+Describe what you need in plain language (for example, "commands to manage a MySQL database"). Use **Create with AI** to generate a complete category with groups and commands, or **Add with AI** to generate a single command for the selected group. Review the results, select the ones you want, and insert them.
+
+![Generate Commands with AI](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/generate-commands-with-ia.gif)
+
+**8 AI providers supported:** Google Gemini · OpenAI · Anthropic Claude · DeepSeek · Groq · Mistral AI · Cohere · StepFun
+
+> [!NOTE]
+> AI features are optional and use your own API key. Open the panel, click **AI Settings**, choose a provider, and paste your key. Several providers offer **free tiers**: Gemini, DeepSeek, and Groq are good starting points. See the [FAQ](docs/faqs.md) for where to get a key.
+
+<br>
+
+### 📖 Explain Commands with AI
+
+Click the **Explain** button on any command to get a structured breakdown: what it does, what each part means, practical examples, and warnings. The result is rendered directly inside the panel. Ctrl/Cmd+click the button to choose a different language for a single explanation.
+
+![Explain Commands with AI](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/explain-command-with-ia.gif)
+
+<br>
+
+### ⭐ Favorites
+
+Add any command to **Global** favorites (available in every project), **Local Workspace** favorites (this project only), or both. Click the favorite button to choose, or use the shortcuts: Ctrl/Cmd+click adds to Global, Shift+click adds to Local, and Ctrl/Cmd+Shift+click adds to both. From the Favorites tab, you can jump back to the original command at any time.
+
+<br>
+
+### 🕘 Recent Commands
+
+Every command you run or use is tracked with its last run time and run count. Revisit or re-run recent commands from the Recent tab without searching the full list, and clear the history whenever you like.
+
+<br>
+
+### 🖥️ Target Shell
+
+Assign a target shell (Windows PowerShell, PowerShell 7+, Command Prompt, Bash / Git Bash, WSL, Zsh, or Sh) to any command from the Add/Edit form. When you click **Run**, RunBox pre-selects a terminal profile on your machine that matches it, and you can still pick any other profile before confirming. A small indicator below the field shows whether your selection matches a configured profile. Commands generated by AI are tagged with the shell you generate them for, so their syntax matches it.
+
+![Target Shell Selection](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/target-shell-selection.gif)
+
+> [!TIP]
+> The target shell is a suggestion, never a restriction. If no profile matches, or the command is set to **Any Shell**, VS Code's default terminal profile is used. See the [FAQ](docs/faqs.md) for how profiles are matched.
+
+<br>
+
+### 🗂️ Current Workspace
+
+A special category that always appears first whenever a workspace folder is open. Commands and groups added under **Current Workspace** are stored privately in `.vscode/runbox.data.json` (or in the folder set by `runBox.localWorkspaceFilesPath`) instead of the shared global file, so they appear only in this exact workspace folder and never in any other project.
+
+![Current Workspace](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/current-workspace.gif)
+
+This is useful for commands that only make sense for one specific project, such as a project-specific build script, that you never want showing up when you open a different project.
+
+> [!NOTE]
+> Commands under **Current Workspace** can only be added to **Local Workspace** favorites (never Global), and their variables can only use the **Local** or **Off** scope (never Global).
+
+<br>
+
 ### 🗃️ Multi-Root Workspace Support
 
-A workspace folder selector appears in the panel header when you work in a multi-root workspace. Local variables, local favorites, and auto variables such as `${workspaceFolder}` and `${workspaceName}` automatically reflect the selected folder. The Run confirmation dialog also includes a per-execution folder override that sets the terminal's working directory.
+A workspace folder selector appears in the panel when you work in a multi-root workspace. Local variables, local favorites, and auto variables such as `${workspaceFolder}` and `${workspaceName}` automatically reflect the selected folder, and **Run** opens the terminal in that folder.
 
 ![Multi-Root Workspace](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/multi-root-workspace.gif)
 
@@ -103,77 +142,49 @@ How the folder is chosen when the panel opens is controlled by the `runBox.multi
 
 <br>
 
-### ✨ Generate Commands with AI
+### 🛡️ Safe Across Multiple Windows
 
-![Generate Commands with AI](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/generate-commands-with-ia.gif)
-
-Describe what you need in plain language (for example, "commands to manage a MySQL database") and the AI produces a set of ready-to-insert commands. Review the results, select the ones you want, and insert them directly into a category and group.
-
-**8 AI providers supported:** Google Gemini · OpenAI · Anthropic Claude · DeepSeek · Groq · Mistral AI · Cohere · StepFun
-
-> [!NOTE]
-> Several providers offer **free tiers**. Gemini, DeepSeek, and Groq are good starting points.
+Open RunBox in as many VS Code windows as you like, whether it is the same project twice or several different projects at once. Every save is written atomically, adding or removing a command in one window never erases what another window just saved, and every open window updates live to reflect changes made elsewhere. If two windows edit the exact same command at the same time, a dialog lets you choose which version to keep.
 
 <br>
 
-### 📖 Explain Command with AI
+## Data Storage, Backup & Sharing
 
-![Explain Command with AI](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/explain-command-with-ia.gif)
+RunBox stores everything in plain JSON files that you can open, back up, or share:
 
-Click the **Explain** button on any command to get a structured breakdown: what it does, what each part means, practical examples, and warnings. The result is rendered directly inside the panel.
+| File                                             | Contents                                                               | Open from the panel with  |
+| ------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------- |
+| `~/.runbox/commands.json`                        | All global categories, groups, and commands                            | **Open Global JSON**      |
+| `~/.runbox/data.json`                            | Global variable values and Global favorites                            | **Open Global Data JSON** |
+| `.vscode/runbox.data.json` (inside each project) | Current Workspace commands, Local variable values, and Local favorites | **Open Local Data JSON**  |
 
-<br>
+To back up your command library or share it with your team, copy `~/.runbox/commands.json`, plus `~/.runbox/data.json` if you also want your global variable values and favorites. Anyone can restore them by placing the files at the same paths on their machine.
 
-### ⭐ Favorites
+## Privacy & Security
 
-Mark any command as a favorite with **Global** or **Local Workspace** scope. Add one with a single click, or Ctrl+click to manage its scope. You can jump from the Favorites tab back to the original command at any time.
-
-<br>
-
-### 🕘 Recent Commands
-
-Every command you run is tracked automatically. Revisit or re-run recent commands without searching the full list.
-
-<br>
-
-### 💾 Command Storage, Backup & Sharing
-
-All commands and categories are stored globally in a single JSON file on your machine, `~/.runbox/commands.json`, which is shared across every VS Code workspace you open. Open and edit it directly from the panel with the **Open Global JSON** button in the header.
-
-Back it up, or commit it to a shared repository to sync your commands across machines or share them with your team. Anyone can restore your full set of commands by placing this file at the same path on their machine.
-
-<br>
-
-### 🪟 Safe Across Multiple Windows
-
-Open RunBox in as many VS Code windows as you like, whether it is the same project twice or several different projects at once, without worrying about lost data. Saves are always written safely to disk, adding or removing a command in one window never erases what another window just saved, and every open window updates live to reflect changes made elsewhere. If two windows edit the exact same command at the same time, a dialog lets you choose which version to keep.
-
-<br>
+- **API keys** are stored in VS Code's `SecretStorage`, which uses your operating system's credential manager. They are never written to settings or workspace files.
+- **No telemetry.** RunBox does not collect or send usage data.
+- **AI requests** are sent only when you use an AI feature, and only to the provider you selected. They contain your prompt (and the name of the selected terminal profile) when generating, or the command template when explaining.
+- **Local data files** (`.vscode/runbox.data.json`) can contain variable values such as hostnames or tokens. Add the file to `.gitignore` if your project is shared.
 
 ## Requirements
 
 - VS Code 1.90.0 or later.
+- An API key from a supported provider, only if you want to use the AI features.
 
 ## Getting Started
 
 1. Install the extension from the VS Code Marketplace.
-2. Open the panel:
-   - **Command Palette** → `RunBox: Open Panel`
-   - **Keyboard shortcut** → `F4 F4` (press F4 twice)
+2. Open the panel with `F4 F4` (press F4 twice), or run **RunBox: Open Panel** from the Command Palette.
 3. Create a category and, optionally, add groups to it.
 4. Add your first command. Use `${variableName}` placeholders for any values that change between runs.
 5. Click **Run**, **Use**, or **Copy** to execute it.
-
-## Keyboard Shortcut
-
-| Shortcut | Action                |
-| -------- | --------------------- |
-| `F4 F4`  | Open the RunBox panel |
 
 ## Documentation
 
 - [Settings Reference](docs/settings.md): all configuration options explained
 - [Frequently Asked Questions](docs/faqs.md): common questions and troubleshooting
+- [Changelog](CHANGELOG.md): release history
 
 ## License
 
