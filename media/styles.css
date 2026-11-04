@@ -3371,6 +3371,62 @@ kbd {
   box-shadow: 0 1px 0 var(--runbox-input-border);
 }
 
+/* ─── AI Explain Language Picker ───────────────────────────────────────────── */
+
+.ai-explain-lang-modal {
+  width: min(750px, 100%) !important;
+}
+
+.ai-explain-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  padding: 16px 14px;
+}
+
+.ai-explain-lang-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  font-size: 0.85rem;
+  text-align: center;
+  min-width: 0;
+  border-radius: 7px;
+}
+
+.ai-explain-lang-name {
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-explain-lang-check {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--vscode-charts-green, #89d185);
+}
+
+.ai-explain-lang-check:empty {
+  display: none;
+}
+
+.ai-explain-lang-check svg {
+  width: 14px;
+  height: 14px;
+}
+
+.ai-explain-lang-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--runbox-panel-border);
+}
+
 /* ─── AI Explain Modal ─────────────────────────────────────────────────────── */
 
 .ai-explain-overlay {

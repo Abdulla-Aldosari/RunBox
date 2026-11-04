@@ -1181,7 +1181,7 @@ function renderActionsCell(command, options) {
 
   // ── Explain button (Commands tab only) ─────────────────────────────────────
   var explainBtn = showEdit
-    ? `<button class="btn icon-btn secondary btn-explain d-focus" data-command-id="${escapeAttr(command.id)}" data-command="${escapeAttr(command.command)}" data-tooltip="Explain command with AI">${icons.explain}</button>`
+    ? `<button class="btn icon-btn secondary btn-explain d-focus" data-command-id="${escapeAttr(command.id)}" data-command="${escapeAttr(command.command)}" data-tooltip="Explain command with AI (Ctrl+click to choose the language)">${icons.explain}</button>`
     : "";
 
   // ── Delete button ───────────────────────────────────────────────────────────

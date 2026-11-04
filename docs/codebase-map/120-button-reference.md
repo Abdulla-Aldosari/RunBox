@@ -122,7 +122,7 @@ Buttons rendered per command row by `renderActionsCell()` in `media/utils.js`. T
 | `.btn-add-favorite` | Add command to favorites; left-click = quick add to current scope, CTRL+click = open manage panel | Commands + Recent tabs (`favoriteStyle: "favorite"`) |
 | `.btn-unfavorite` | Remove command from favorites; left-click = confirmation modal, CTRL+click = open manage panel | Favorites tab (`favoriteStyle: "unfavorite"`) |
 | `.btn-goto-command` | Navigate to the command in the Commands tab and highlight its row | Recent + Favorites tabs (`showGoto: true`) |
-| `.btn-explain` | Open the AI Explain modal for the command; sends the raw command text to `explainWithAI` and displays the Markdown result. Uses `data-command` attribute (raw command template) | Commands tab only (`showEdit: true`) |
+| `.btn-explain` | Open the AI Explain modal for the command in the `runBox.aiExplainLanguage` language; CTRL/Cmd+click opens a language picker first. Sends the raw command text to `explainWithAI` and displays the Markdown result. Uses `data-command` attribute (raw command template) | Commands tab only (`showEdit: true`) |
 
 > **Binding location:** `.btn-goto-command` is bound in `bindCommandsTabEvents()`. `.btn-add-favorite` is bound in `bindCommandActionButtons()`. `.btn-unfavorite` is bound in `bindFavoritesTabEvents()` in `media/tabs/favorites.js`. All other row action buttons are bound in `bindCommandActionButtons()` in `media/tabs/commands.js`.
 

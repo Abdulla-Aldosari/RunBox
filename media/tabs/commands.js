@@ -657,9 +657,13 @@ function bindCommandActionButtons() {
 
   // --- Explain command with AI ---
   document.querySelectorAll(".btn-explain").forEach(function (button) {
-    button.addEventListener("click", function () {
+    button.addEventListener("click", function (e) {
       var command = button.dataset.command || "";
       if (!command) {
+        return;
+      }
+      if (e.ctrlKey || e.metaKey) {
+        openAiExplainLanguageModal(command);
         return;
       }
       openAiExplainModal(command);

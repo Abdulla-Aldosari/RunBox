@@ -219,6 +219,14 @@ let aiExplainState = {
   error: "",
 };
 
+// AI Explain language picker state (opened with Ctrl+click on .btn-explain).
+// The selection is never persisted: it resets to the setting on every open.
+let aiExplainLanguageState = {
+  visible: false,
+  command: "", // raw command text to explain
+  selected: "", // language chosen in the picker
+};
+
 // AI Check Status modal state (shared by "Check Connection" and "Check Rate Limits")
 let aiCheckStatusState = {
   visible: false,
@@ -262,6 +270,8 @@ const state = {
   localFavorites: [],
   workspaceFolders: [], // Array<{ name: string, fsPath: string }> — all open workspace folders (multi-root)
   workspaceId: "", // runBox.workspaceID for the active workspace folder; "" if not created yet
+  aiOutputLanguages: [], // supported AI output languages (from the extension's closed list)
+  aiExplainLanguage: "English", // runBox.aiExplainLanguage — default language for command explanations
   workspaceCommands: {
     // "Current Workspace" pseudo-category content — groups/commands private to this workspace folder
     groups: [],

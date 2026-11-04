@@ -16,8 +16,10 @@
 /**
  * Opens the explain modal immediately in loading state and fires the AI request.
  * @param {string} command - Raw command text to explain
+ * @param {string} [language] - Language for this explanation only; when omitted the
+ *   extension uses the `runBox.aiExplainLanguage` setting
  */
-function openAiExplainModal(command) {
+function openAiExplainModal(command, language) {
   aiExplainState.visible = true;
   aiExplainState.loading = true;
   aiExplainState.requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -26,7 +28,125 @@ function openAiExplainModal(command) {
   aiExplainState.error = "";
 
   _injectAiExplainModal();
-  vscode.postMessage({ type: "aiExplain", payload: { command, requestId: aiExplainState.requestId } });
+  vscode.postMessage({ type: "aiExplain", payload: { command, requestId: aiExplainState.requestId, language } });
+}
+
+// ─── Language picker (Ctrl+click on the explain button) ───────────────────────
+
+/**
+ * Opens the "Select the explanation language" dialog. The selection starts at the
+ * `runBox.aiExplainLanguage` setting and is never remembered between openings.
+ * @param {string} command - Raw command text to explain
+ */
+function openAiExplainLanguageModal(command) {
+  aiExplainLanguageState.visible = true;
+  aiExplainLanguageState.command = command;
+  aiExplainLanguageState.selected = state.aiExplainLanguage;
+
+  var existing = document.getElementById("ai-explain-lang-overlay");
+  if (existing) {
+    existing.remove();
+  }
+
+  var overlay = document.createElement("div");
+  overlay.id = "ai-explain-lang-overlay";
+  overlay.className = "ai-explain-overlay";
+  overlay.innerHTML = _renderAiExplainLanguageModal();
+  document.body.appendChild(overlay);
+
+  _bindAiExplainLanguageEvents();
+  document.addEventListener("keydown", _onAiExplainLanguageEscKey);
+}
+
+/**
+ * Closes the language picker and removes it from the DOM.
+ */
+function closeAiExplainLanguageModal() {
+  aiExplainLanguageState.visible = false;
+  aiExplainLanguageState.command = "";
+  aiExplainLanguageState.selected = "";
+
+  document.removeEventListener("keydown", _onAiExplainLanguageEscKey);
+
+  var el = document.getElementById("ai-explain-lang-overlay");
+  if (el) {
+    el.remove();
+  }
+}
+
+function _onAiExplainLanguageEscKey(e) {
+  if (e.key === "Escape" && aiExplainLanguageState.visible) {
+    closeAiExplainLanguageModal();
+  }
+}
+
+/**
+ * Returns the language picker HTML: title, language cards (6 per row) and buttons.
+ * @returns {string}
+ */
+function _renderAiExplainLanguageModal() {
+  var cardsHtml = state.aiOutputLanguages
+    .map(function (language) {
+      var isSelected = language === aiExplainLanguageState.selected;
+      return `<button type="button" class="tag d-focus ai-explain-lang-tag ${isSelected ? "active" : ""}" data-language="${escapeAttr(language)}" aria-pressed="${isSelected}">
+        <span class="ai-explain-lang-name">${escapeHtml(language)}</span>
+        <span class="ai-explain-lang-check">${isSelected ? icons.checkmark : ""}</span>
+      </button>`;
+    })
+    .join("");
+
+  return `<div class="ai-explain-modal ai-explain-lang-modal" role="dialog" aria-modal="true" aria-labelledby="ai-explain-lang-title">
+    <div class="ai-explain-header">
+      <div class="ai-explain-title-row">
+        <span class="ai-explain-icon">${icons.explain}</span>
+        <span class="ai-explain-title" id="ai-explain-lang-title">Select the explanation language</span>
+      </div>
+    </div>
+    <div class="ai-explain-lang-grid" id="ai-explain-lang-grid">${cardsHtml}</div>
+    <div class="ai-explain-lang-actions">
+      <button class="btn small primary d-focus" id="btn-ai-explain-lang-confirm" type="button">Explain Command</button>
+      <button class="btn small secondary d-focus" id="btn-ai-explain-lang-cancel" type="button">Cancel</button>
+    </div>
+  </div>`;
+}
+
+/**
+ * Binds card selection, the confirm and cancel buttons, and backdrop-click close.
+ */
+function _bindAiExplainLanguageEvents() {
+  var overlay = document.getElementById("ai-explain-lang-overlay");
+  if (!overlay) {
+    return;
+  }
+
+  overlay.querySelectorAll(".ai-explain-lang-tag").forEach(function (card) {
+    card.addEventListener("click", function () {
+      aiExplainLanguageState.selected = card.dataset.language;
+      overlay.querySelectorAll(".ai-explain-lang-tag").forEach(function (other) {
+        var isSelected = other === card;
+        other.classList.toggle("active", isSelected);
+        other.setAttribute("aria-pressed", String(isSelected));
+        other.querySelector(".ai-explain-lang-check").innerHTML = isSelected ? icons.checkmark : "";
+      });
+    });
+  });
+
+  document.getElementById("btn-ai-explain-lang-confirm").addEventListener("click", function () {
+    var command = aiExplainLanguageState.command;
+    var language = aiExplainLanguageState.selected;
+    closeAiExplainLanguageModal();
+    openAiExplainModal(command, language);
+  });
+
+  document.getElementById("btn-ai-explain-lang-cancel").addEventListener("click", function () {
+    closeAiExplainLanguageModal();
+  });
+
+  overlay.addEventListener("click", function (e) {
+    if (e.target === overlay) {
+      closeAiExplainLanguageModal();
+    }
+  });
 }
 
 /**

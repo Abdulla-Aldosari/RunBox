@@ -10,7 +10,7 @@ const baseScopes = [
   "ai-factory", // lib/ai/factory.js: createProvider() dispatch for all AI providers
   "ai-generate", // media/modals/ai-generate.js: AI generate prompt, loading overlay, results modal
   "ai-generation", // lib/ai/generation.js: two-stage generation pipeline and response validators
-  "ai-languages", // lib/ai/languages.js: output language list for runBox.aiOutputLanguage
+  "ai-languages", // lib/ai/languages.js: output language list for runBox.aiGenerateLanguage and runBox.aiExplainLanguage
   "ai-settings", // media/modals/ai-settings.js: AI settings modal, API key storage, model cache
   "anthropic", // lib/ai/providers/anthropic.js
   "auto-variables", // lib/auto-variables.js: auto variable payload resolution

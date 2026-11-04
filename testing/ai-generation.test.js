@@ -579,11 +579,14 @@ test("webview generateEntityId produces the same format", function () {
 
 section("output languages");
 
-test("package.json enum matches AI_OUTPUT_LANGUAGES", function () {
+test("package.json language enums match AI_OUTPUT_LANGUAGES", function () {
   const pkg = require("../package.json");
-  const setting = pkg.contributes.configuration.properties["runBox.aiOutputLanguage"];
-  assert.deepStrictEqual(setting.enum, AI_OUTPUT_LANGUAGES);
-  assert.strictEqual(setting.default, "English");
+  ["runBox.aiGenerateLanguage", "runBox.aiExplainLanguage"].forEach(function (key) {
+    const setting = pkg.contributes.configuration.properties[key];
+    assert.deepStrictEqual(setting.enum, AI_OUTPUT_LANGUAGES, key);
+    assert.strictEqual(setting.default, "English", key);
+  });
+  assert.strictEqual(pkg.contributes.configuration.properties["runBox.aiOutputLanguage"], undefined);
 });
 
 test("unknown values fall back to English", function () {

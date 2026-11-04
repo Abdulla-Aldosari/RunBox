@@ -31,6 +31,8 @@ function hydrateState(payload) {
   state.workspaceFolders = payload && Array.isArray(payload.workspaceFolders) ? payload.workspaceFolders : [];
   state.workspaceId = payload && typeof payload.workspaceId === "string" ? payload.workspaceId : "";
   state.workspaceCommands = payload && payload.workspaceCommands ? payload.workspaceCommands : { groups: [], commands: [] };
+  state.aiOutputLanguages = payload && Array.isArray(payload.aiOutputLanguages) ? payload.aiOutputLanguages : [];
+  state.aiExplainLanguage = payload && typeof payload.aiExplainLanguage === "string" ? payload.aiExplainLanguage : "English";
 
   // Apply the workspace's saved UI selection preferences (active tab, selected
   // category/group, favorites scope) only once, on the very first "state" message

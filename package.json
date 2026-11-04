@@ -85,7 +85,7 @@
           "default": "",
           "description": "The model ID to use for the selected AI provider. Leave empty to use the provider's default model. This is set automatically when you select a model in AI Settings."
         },
-        "runBox.aiOutputLanguage": {
+        "runBox.aiGenerateLanguage": {
           "type": "string",
           "enum": [
             "English",
@@ -102,7 +102,26 @@
             "Hindi"
           ],
           "default": "English",
-          "description": "Language of AI-written text: command titles, descriptions, enum value labels, and command explanations. Commands, variable names, enum values, and category/group names are always kept as is."
+          "description": "Language of AI-generated command text: titles, descriptions, and enum value labels. Commands, variable names, enum values, and category/group names are always kept as is. Does not affect command explanations (see runBox.aiExplainLanguage)."
+        },
+        "runBox.aiExplainLanguage": {
+          "type": "string",
+          "enum": [
+            "English",
+            "Arabic",
+            "Chinese",
+            "Spanish",
+            "French",
+            "German",
+            "Japanese",
+            "Korean",
+            "Portuguese",
+            "Russian",
+            "Turkish",
+            "Hindi"
+          ],
+          "default": "English",
+          "description": "Default language of AI command explanations. Ctrl+click the explain button of a command to pick a different language for a single explanation."
         },
         "runBox.debugOutput": {
           "type": "boolean",

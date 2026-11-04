@@ -30,6 +30,7 @@ const { getHelpLink } = require("./lib/help-links");
 const { buildAutoVariablesPayload } = require("./lib/auto-variables");
 const H = require("./lib/handlers");
 const { initLogger } = require("./lib/logger");
+const { AI_OUTPUT_LANGUAGES, resolveAiOutputLanguage } = require("./lib/ai/languages");
 
 // Default values for per-workspace UI selection preferences (active tab, selected
 // category/group in the Commands tab, selected group in the Categories & Groups
@@ -143,6 +144,8 @@ function activate(context) {
         workspaceId,
         workspaceCommands,
         uiPreferences,
+        aiOutputLanguages: AI_OUTPUT_LANGUAGES,
+        aiExplainLanguage: resolveAiOutputLanguage(vscode.workspace.getConfiguration("runBox").get("aiExplainLanguage")),
       },
     });
   }
@@ -252,6 +255,12 @@ function activate(context) {
   rebuildWorkspaceDataWatcher();
   context.subscriptions.push(
     vscode.workspace.onDidChangeWorkspaceFolders(rebuildWorkspaceDataWatcher),
+    // Keeps the default explanation language shown in the webview in sync with the setting.
+    vscode.workspace.onDidChangeConfiguration(function (event) {
+      if (panel && event.affectsConfiguration("runBox.aiExplainLanguage")) {
+        postState(panel);
+      }
+    }),
     new vscode.Disposable(function () {
       workspaceDataWatchers.forEach(function (watcher) {
         watcher.dispose();

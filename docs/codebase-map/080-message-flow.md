@@ -31,7 +31,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiRefreshAllModels` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiRefreshAllModels` |
 | `setActiveWorkspaceFolder` | `media/render.js` (`bindTopActions`) | dispatch table in `extension.js` — persists `fsPath` in `context.workspaceState` and calls `postState()` |
 | `saveUiPreference` | `media/utils.js` (`saveUiPreference`) | dispatch table in `extension.js`, persists one key of `uiPreferences` in `context.workspaceState`, does not call `postState()` |
-| `aiExplain` | `media/modals/ai-explain.js` (`openAiExplainModal`; payload `{ command, requestId }`) | `handleAiExplain` |
+| `aiExplain` | `media/modals/ai-explain.js` (`openAiExplainModal`; payload `{ command, requestId, language? }`; `language` is set only when chosen in the Ctrl+click language picker) | `handleAiExplain` |
 | `aiCancelExplain` | `media/modals/ai-explain.js` (`closeAiExplainModal` while loading, including the Cancel button) | `handleAiCancelExplain` |
 | `aiCheckConnection` | `media/modals/ai-check-status.js` (`openAiCheckConnectionModal`) | `handleAiCheckConnection` |
 | `aiCheckRateLimits` | `media/modals/ai-check-status.js` (`openAiCheckRateLimitsModal`) | `handleAiCheckRateLimits` |
@@ -45,7 +45,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `message.type` | Handled by (in `media/messages.js`) | Effect |
 | - | - | - |
 | `pong` | inline `window.addEventListener("message", ...)` in `media/connection-watchdog.js` (not `media/messages.js`) | Clears the pong-wait timer; if `connectionLost` was `true`, resets it to `false` and calls `render()` so the "Service connection lost" modal disappears |
-| `state` | `handleState` | Updates `state` + calls `render()`. Payload includes `workspaceFolder` (the resolved active folder) and `workspaceFolders: Array<{ name, fsPath }>` (all open folders — empty array in single-root or no-workspace mode). |
+| `state` | `handleState` | Updates `state` + calls `render()`. Payload includes `aiOutputLanguages` (the supported AI language list) and `aiExplainLanguage` (the `runBox.aiExplainLanguage` setting; re-posted when that setting changes), `workspaceFolder` (the resolved active folder) and `workspaceFolders: Array<{ name, fsPath }>` (all open folders — empty array in single-root or no-workspace mode). |
 | `saveResult` | `handleSaveResult` | Shows success/error notice |
 | `saveWorkspaceCommandsDataResult` | inline in message dispatcher | Shows success/error notice for a full "Current Workspace" section overwrite; on failure, requests a fresh `state` to roll back the optimistic render |
 | `applyOperationResult` | inline in message dispatcher | On success: shows success notice (authoritative state already refreshed by the extension's own `postState()` call before this message). On `conflict: true`: calls `handleEditConflict(currentCommand)` to open the edit-edit conflict modal instead of a generic failure notice. On any other failure: shows error notice and requests a fresh `state` to roll back the optimistic render. |
