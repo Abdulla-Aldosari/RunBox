@@ -74,6 +74,7 @@ Buttons with a unique `id` attribute. Located via `document.getElementById(id)`.
 | `ai-model-label-link` | Displays the active provider and model name; clicking opens AI Settings and returns to the prompt modal after closing |
 | `btn-ai-generate` | Send the prompt to the AI provider and generate commands |
 | `btn-ai-prompt-cancel` | Close the AI prompt input without generating |
+| `btn-ai-loading-cancel` | Cancel the running generation (posts `aiCancelGenerate`) and return to the prompt |
 | `btn-ai-insert` | Insert selected AI-generated commands into the data (disabled when nothing selected) |
 | `btn-ai-results-cancel` | Close the AI results view without inserting |
 

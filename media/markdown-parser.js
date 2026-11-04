@@ -7,7 +7,7 @@
 
 // media/markdown-parser.js
 // Lightweight Markdown → HTML converter.
-// Supports only the elements allowed by EXPLAIN_SYSTEM_INSTRUCTION:
+// Supports only the elements allowed by buildExplainInstruction() (lib/ai/systemInstruction.js):
 //   ## h2, ### h3, **bold**, *italic*, `inline code`, ```code block```,
 //   - unordered list, 1. ordered list, > blockquote,
 //   | table | with | separator |
@@ -15,7 +15,7 @@
 
 /**
  * Converts a Markdown string to an HTML string.
- * Only processes the allowed subset defined in EXPLAIN_SYSTEM_INSTRUCTION.
+ * Only processes the allowed subset defined in buildExplainInstruction().
  * Input must come from the AI (not user) — it is injected via innerHTML.
  * @param {string} md - Raw Markdown text from AI
  * @returns {string} HTML string

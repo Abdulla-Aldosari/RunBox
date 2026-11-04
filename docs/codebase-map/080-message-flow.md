@@ -23,6 +23,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiGetSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiGetSettings` |
 | `aiSaveSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiSaveSettings` |
 | `aiGenerate` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiGenerate` |
+| `aiCancelGenerate` | `media/modals/ai-generate.js` (`btn-ai-loading-cancel`) | `handleAiCancelGenerate` |
 | `aiInsert` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiInsert` |
 | `saveAutoVariablesSettings` | `media/tabs/variables.js` | `handleSaveAutoVariablesSettings` |
 | `saveFavorites` | `media/utils.js` (`persistFavorites`), `media/tabs/favorites.js` | `handleSaveFavorites` |
@@ -51,7 +52,8 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `actionResult` | `handleActionResult` | Shows notice for copy/run/use |
 | `aiSettingsResult` | `handleAiSettingsResult` | Populates `aiState` + re-renders |
 | `aiSaveSettingsResult` | `handleAiSaveSettingsResult` | Shows save confirmation |
-| `aiGenerateResult` | `handleAiGenerateResult` | Updates `aiState.results` + calls `render()` |
+| `aiGenerateProgress` | inline in message dispatcher | Full mode only. Payload `{ stage: "outline" }` or `{ stage: "details", done, total }`. Stores it in `aiState.progress` and updates `#ai-loading-text` in place (no `render()`). Ignored unless `aiState.view === "loading"`. |
+| `aiGenerateResult` | inline in message dispatcher | Ignored unless `aiState.view === "loading"` (the user may have cancelled). On success, `payload.result` is `{ mode: "full", category, commands, warnings }` or `{ mode: "single", command }`; sets `aiState.result` (`{ category, commands }` or the command), `aiState.warnings`, and all `checkedIds`, then shows the results view. On failure, shows `payload.message` in the prompt view. |
 | `aiInsertResult` | `handleAiInsertResult` | Shows insert confirmation notice |
 | `saveFavoritesResult` | `handleSaveFavoritesResult` | Shows favorites save result |
 | `saveAutoVariablesSettingsResult` | `handleSaveAutoVariablesSettingsResult` | Shows auto-vars save result |

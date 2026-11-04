@@ -25,10 +25,11 @@ is omitted from the stored command object entirely — matching the same
   defined in `media/state.js`.
 - **By AI generation** — the AI Generate modal lets the user pick a target
   shell for the prompt (`ai-shell-select-wrap` in
-  `media/modals/ai-generate.js`). `lib/ai/factory.js` (`buildShellContext()`)
-  injects that shell name into the system instruction so the AI writes
-  shell-appropriate syntax, and the generated command is tagged with the
-  matching `targetShell`.
+  `media/modals/ai-generate.js`). `lib/ai/systemInstruction.js`
+  (`buildShellContext()`) appends that shell name to every generation
+  instruction so the AI writes shell-appropriate syntax, and
+  `lib/ai/generation.js` tags each generated command with the matching
+  `targetShell`.
 
 ## Matching a Command to a Real Terminal Profile
 

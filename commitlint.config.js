@@ -9,6 +9,8 @@ const baseScopes = [
   "ai-explain", // media/modals/ai-explain.js: AI explain modal
   "ai-factory", // lib/ai/factory.js: createProvider() dispatch for all AI providers
   "ai-generate", // media/modals/ai-generate.js: AI generate prompt, loading overlay, results modal
+  "ai-generation", // lib/ai/generation.js: two-stage generation pipeline and response validators
+  "ai-languages", // lib/ai/languages.js: output language list for runBox.aiOutputLanguage
   "ai-settings", // media/modals/ai-settings.js: AI settings modal, API key storage, model cache
   "anthropic", // lib/ai/providers/anthropic.js
   "auto-variables", // lib/auto-variables.js: auto variable payload resolution
@@ -40,6 +42,7 @@ const baseScopes = [
   "handlers", // lib/handlers.js: extension-side handlers for all webview message types
   "help-links", // lib/help-links.js: getHelpLink URL registry
   "highlight", // template syntax highlighting (highlightTemplateHtml/highlightResolvedHtml)
+  "ids", // lib/ids.js: entity ID generation and validation
   "husky", // .husky/commit-msg and .husky/pre-commit git hook scripts
   "icon", // media/icon.png and media/icon.svg: extension icon assets
   "icons", // media/icons.js: inline SVG icon constants
@@ -73,6 +76,7 @@ const baseScopes = [
   "state", // media/state.js: webview state objects and their hydration
   "stepfun", // lib/ai/providers/stepfun.js
   "storage", // lib/storage.js: safe read/write of commands data files
+  "structured-output", // lib/ai/structured-output.js: shared JSON parsing, truncation detection, retry
   "styles", // media/styles.css: the single stylesheet
   "system-instruction", // lib/ai/systemInstruction.js
   "terminal", // lib/terminal.js: terminal profile resolution and execution

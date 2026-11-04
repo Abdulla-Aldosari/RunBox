@@ -165,23 +165,36 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | `openLocalDataFile(activeFsPath?)` | `openLocalDataFile` | Opens workspace unified data file for the given folder (or first folder if omitted); prompts to create if missing |
 | `handleAiGetSettings(panel, context)` | `aiGetSettings` | Reads AI secrets + provider config; posts `aiSettingsResult` |
 | `handleAiSaveSettings(panel, context, payload)` | `aiSaveSettings` | Saves API key to `SecretStorage`; posts `aiSaveSettingsResult` |
-| `handleAiGenerate(panel, context, payload)` | `aiGenerate` | Reads `shellName` from payload; passes it to `generateWithAI` to inject shell context; posts `aiGenerateResult` |
+| `handleAiGenerate(panel, context, payload)` | `aiGenerate` | Aborts any previous generation for the panel, then calls `generateWithAI` with the payload's `shellName`/`shellPath`, the `runBox.aiOutputLanguage` setting, and a per-panel `AbortController` signal; posts `aiGenerateProgress` during full-mode generation and one final `aiGenerateResult` (`{ success, result }` or `{ success: false, message }`). An aborted generation posts nothing. |
+| `handleAiCancelGenerate(panel)` | `aiCancelGenerate` | Aborts the panel's in-flight generation. Also called from `onDidDispose` in `extension.js` so a closed panel stops consuming quota. |
 | `handleAiInsert(panel, payload, postState)` | `aiInsert` | Merges AI-generated commands; posts `aiInsertResult` |
 | `handleSaveWorkspaceCommandsData(panel, payload, postState)` | `saveWorkspaceCommandsData` | **Full-section overwrite** of the "Current Workspace" pseudo-category via `writeWorkspaceCommandsSection`; posts `saveWorkspaceCommandsDataResult`. Only used for bulk replacements — single add/rename/delete/reorder actions use `applyOperation` instead (see below). |
-| `handleApplyOperation(panel, payload, postState)` | `applyOperation` | Applies one surgical mutation (`op.type`: add/rename/delete one category, group, or command, or reorder) to either `commands.json` (`scope: "global"`) or the workspace-local "Current Workspace" section (`scope: "workspace"`), via `applyCommandsDataOperation`/`applyWorkspaceCommandsOperation` (`lib/storage.js`) — read-modify-write against the freshest on-disk copy, safe against multi-window data loss. For `updateCommand` with an `expectedFingerprint` that no longer matches the on-disk command (another window edited it in the meantime), aborts without writing and posts `applyOperationResult` with `{ conflict: true, currentCommand }` instead of calling `postState`. Otherwise posts `{ success: true/false }`. |
+| `handleApplyOperation(panel, payload, postState)` | `applyOperation` | Rejects `addCategory`/`addGroup`/`addCommand` when the new entity's ID does not match the entity ID format (`isValidEntityId`, `lib/ids.js`); the storage layer additionally rejects an ID already in use. Applies one surgical mutation (`op.type`: add/rename/delete one category, group, or command, or reorder) to either `commands.json` (`scope: "global"`) or the workspace-local "Current Workspace" section (`scope: "workspace"`), via `applyCommandsDataOperation`/`applyWorkspaceCommandsOperation` (`lib/storage.js`) — read-modify-write against the freshest on-disk copy, safe against multi-window data loss. For `updateCommand` with an `expectedFingerprint` that no longer matches the on-disk command (another window edited it in the meantime), aborts without writing and posts `applyOperationResult` with `{ conflict: true, currentCommand }` instead of calling `postState`. Otherwise posts `{ success: true/false }`. |
 | `handleSaveCommandMove(panel, payload, postState)` | `saveCommandMove` | Moves a single command between a regular category (`commands.json`) and "Current Workspace" (`runbox.data.json`) as two surgical operations (delete from source, add to destination) via `applyCommandsDataOperation`/`applyWorkspaceCommandsOperation` — never a full-file snapshot overwrite of either file; posts `saveResult`. |
 | `handleAiInsertWorkspace(panel, payload, postState)` | `aiInsertWorkspace` | Merges AI-generated commands (and, for `full` mode, groups) into `workspaceCommands` instead of a regular category; posts `aiInsertResult` |
 | `handleSaveAutoVariablesSettings(panel, payload, postState)` | `saveAutoVariablesSettings` | Saves auto-variables settings; posts result |
 | `handleSaveFavorites(panel, payload)` | `saveFavorites` | Saves global/workspace favorites; posts `saveFavoritesResult` |
 | `handleAiListModels(panel, context, payload)` | `aiListModels` | Fetches model list for one provider using its saved API key; posts `aiListModelsResult` |
 | `handleAiRefreshAllModels(panel, context)` | `aiRefreshAllModels` | Fetches model lists for **all** providers that have a saved key in parallel (`Promise.allSettled`); posts one `aiListModelsResult` per provider |
-| `handleAiExplain(panel, context, payload)` | `aiExplain` | Calls `explainWithAI` with the provider/model from settings; posts `aiExplainResult` with a raw Markdown string |
+| `handleAiExplain(panel, context, payload)` | `aiExplain` | Calls `explainWithAI` with the provider/model and `runBox.aiOutputLanguage` from settings; posts `aiExplainResult` with a raw Markdown string |
 | `handleAiCheckConnection(panel, context, payload)` | `aiCheckConnection` | Wraps `checkProviderConnection` in a `vscode.window.withProgress` notification; posts `aiCheckConnectionResult` with `{ success, providerName, serviceName, modelId, responseTimeMs }` or `{ success:false, message }` |
 | `handleAiCheckRateLimits(panel, context, payload)` | `aiCheckRateLimits` | If the provider's `hasApiRateLimits` is `false`, responds immediately with `{ supported:false, serviceName, rateLimitsUrl }` — no network call, no progress notification. Otherwise wraps `checkProviderRateLimits` in `vscode.window.withProgress`; posts `aiCheckRateLimitsResult` with `{ supported:true, serviceName, modelId, limits }` |
 
 **Local data file creation notice:** `writeWorkspaceVariables` and `writeWorkspaceFavorites` (in `lib/storage.js`) return `wasCreated: boolean`. When `handleSaveCommandVariables` or `handleSaveFavorites` receive `wasCreated === true` from a workspace-local write, they call the private helper `notifyLocalDataFileCreated(activeFsPath)`, which shows a one-time `vscode.window.showInformationMessage` with the text `Created file "<dir>/runbox.data.json". You can change this location anytime in workspace settings.` and an "Open Settings" action that jumps to `runBox.localWorkspaceFilesPath`. This call is not awaited by its callers so it never delays the response sent back to the webview. It never fires for the global data file. `handlePerformAction` never triggers this notice because it no longer writes variables to disk (see its own doc entry below).
 
-**Dependencies:** `lib/storage.js`, `lib/normalize.js`, `lib/terminal.js`, `lib/auto-variables.js`, `lib/ai/factory.js`, `lib/ai/providers-config.js`, `vscode`.
+**Dependencies:** `lib/storage.js`, `lib/normalize.js`, `lib/terminal.js`, `lib/auto-variables.js`, `lib/ids.js`, `lib/ai/factory.js`, `lib/ai/providers-config.js`, `lib/ai/languages.js`, `vscode`.
+
+### `lib/ids.js`
+
+Entity ID format for categories, groups, and commands: 12 lowercase hex characters from 6 cryptographically random bytes.
+
+| Export | Kind | Purpose |
+| - | - | - |
+| `generateEntityId()` | fn | New ID via `crypto.randomBytes(6)`; used for AI-generated categories, groups, and commands. |
+| `isValidEntityId(id)` | fn | `true` when `id` matches `ENTITY_ID_PATTERN`. |
+| `ENTITY_ID_PATTERN` | const | `/^[0-9a-f]{12}$/` |
+
+The webview generates IDs for entities the user creates with `generateEntityId()` in `media/utils.js` (same format, via `crypto.getRandomValues`) so it can render them before the save completes. The extension is the authority: `handleApplyOperation` rejects a new entity whose ID does not match the format, and the `add*` cases of `applyCommandsDataOperation`/`applyWorkspaceCommandsOperation` reject an ID already in use (`assertIdNotTaken`). IDs stored before this format are never re-validated; moving an existing command (`handleSaveCommandMove`) skips the format check.
 
 ### "Current Workspace" Pseudo-Category
 
@@ -216,10 +229,14 @@ A fixed, non-deletable entry — `CURRENT_WORKSPACE_CATEGORY_ID = "__current_wor
 | File | Purpose |
 | - | - |
 | `lib/ai/providers-config.js` | **SINGLE SOURCE OF TRUTH** — metadata for all AI providers (name, displayLabel, URL, setup steps, per-provider `models[]` array with `modelId`, `modelLabel`, `free`, `modelIdExcludeKeywords` — substring keywords used to filter out non-chat models (e.g. `"embed"`, `"tts"`), and `modelIdExcludeExact` — specific model IDs to exclude that cannot be caught by keywords (e.g. dot-vs-hyphen aliases). Also defines `hasApiRateLimits: boolean` and `rateLimitsUrl: string` per provider — `hasApiRateLimits` indicates whether the provider exposes rate limit info via response headers; `rateLimitsUrl` is the provider's own account/usage page shown to the user when it does not. Edit this first when adding a new provider. |
-| `lib/ai/factory.js` | `generateWithAI(options)` — main entry point for command generation; accepts `shellName?` to inject shell context. `explainWithAI(options)` — entry point for CLI command explanation; calls `provider.explainCommand()` and returns a raw Markdown string (no JSON schema, no ID remapping). `createProvider(name, key, modelId)` — instantiates the correct provider class. `listModelsForProvider(providerName, apiKey)` — calls the provider's `listModels()` then applies a 4-step pipeline: keyword filter, exact-ID exclusion, deduplication, and dated-alias removal. Edit to register new providers. |
-| `lib/ai/schemas.js` | JSON schema for the expected AI response structure |
-| `lib/ai/systemInstruction.js` | Exports two system prompts: `DEFAULT_SYSTEM_INSTRUCTION` (command generator) and `EXPLAIN_SYSTEM_INSTRUCTION` (CLI command explainer — instructs the AI to return structured Markdown with sections: Core Purpose, Command Breakdown, Practical Examples, Notes & Warnings; enforces a strict allowed-elements list) |
+| `lib/ai/factory.js` | `generateWithAI(options)` — main entry point for command generation (`mode`, `language`, `shellName?`, `shellPath?`, `signal?`, `onProgress?`); delegates to `lib/ai/generation.js` and returns `{ mode: "full", category, commands, warnings }` or `{ mode: "single", command }`. Logs every request attempt via `logAiInteraction`. `explainWithAI(options)` — entry point for CLI command explanation in `options.language`; throws a fixed English error when the model returns `INVALID_COMMAND_CODE`. `createProvider(name, key, modelId)` — instantiates the correct provider class. `listModelsForProvider(providerName, apiKey)` — calls the provider's `listModels()` then applies a 4-step pipeline: keyword filter, exact-ID exclusion, deduplication, and dated-alias removal. Edit to register new providers. |
+| `lib/ai/generation.js` | Provider-independent generation. **Full mode** (two stages): `generateFullCategory()` sends one outline request (category name, group names, raw command strings), then one details request per group (`DETAILS_CONCURRENCY` in flight) that returns title/description/helpUrl/variables keyed by command `index`; merges them with local IDs (`lib/ids.js`) and reports `onProgress({ stage, done, total })`. A group whose details fail after the retry is skipped and reported in `warnings`; if every group fails, the first error is thrown. **Single mode**: `generateSingleCommand()` sends one request (command + details); the category and group are never sent to the model and are applied locally. Pure validators (`validateOutline` — enforces the hard limits by dropping excess, removes duplicates and multi-line commands; `validateDetails` — requires every index exactly once; `validateSingle`; `toVariableMeta` — converts `variables[]` to `variableMeta` and drops placeholders absent from the command; `normalizeHelpUrl` — absolute http(s) only). |
+| `lib/ai/structured-output.js` | Shared JSON handling for all providers. `requestJson(provider, request, validate, onAttempt?)` calls `provider.completeJson()`, then: truncated response → `AiTruncatedError` (no retry); invalid JSON or `AiInvalidResponseError` from `validate` → one retry, then the error; any other error (network, auth, abort, `AiRejectedRequestError`) → thrown immediately. `buildSchemaAppendix(schema)` — schema text appended to the system instruction by providers without native structured output. `parseJsonObject(text)` tolerates code fences. `AiRejectedRequestError` carries the standard message `This is not a valid request.` |
+| `lib/ai/schemas.js` | Hard limits `MAX_GROUPS_PER_CATEGORY` (12) and `MAX_COMMANDS_PER_GROUP` (15), enforced in code by `validateOutline` and stated in the outline instruction; `DETAILS_CONCURRENCY` (3). Schemas `SCHEMA_OUTLINE` (`valid`, `categoryName`, `groups[{ name, commands[] }]`), `SCHEMA_DETAILS` (`items[{ index, title, description, helpUrl, variables[] }]`), and `SCHEMA_SINGLE` (`valid`, `command`, plus the same details fields). Every schema uses fixed keys only, so the same schema works for every provider including Gemini; `variables` is an array of `{ name, values[{ title, value, description }] }`. `addAdditionalPropertiesFalse()` prepares a schema for OpenAI strict mode. |
+| `lib/ai/systemInstruction.js` | Builds every system instruction from shared rule blocks (command rules, validity rule, details rules), so each rule is written once: `buildOutlineInstruction()`, `buildDetailsInstruction(language)`, `buildSingleInstruction(language)`, `buildShellContext(shellName)`, and `buildExplainInstruction(language)` (Markdown sections Core Purpose, Command Breakdown, Practical Examples, Notes & Warnings — emoji kept, titles and text written in `language`; strict allowed-elements list). Category and group names are always English; titles, descriptions, and enum value labels follow `language`; commands, placeholder names, and values are never translated. Exports `INVALID_COMMAND_CODE`, the exact reply the explainer returns for non-command input. |
+| `lib/ai/languages.js` | `AI_OUTPUT_LANGUAGES` — the closed list behind the `runBox.aiOutputLanguage` setting (must match its `enum` in `package.json`); `resolveAiOutputLanguage(value)` returns the value when listed, otherwise `"English"`. |
 | `lib/ai/debugLogger.js` | Debug logging utility for AI requests/responses |
+| `lib/ai/providers/*.js` (all) | Each provider implements `completeJson({ system, prompt, schema, schemaName, signal })` → `{ text, truncated }`, where `truncated` reflects the provider's own output-limit stop reason (`length` / `model_length`, `max_tokens`, `MAX_TOKENS`). OpenAI uses strict `json_schema`, Gemini uses `responseSchema`; the others use `json_object` mode or plain text with `buildSchemaAppendix()`. Anthropic is the only provider that requires `max_tokens` and sends 8192 for JSON requests. `signal` cancels the HTTP request (`abortSignal` for Cohere). |
 | `lib/ai/providers/gemini.js` | Google Gemini implementation |
 | `lib/ai/providers/openai.js` | OpenAI ChatGPT implementation |
 | `lib/ai/providers/anthropic.js` | Anthropic Claude implementation |
@@ -240,9 +257,20 @@ extension.js
         │     └── lib/normalize.js
         ├── lib/terminal.js
         ├── lib/auto-variables.js
+        ├── lib/ids.js
+        ├── lib/ai/languages.js
         └── lib/ai/factory.js
-              └── lib/ai/providers-config.js
-                    └── lib/ai/providers/*.js
+              ├── lib/ai/providers-config.js
+              ├── lib/ai/providers/*.js
+              │     └── lib/ai/structured-output.js
+              ├── lib/ai/systemInstruction.js
+              │     └── lib/ai/schemas.js
+              └── lib/ai/generation.js
+                    ├── lib/ai/schemas.js
+                    ├── lib/ai/systemInstruction.js
+                    ├── lib/ai/structured-output.js
+                    ├── lib/ids.js
+                    └── lib/normalize.js
 ```
 
 ---
@@ -260,7 +288,7 @@ All files share the **same `window` global scope** — loaded as ordered `<scrip
 | 6 | `media/modals/run-confirm.js` | Run Confirmation modal + Variable Input modal + Delete Confirm modal. | `renderToggleSwitch3`, `renderShellSelector`, `renderRunConfirmModal`, `renderVariableInputModal`, `renderDeleteConfirmModal` |
 | 7 | `media/modals/command-form.js` | Single source of truth for the Command form UI, used by both **Add** and **Edit** modes. Rendered as a full tab. All field and variable-scope state lives in `commandFormBuffer`; global state is only written on submit. | `COMMAND_FORM_CTX`, `commandFormBuffer`, `getUserVariableNames`, `renderCommandFormVariables`, `renderCommandForm`, `transferVariableData`, `pruneOrphanVariables`, `flushScopeDataToState`, `closeCommandForm`, `bindCommandFormVariableInputs`, `bindCommandFormScopeToggles`, `bindCommandFormEnumButtons`, `bindCommandFormTemplateInput`, `validateCommandForm`, `submitAddCommand`, `submitEditCommand`, `bindCommandFormEvents` |
 | 8 | `media/modals/ai-settings.js` | AI Settings modal (provider selector + cascading model selector + API key) + localStorage model cache helpers + settings bind events | `renderAiSettingsModal`, `renderAiProviderSetupModal`, `bindAiSettingsEvents`, `getAiModelLabel`, `buildModelOptions`, `resolveSettingsModelId`, `getCachedModels`, `setModelsCache`, `clearModelsCache`, `getModelsCacheFetchedAt`, `formatTimeAgo` |
-| 9 | `media/modals/ai-generate.js` | AI Generate prompt, loading overlay, results modal, and generate/results bind events | `renderAiPromptModal`, `renderAiLoadingOverlay`, `renderAiResultsModal`, `bindAiGenerateEvents` |
+| 9 | `media/modals/ai-generate.js` | AI Generate prompt, loading overlay (stage text from `aiState.progress` and a Cancel button that posts `aiCancelGenerate`), results modal (shows `aiState.warnings`), and generate/results bind events | `renderAiPromptModal`, `renderAiLoadingOverlay`, `getAiLoadingText`, `renderAiResultsModal`, `bindAiGenerateEvents` |
 | 10 | `media/modals/ai-explain.js` | AI Explain modal — opens immediately in loading state when `.btn-explain` is clicked; displays structured Markdown explanation of a CLI command returned by `explainWithAI`. Manages `aiExplainState`. | `openAiExplainModal`, `closeAiExplainModal`, `handleAiExplainResult` |
 | 11 | `media/modals/enum-manager.js` | Enum Manager modal - manages enum variable options (title/value/description). Opened from the command form and writes through `commandFormBuffer.variableMeta` | `renderEnumManagerModal`, `bindEnumManagerEvents` |
 | 12 | `media/modals/ai-check-status.js` | AI Check Status modal — shared by "Check Connection" and "Check Rate Limits" buttons in AI Settings. Injected directly into `document.body` (same pattern as `ai-explain.js`), independent of the main `render()` cycle. Shows a loading spinner, then either the connection result, the rate limit values (generic label/value rows built from whatever keys the provider returned), or — for providers with `hasApiRateLimits: false` — a message plus a clickable link to the provider's own rate-limit page. Manages `aiCheckStatusState`. | `openAiCheckConnectionModal`, `openAiCheckRateLimitsModal`, `closeAiCheckStatusModal`, `handleAiCheckConnectionResult`, `handleAiCheckRateLimitsResult` |
@@ -389,10 +417,11 @@ is omitted from the stored command object entirely — matching the same
   defined in `media/state.js`.
 - **By AI generation** — the AI Generate modal lets the user pick a target
   shell for the prompt (`ai-shell-select-wrap` in
-  `media/modals/ai-generate.js`). `lib/ai/factory.js` (`buildShellContext()`)
-  injects that shell name into the system instruction so the AI writes
-  shell-appropriate syntax, and the generated command is tagged with the
-  matching `targetShell`.
+  `media/modals/ai-generate.js`). `lib/ai/systemInstruction.js`
+  (`buildShellContext()`) appends that shell name to every generation
+  instruction so the AI writes shell-appropriate syntax, and
+  `lib/ai/generation.js` tags each generated command with the matching
+  `targetShell`.
 
 ### Matching a Command to a Real Terminal Profile
 
@@ -497,6 +526,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiGetSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiGetSettings` |
 | `aiSaveSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiSaveSettings` |
 | `aiGenerate` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiGenerate` |
+| `aiCancelGenerate` | `media/modals/ai-generate.js` (`btn-ai-loading-cancel`) | `handleAiCancelGenerate` |
 | `aiInsert` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiInsert` |
 | `saveAutoVariablesSettings` | `media/tabs/variables.js` | `handleSaveAutoVariablesSettings` |
 | `saveFavorites` | `media/utils.js` (`persistFavorites`), `media/tabs/favorites.js` | `handleSaveFavorites` |
@@ -525,7 +555,8 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `actionResult` | `handleActionResult` | Shows notice for copy/run/use |
 | `aiSettingsResult` | `handleAiSettingsResult` | Populates `aiState` + re-renders |
 | `aiSaveSettingsResult` | `handleAiSaveSettingsResult` | Shows save confirmation |
-| `aiGenerateResult` | `handleAiGenerateResult` | Updates `aiState.results` + calls `render()` |
+| `aiGenerateProgress` | inline in message dispatcher | Full mode only. Payload `{ stage: "outline" }` or `{ stage: "details", done, total }`. Stores it in `aiState.progress` and updates `#ai-loading-text` in place (no `render()`). Ignored unless `aiState.view === "loading"`. |
+| `aiGenerateResult` | inline in message dispatcher | Ignored unless `aiState.view === "loading"` (the user may have cancelled). On success, `payload.result` is `{ mode: "full", category, commands, warnings }` or `{ mode: "single", command }`; sets `aiState.result` (`{ category, commands }` or the command), `aiState.warnings`, and all `checkedIds`, then shows the results view. On failure, shows `payload.message` in the prompt view. |
 | `aiInsertResult` | `handleAiInsertResult` | Shows insert confirmation notice |
 | `saveFavoritesResult` | `handleSaveFavoritesResult` | Shows favorites save result |
 | `saveAutoVariablesSettingsResult` | `handleSaveAutoVariablesSettingsResult` | Shows auto-vars save result |
@@ -709,6 +740,7 @@ Buttons with a unique `id` attribute. Located via `document.getElementById(id)`.
 | `ai-model-label-link` | Displays the active provider and model name; clicking opens AI Settings and returns to the prompt modal after closing |
 | `btn-ai-generate` | Send the prompt to the AI provider and generate commands |
 | `btn-ai-prompt-cancel` | Close the AI prompt input without generating |
+| `btn-ai-loading-cancel` | Cancel the running generation (posts `aiCancelGenerate`) and return to the prompt |
 | `btn-ai-insert` | Insert selected AI-generated commands into the data (disabled when nothing selected) |
 | `btn-ai-results-cancel` | Close the AI results view without inserting |
 
