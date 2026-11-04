@@ -1,34 +1,52 @@
 {
   "name": "runbox",
   "displayName": "RunBox",
-  "description": "Manage categorized terminal commands and run, use, or copy them with variable support.",
+  "description": "Save and organize your terminal commands, then run them in one click, with reusable variables, favorites, and AI-powered generation and explanations.",
   "version": "1.0.0",
   "publisher": "Abdulla-Aldosari",
   "icon": "media/icon.png",
-  "homepage": "https://github.com/Abdulla-Aldosari/runbox#readme",
+  "homepage": "https://github.com/Abdulla-Aldosari/RunBox#readme",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Abdulla-Aldosari/RunBox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Abdulla-Aldosari/RunBox/issues"
+  },
   "engines": {
     "vscode": "^1.90.0"
   },
   "categories": [
-    "Other",
-    "Snippets"
+    "Other"
   ],
   "keywords": [
-    "Terminal",
-    "Commands",
-    "Command Line",
-    "CLI",
-    "CMD",
-    "Shell",
-    "PowerShell",
-    "Run",
-    "Productivity",
-    "Runner",
-    "Manager",
-    "AI",
-    "Variables",
-    "Favorites"
+    "terminal",
+    "commands",
+    "command line",
+    "cli",
+    "shell",
+    "bash",
+    "zsh",
+    "powershell",
+    "cmd",
+    "wsl",
+    "script",
+    "run",
+    "runner",
+    "launcher",
+    "command manager",
+    "command library",
+    "cheat sheet",
+    "productivity",
+    "workflow",
+    "variables",
+    "favorites",
+    "workspace",
+    "ai",
+    "openai",
+    "gemini",
+    "claude"
   ],
   "galleryBanner": {
     "color": "#1e1e1e",
@@ -78,7 +96,7 @@
             "StepFun - free model available"
           ],
           "default": "gemini",
-          "description": "The AI provider to use for generating terminal commands."
+          "description": "The AI provider to use for generating and explaining terminal commands."
         },
         "runBox.aiModel": {
           "type": "string",
@@ -170,13 +188,6 @@
   },
   "lint-staged": {
     "*.{js,json,css,md}": "prettier --write"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Abdulla-Aldosari/RunBox.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Abdulla-Aldosari/RunBox/issues"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
