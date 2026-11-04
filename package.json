@@ -178,8 +178,8 @@
   "scripts": {
     "check": "node testing/check-syntax.js",
     "lint": "eslint extension.js lib/ media/ testing/",
-    "build": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --external:@opentelemetry/api --platform=node --target=node20 --minify",
-    "watch": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --external:@opentelemetry/api --platform=node --target=node20 --sourcemap --watch",
+    "build": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --platform=node --target=node20 --minify",
+    "watch": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --platform=node --target=node20 --sourcemap --watch",
     "vscode:prepublish": "npm run build",
     "test": "node testing/run-tests.js",
     "prettier": "prettier --write .",
