@@ -178,7 +178,9 @@ let aiState = {
   view: null, // null | 'settings' | 'prompt' | 'loading' | 'results'
   mode: null, // 'full' | 'single'
   prompt: "",
-  result: null, // AI result object from extension
+  result: null, // full mode: { category, commands }; single mode: the command object
+  warnings: [], // full mode: notes about removed commands or skipped groups
+  progress: null, // full mode while loading: { stage: 'outline'|'details', done?, total? }
   categoryId: "", // for single mode: pre-selected category
   groupId: "", // for single mode: pre-selected group
   checkedIds: {}, // { [commandId]: boolean }

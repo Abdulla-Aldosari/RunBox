@@ -113,12 +113,28 @@ function renderAiPromptModal() {
   `;
 }
 
+/**
+ * Returns the loading overlay status line for the current generation stage.
+ * @returns {string}
+ */
+function getAiLoadingText() {
+  const progress = aiState.progress;
+  if (progress && progress.stage === "outline") {
+    return "Planning groups and commands...";
+  }
+  if (progress && progress.stage === "details") {
+    return `Writing command details: ${progress.done} of ${progress.total} groups...`;
+  }
+  return "Generating commands with AI...";
+}
+
 function renderAiLoadingOverlay() {
   return `
     <div class="modal-overlay" id="ai-loading-overlay" data-dismiss-on-outside-click="false">
       <div class="modal-box ai-loading-box">
         <div class="ai-spinner" aria-label="Loading..."></div>
-        <p class="ai-loading-text">Generating commands with AI...</p>
+        <p class="ai-loading-text" id="ai-loading-text" role="status" aria-live="polite">${escapeHtml(getAiLoadingText())}</p>
+        <button class="btn small secondary action min-w65" id="btn-ai-loading-cancel" type="button">Cancel</button>
       </div>
     </div>
   `;
@@ -169,6 +185,17 @@ function renderAiResultsModal() {
           ${isFullMode && category ? `<span class="muted ai-category-label">Category: <strong>${escapeHtml(category.title)}</strong></span>` : ""}
         </div>
         ${aiState.error ? `<p class="ai-error-msg">❌ ${escapeHtml(aiState.error)}</p>` : ""}
+        ${
+          aiState.warnings && aiState.warnings.length
+            ? `<ul class="ai-warning-list">
+                ${aiState.warnings
+                  .map(function (warning) {
+                    return `<li>${escapeHtml(warning)}</li>`;
+                  })
+                  .join("")}
+              </ul>`
+            : ""
+        }
         ${groupTabs}
         <div class="table-wrap">
           <table class="cmds-table commands-table ai-results-table">
@@ -314,6 +341,8 @@ function bindAiGenerateEvents() {
         savePromptToHistory(promptValue);
         aiState.prompt = promptValue;
         aiState.error = "";
+        aiState.warnings = [];
+        aiState.progress = null;
         aiState.promptHistoryOpen = false;
         aiState.view = "loading";
         render();
@@ -416,6 +445,19 @@ function bindAiGenerateEvents() {
     });
   }
 
+  // --- Loading overlay events ---
+  if (aiState.view === "loading") {
+    const loadingCancelBtn = document.getElementById("btn-ai-loading-cancel");
+    if (loadingCancelBtn) {
+      loadingCancelBtn.addEventListener("click", function () {
+        vscode.postMessage({ type: "aiCancelGenerate" });
+        aiState.progress = null;
+        aiState.view = "prompt";
+        render();
+      });
+    }
+  }
+
   // --- Results modal events ---
   if (aiState.view === "results") {
     const checkAll = document.getElementById("ai-check-all");
@@ -514,6 +556,7 @@ function bindAiGenerateEvents() {
       cancelBtn.addEventListener("click", function () {
         aiState.view = null;
         aiState.result = null;
+        aiState.warnings = [];
         aiState.error = "";
         render();
       });

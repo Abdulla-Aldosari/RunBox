@@ -320,6 +320,7 @@ const modalDismissHandlers = {
   "ai-results-overlay": function () {
     aiState.view = null;
     aiState.result = null;
+    aiState.warnings = [];
     aiState.error = "";
     render();
   },

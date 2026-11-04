@@ -45,11 +45,7 @@
   --runbox-settings-textInputForeground: var(--vscode-settings-textInputForeground);
   --runbox-settings-textInputBorder: var(--vscode-settings-textInputBorder, transparent);
   --runbox-settings-textInputBackground: var(--vscode-settings-textInputBackground);
-  --runbox-settings-placeholderForeground: color-mix(
-    in srgb,
-    var(--runbox-settings-textInputForeground) 56%,
-    var(--runbox-settings-textInputBackground)
-  );
+  --runbox-settings-placeholderForeground: color-mix(in srgb, var(--runbox-settings-textInputForeground) 56%, var(--runbox-settings-textInputBackground));
 
   --runbox-cornerRadius-xSmall: var(--vscode-cornerRadius-xSmall); /* 2px or 0px depending on theme */
   --runbox-cornerRadius-small: var(--vscode-cornerRadius-small); /*   4px or 0px depending on theme */
@@ -67,11 +63,7 @@ body[data-vscode-theme-id="Monokai Dimmed"],
 body[data-vscode-theme-id="Red"],
 body[data-vscode-theme-id="Solarized Dark"],
 body[data-vscode-theme-id="Dark 2026"] {
-  --runbox-input-border: color-mix(
-    in srgb,
-    var(--runbox-panel-border, var(--runbox-settings-checkboxBorder)) 75%,
-    transparent
-  );
+  --runbox-input-border: color-mix(in srgb, var(--runbox-panel-border, var(--runbox-settings-checkboxBorder)) 75%, transparent);
 }
 
 body[data-vscode-theme-id="Visual Studio Light"],
@@ -79,11 +71,7 @@ body[data-vscode-theme-id="Light+"],
 body[data-vscode-theme-id="Quiet Light"],
 body[data-vscode-theme-id="Light 2026"] {
   --runbox-input-border: var(--runbox-panel-border, var(--runbox-settings-checkboxBorder));
-  --runbox-card-form-editor-background: color-mix(
-    in srgb,
-    var(--runbox-editor-background) 98%,
-    var(--runbox-foreground)
-  );
+  --runbox-card-form-editor-background: color-mix(in srgb, var(--runbox-editor-background) 98%, var(--runbox-foreground));
 }
 
 .card.recipe-editor {
@@ -1193,10 +1181,7 @@ code {
 }
 
 .cs-item[data-highlighted] {
-  background: var(
-    --runbox-quickInputList-focusBackground,
-    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
-  );
+  background: var(--runbox-quickInputList-focusBackground, color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground)));
   color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground));
 }
 
@@ -1568,10 +1553,7 @@ code {
 }
 
 .col-toggle-item:hover {
-  background: var(
-    --runbox-list-hoverBackground,
-    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
-  );
+  background: var(--runbox-list-hoverBackground, color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground)));
   /* background: var(--runbox-quickInputList-focusBackground, color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))); */
   /* color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground)); */
 }
@@ -1642,11 +1624,7 @@ input[type="checkbox"]:checked::after {
 }
 
 .ai-create-btn:hover:not(:disabled) {
-  background: color-mix(
-    in srgb,
-    var(--runbox-button-background) 15%,
-    var(--runbox-button-secondaryBackground)
-  ) !important;
+  background: color-mix(in srgb, var(--runbox-button-background) 15%, var(--runbox-button-secondaryBackground)) !important;
 }
 
 /* AI Settings modal key status */
@@ -1683,6 +1661,17 @@ input[type="checkbox"]:checked::after {
   border-radius: 5px;
   background: color-mix(in srgb, #d1242f 12%, var(--runbox-editor-background));
   border: 1px solid color-mix(in srgb, #d1242f 35%, transparent);
+  font-size: 0.83rem;
+  color: var(--runbox-editor-foreground);
+}
+
+/* AI Results: notes about removed commands or skipped groups */
+.ai-warning-list {
+  margin: 0;
+  padding: 8px 10px 8px 26px;
+  border-radius: 5px;
+  background: color-mix(in srgb, #d4a72c 12%, var(--runbox-editor-background));
+  border: 1px solid color-mix(in srgb, #d4a72c 35%, transparent);
   font-size: 0.83rem;
   color: var(--runbox-editor-foreground);
 }
@@ -1826,10 +1815,7 @@ input[type="checkbox"]:checked::after {
   transition: background 0.02s;
 }
 .ai-history-item:hover {
-  background: var(
-    --runbox-quickInputList-focusBackground,
-    color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground))
-  );
+  background: var(--runbox-quickInputList-focusBackground, color-mix(in srgb, var(--runbox-editor-background) 80%, var(--runbox-foreground)));
   color: var(--runbox-quickInputList-focusForeground, var(--runbox-editor-foreground));
 }
 
@@ -2548,8 +2534,7 @@ tr.row-highlight td {
   /* No border here — drop-shadow traces the full combined shape (box + arrow) */
   background-color: var(--runbox-editorHoverWidget-background);
   color: var(--runbox-editorHoverWidget-foreground);
-  filter: drop-shadow(0 0 0.6px var(--tooltip-border-color))
-    drop-shadow(0 0 0.5px var(--runbox-editorHoverWidget-border))
+  filter: drop-shadow(0 0 0.6px var(--tooltip-border-color)) drop-shadow(0 0 0.5px var(--runbox-editorHoverWidget-border))
     drop-shadow(0 2px 6px var(--runbox-widget-shadow, rgba(0, 0, 0, 0.36)));
   font-family: var(--runbox-font-family);
   font-size: 12px;

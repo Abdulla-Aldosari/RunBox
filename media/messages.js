@@ -179,12 +179,32 @@ window.addEventListener("message", function (event) {
     return;
   }
 
+  if (message.type === "aiGenerateProgress") {
+    // Ignore late progress after the user cancelled or the result already arrived
+    if (aiState.view !== "loading") {
+      return;
+    }
+    aiState.progress = message.payload || null;
+    const textEl = document.getElementById("ai-loading-text");
+    if (textEl) {
+      textEl.textContent = getAiLoadingText();
+    }
+    return;
+  }
+
   if (message.type === "aiGenerateResult") {
+    // Ignore a result that arrives after the user cancelled the loading overlay
+    if (aiState.view !== "loading") {
+      return;
+    }
+    aiState.progress = null;
     if (message.payload && message.payload.success) {
-      aiState.result = message.payload.result;
-      aiState.mode = message.payload.mode;
+      const result = message.payload.result;
+      aiState.mode = result.mode;
+      aiState.result = result.mode === "full" ? { category: result.category, commands: result.commands } : result.command;
+      aiState.warnings = result.mode === "full" ? result.warnings || [] : [];
       // Initialize all commands as checked
-      const cmds = message.payload.mode === "full" ? message.payload.result.commands || [] : [message.payload.result];
+      const cmds = result.mode === "full" ? result.commands || [] : [result.command];
       const checked = {};
       cmds.forEach(function (cmd) {
         checked[cmd.id] = true;
@@ -205,6 +225,7 @@ window.addEventListener("message", function (event) {
     if (message.payload && message.payload.success) {
       aiState.view = null;
       aiState.result = null;
+      aiState.warnings = [];
       aiState.prompt = "";
       aiState.error = "";
       showNotice(`Inserted ${message.payload.count} command(s) successfully.`, icons.circleCheck, "success");
