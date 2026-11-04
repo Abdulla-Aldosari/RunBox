@@ -16,6 +16,7 @@ const nodeGlobals = {
   setInterval: "readonly",
   clearInterval: "readonly",
   fetch: "readonly",
+  AbortController: "readonly",
 };
 
 const browserGlobals = {
@@ -24,6 +25,7 @@ const browserGlobals = {
   document: "readonly",
   navigator: "readonly",
   localStorage: "readonly",
+  crypto: "readonly",
   setTimeout: "readonly",
   clearTimeout: "readonly",
   setInterval: "readonly",
@@ -75,6 +77,7 @@ const browserGlobals = {
   timeAgo: "readonly",
   generateEntityId: "readonly",
   getAiModelLabel: "readonly",
+  getAiLoadingText: "readonly",
   getCachedModels: "readonly",
   setModelsCache: "readonly",
   clearModelsCache: "readonly",

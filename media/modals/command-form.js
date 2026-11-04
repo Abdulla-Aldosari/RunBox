@@ -869,7 +869,7 @@ function submitAddCommand() {
   const isWsCmd = isCurrentWorkspaceCategory(commandFormBuffer.categoryId);
 
   const newCommand = {
-    id: generateEntityId("cmd"),
+    id: generateEntityId(),
     title: commandFormBuffer.title,
     description: commandFormBuffer.description,
     command: commandFormBuffer.template,

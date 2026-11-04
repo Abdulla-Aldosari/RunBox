@@ -344,7 +344,7 @@ function executeManageModalConfirm() {
 
   if (mode === "add-category") {
     const newCategory = {
-      id: generateEntityId("cat"),
+      id: generateEntityId(),
       title: value,
       groups: [],
     };
@@ -376,7 +376,7 @@ function executeManageModalConfirm() {
       return;
     }
     const newGroup = {
-      id: generateEntityId("grp"),
+      id: generateEntityId(),
       title: value,
     };
 

@@ -79,9 +79,18 @@ function formatDateTime(isoString) {
 
 // ─── ID / Entity Helpers ──────────────────────────────────────────────────────
 
-function generateEntityId(prefix) {
-  const random = Math.random().toString(36).slice(2, 8);
-  return `${prefix}-${Date.now().toString(36)}-${random}`;
+/**
+ * Generates a new entity ID for a category, group, or command: 12 lowercase hex
+ * characters from 6 cryptographically random bytes. Must stay identical to
+ * generateEntityId() in lib/ids.js — the extension rejects new entities whose
+ * ID does not match that format.
+ * @returns {string}
+ */
+function generateEntityId() {
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  return Array.from(bytes, function (b) {
+    return b.toString(16).padStart(2, "0");
+  }).join("");
 }
 
 // When multiple configured terminal profiles share the same shellType (e.g. a
