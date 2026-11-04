@@ -59,18 +59,23 @@ function hydrateState(payload) {
   const globalCmds = state.globalCommandVariables.commands || {};
   const allCommandIds = new Set([...Object.keys(localCmds), ...Object.keys(globalCmds)]);
 
+  // Local/Global drafts mirror disk: every "state" message (including those
+  // triggered by another VS Code window's saves) refreshes them, so this window
+  // never shows, or later re-saves, stale values. The previously drafted ids are
+  // included too, so values cleared elsewhere are cleared here as well. Drafts
+  // with a save still in flight are kept until that save is confirmed. Open
+  // editors are unaffected: the command form and the variable input modal edit
+  // their own buffers, copied from these drafts when they open.
+  const draftedIds = new Set([...allCommandIds, ...Object.keys(uiState.commandLocalDrafts), ...Object.keys(uiState.commandGlobalDrafts)]);
+  draftedIds.forEach(function (commandId) {
+    if (uiState.pendingVariableSaves[commandId]) {
+      return;
+    }
+    uiState.commandLocalDrafts[commandId] = Object.assign({}, localCmds[commandId] || {});
+    uiState.commandGlobalDrafts[commandId] = Object.assign({}, globalCmds[commandId] || {});
+  });
+
   allCommandIds.forEach(function (commandId) {
-    // Initialize local scope draft from workspace variables file
-    // Always refresh when workspace folder changes to load the new folder's values
-    if (!uiState.commandLocalDrafts[commandId] || workspaceFolderChanged) {
-      uiState.commandLocalDrafts[commandId] = Object.assign({}, localCmds[commandId] || {});
-    }
-
-    // Initialize global scope draft from global variables file
-    if (!uiState.commandGlobalDrafts[commandId]) {
-      uiState.commandGlobalDrafts[commandId] = Object.assign({}, globalCmds[commandId] || {});
-    }
-
     // Initialize scope preference (commandRemember)
     // Always refresh when workspace folder changes so local scope prefs reflect new folder's values
     if (!uiState.commandRemember[commandId] || workspaceFolderChanged) {

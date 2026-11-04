@@ -77,6 +77,10 @@ const uiState = {
   commandGlobalDrafts: {}, // { [commandId]: { [varName]: value } } — global scope
   commandSessionDrafts: {}, // { [commandId]: { [varName]: value } } — session-only (never written to disk)
   commandRemember: {},
+  // { [commandId]: number } — variable saves sent but not yet confirmed by
+  // "saveVariablesResult". hydrateState() keeps those drafts as they are, so a
+  // "state" message read from disk before the save landed cannot revert them.
+  pendingVariableSaves: {},
 
   columnVisibility: (function () {
     try {

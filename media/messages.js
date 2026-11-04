@@ -109,6 +109,13 @@ window.addEventListener("message", function (event) {
   }
 
   if (message.type === "saveVariablesResult") {
+    const savedCommandId = message.payload && typeof message.payload.commandId === "string" ? message.payload.commandId : "";
+    if (savedCommandId && uiState.pendingVariableSaves[savedCommandId]) {
+      uiState.pendingVariableSaves[savedCommandId] -= 1;
+      if (uiState.pendingVariableSaves[savedCommandId] <= 0) {
+        delete uiState.pendingVariableSaves[savedCommandId];
+      }
+    }
     if (message.payload && message.payload.success) {
       if (message.payload.commandVariables) {
         state.commandVariables = message.payload.commandVariables;

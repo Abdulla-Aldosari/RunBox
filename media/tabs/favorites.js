@@ -250,14 +250,14 @@ function bindFavoritesTabEvents() {
             return id !== commandId;
           });
           state.localFavorites = newLocal;
-          persistFavorites({ local: newLocal });
+          persistFavorites(commandId, { local: false });
           showNotice("Removed from Local Workspace Favorites.", icons.heartMinus, "info");
         } else {
           const newGlobal = state.globalFavorites.filter(function (id) {
             return id !== commandId;
           });
           state.globalFavorites = newGlobal;
-          persistFavorites({ global: newGlobal });
+          persistFavorites(commandId, { global: false });
           showNotice("Removed from Global Favorites.", icons.heartMinus, "info");
         }
         render();
@@ -315,7 +315,7 @@ function bindFavoriteModalEvents() {
         });
         state.globalFavorites = newGlobal;
         state.localFavorites = newLocal;
-        persistFavorites({ global: newGlobal, local: newLocal });
+        persistFavorites(commandId, { global: false, local: false });
         showNotice("Removed from all favorites.", icons.heartMinus, "info");
       }
       favoriteModalState = {
@@ -361,9 +361,21 @@ function bindFavoriteModalEvents() {
           newLocal = state.localFavorites;
         }
 
+        // Send only the scopes whose membership actually changed, so an
+        // untouched scope never overwrites another window's change on disk.
+        const changes = {};
+        if (newGlobal !== state.globalFavorites) {
+          changes.global = wantGlobal;
+        }
+        if (newLocal !== state.localFavorites) {
+          changes.local = wantLocal;
+        }
+
         state.globalFavorites = newGlobal;
         state.localFavorites = newLocal;
-        persistFavorites({ global: newGlobal, local: newLocal });
+        if (Object.keys(changes).length > 0) {
+          persistFavorites(commandId, changes);
+        }
 
         if (!wantGlobal && !wantLocal) {
           showNotice("Removed from all favorites.", icons.heartMinus, "info");
@@ -447,13 +459,13 @@ function bindUnfavoriteConfirmEvents() {
           return id !== commandId;
         });
         state.localFavorites = newLocal;
-        persistFavorites({ local: newLocal });
+        persistFavorites(commandId, { local: false });
       } else {
         const newGlobal = state.globalFavorites.filter(function (id) {
           return id !== commandId;
         });
         state.globalFavorites = newGlobal;
-        persistFavorites({ global: newGlobal });
+        persistFavorites(commandId, { global: false });
       }
 
       unfavoriteConfirmState = { visible: false, commandId: null, scope: null };

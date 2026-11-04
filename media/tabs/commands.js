@@ -531,7 +531,6 @@ function dispatchCommandAction(commandId, action, shellPath, shellName, activeFs
   }
 
   const resolved = resolveCommandTemplate(command);
-  const commandVariables = buildCommandVariablesPayload();
 
   vscode.postMessage({
     type: "performAction",
@@ -539,7 +538,6 @@ function dispatchCommandAction(commandId, action, shellPath, shellName, activeFs
       action,
       commandId,
       resolvedCommand: resolved,
-      commandVariables,
       ...(shellPath ? { shellPath } : {}),
       ...(shellName ? { shellName } : {}),
       ...(activeFsPath ? { activeFsPath } : {}),
@@ -712,7 +710,7 @@ function bindCommandActionButtons() {
           }
           const newLocal = state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId]);
           state.localFavorites = newLocal;
-          persistFavorites({ global: state.globalFavorites, local: newLocal });
+          persistFavorites(commandId, { local: true });
           showNotice("Added to Local Favorites.", icons.heartPlus, "success");
           render();
           return;
@@ -721,7 +719,7 @@ function bindCommandActionButtons() {
         const newLocal = hasWorkspace ? (state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId])) : state.localFavorites;
         state.globalFavorites = newGlobal;
         state.localFavorites = newLocal;
-        persistFavorites({ global: newGlobal, local: newLocal });
+        persistFavorites(commandId, hasWorkspace ? { global: true, local: true } : { global: true });
         showNotice(hasWorkspace ? "Added to Global & Local Favorites." : "Added to Global Favorites. (No workspace for local)", icons.heartPlus, "success");
         render();
       } else if (ctrlOrMeta) {
@@ -731,7 +729,7 @@ function bindCommandActionButtons() {
         }
         const newGlobal = state.globalFavorites.includes(commandId) ? state.globalFavorites : state.globalFavorites.concat([commandId]);
         state.globalFavorites = newGlobal;
-        persistFavorites({ global: newGlobal, local: state.localFavorites });
+        persistFavorites(commandId, { global: true });
         showNotice("Added to Global Favorites.", icons.heartPlus, "success");
         render();
       } else if (shift) {
@@ -743,7 +741,7 @@ function bindCommandActionButtons() {
         }
         const newLocal = state.localFavorites.includes(commandId) ? state.localFavorites : state.localFavorites.concat([commandId]);
         state.localFavorites = newLocal;
-        persistFavorites({ global: state.globalFavorites, local: newLocal });
+        persistFavorites(commandId, { local: true });
         showNotice("Added to Local Favorites.", icons.heartPlus, "success");
         render();
       } else {
@@ -785,7 +783,7 @@ function bindCommandActionButtons() {
               return id !== commandId;
             });
             state.localFavorites = newLocal;
-            persistFavorites({ global: state.globalFavorites, local: newLocal });
+            persistFavorites(commandId, { local: false });
             showNotice("Removed from Local Favorites.", icons.heartMinus, "info");
             render();
           }
@@ -799,7 +797,7 @@ function bindCommandActionButtons() {
         });
         state.globalFavorites = newGlobal;
         state.localFavorites = newLocal;
-        persistFavorites({ global: newGlobal, local: newLocal });
+        persistFavorites(commandId, { global: false, local: false });
         showNotice("Removed from Global & Local Favorites.", icons.heartMinus, "info");
         render();
       } else if (ctrlOrMeta) {
@@ -812,7 +810,7 @@ function bindCommandActionButtons() {
             return id !== commandId;
           });
           state.globalFavorites = newGlobal;
-          persistFavorites({ global: newGlobal, local: state.localFavorites });
+          persistFavorites(commandId, { global: false });
           showNotice("Removed from Global Favorites.", icons.heartMinus, "info");
           render();
         }
@@ -828,7 +826,7 @@ function bindCommandActionButtons() {
             return id !== commandId;
           });
           state.localFavorites = newLocal;
-          persistFavorites({ global: state.globalFavorites, local: newLocal });
+          persistFavorites(commandId, { local: false });
           showNotice("Removed from Local Favorites.", icons.heartMinus, "info");
           render();
         }
@@ -1274,7 +1272,7 @@ function bindCommandActionButtons() {
       uiState.commandRemember[commandId] = rememberMap;
 
       // Always persist — buildCommandVariablesPayload writes only non-empty scope values
-      persistCommandVariables();
+      persistCommandVariables(commandId);
 
       // Close variable input modal
       variableInputState = {
@@ -1492,7 +1490,9 @@ function executeDeleteConfirm() {
       uiState.activeTab = "commands";
     }
 
-    persistCommandVariables();
+    // The drafts of this command were deleted above, so this removes its stored
+    // Local and Global variable values from disk.
+    persistCommandVariables(id);
 
     if (isWorkspaceCmd) {
       persistWorkspaceOperation({ type: "deleteCommand", commandId: id }, "Command deleted.");

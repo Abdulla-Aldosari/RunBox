@@ -886,7 +886,7 @@ function submitAddCommand() {
 
   flushScopeDataToState(newCommand.id);
   closeCommandForm(newCommand.id);
-  persistCommandVariables();
+  persistCommandVariables(newCommand.id);
 
   if (isWsCmd) {
     state.workspaceCommands.commands.push(newCommand);
@@ -952,6 +952,8 @@ function submitEditCommand(command) {
 
   flushScopeDataToState(command.id);
   closeCommandForm(command.id);
+  // Variable values edited in the form are saved in every branch below.
+  persistCommandVariables(command.id);
 
   if (wasWorkspaceCmd === willBeWorkspaceCmd) {
     // No source change — persist to whichever source already holds this command.
@@ -988,7 +990,7 @@ function submitEditCommand(command) {
         return id !== command.id;
       });
       state.globalFavorites = newGlobal;
-      persistFavorites({ global: newGlobal, local: state.localFavorites });
+      persistFavorites(command.id, { global: false });
     }
     persistCommandMoveThenRender(command, "toWorkspace", "Command moved to Current Workspace.");
   } else {
@@ -998,7 +1000,6 @@ function submitEditCommand(command) {
     state.data.commands.push(command);
     persistCommandMoveThenRender(command, "toGlobal", "Command moved out of Current Workspace.");
   }
-  persistCommandVariables();
 }
 
 /**

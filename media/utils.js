@@ -452,60 +452,37 @@ function getCommandRemember(commandId) {
 }
 
 /**
- * Builds the complete variables payload for persistence.
- * LOCAL file  = all non-empty values in commandLocalDrafts  (independent of scope preference).
- * GLOBAL file = all non-empty values in commandGlobalDrafts (independent of scope preference).
+ * Builds the variables payload of ONE command for persistence.
+ * local  = non-empty values in that command's commandLocalDrafts entry.
+ * global = non-empty values in that command's commandGlobalDrafts entry.
  * Session drafts are NEVER included — they are in-memory only.
- * Saving one scope never affects the other scope.
- * @returns {{ local: object, global: object }}
+ * Only this command is sent (never every command held in memory), so the
+ * extension replaces just this command's entries and values another VS Code
+ * window saved for other commands are never overwritten. An empty map deletes
+ * the command's entry in that scope.
+ * @param {string} commandId
+ * @returns {{ commandId: string, local: object, global: object }}
  */
-function buildCommandVariablesPayload() {
-  var local = { commands: {} };
-  var global = { commands: {} };
-
-  var allCommandIds = {};
-  Object.keys(uiState.commandLocalDrafts).forEach(function (id) {
-    allCommandIds[id] = true;
-  });
-  Object.keys(uiState.commandGlobalDrafts).forEach(function (id) {
-    allCommandIds[id] = true;
-  });
-
-  Object.keys(allCommandIds).forEach(function (commandId) {
-    var localDraft = uiState.commandLocalDrafts[commandId] || {};
-    var globalDraft = uiState.commandGlobalDrafts[commandId] || {};
-    var localVars = {};
-    var globalVars = {};
-
-    Object.keys(localDraft).forEach(function (varName) {
+function buildCommandVariablesPayload(commandId) {
+  function nonEmptyValues(draft) {
+    var values = {};
+    Object.keys(draft || {}).forEach(function (varName) {
       if (varName === "workspaceFolder") {
         return;
       }
-      var val = localDraft[varName];
+      var val = draft[varName];
       if (val !== undefined && val !== null && val !== "") {
-        localVars[varName] = val;
+        values[varName] = val;
       }
     });
+    return values;
+  }
 
-    Object.keys(globalDraft).forEach(function (varName) {
-      if (varName === "workspaceFolder") {
-        return;
-      }
-      var val = globalDraft[varName];
-      if (val !== undefined && val !== null && val !== "") {
-        globalVars[varName] = val;
-      }
-    });
-
-    if (Object.keys(localVars).length > 0) {
-      local.commands[commandId] = localVars;
-    }
-    if (Object.keys(globalVars).length > 0) {
-      global.commands[commandId] = globalVars;
-    }
-  });
-
-  return { local, global };
+  return {
+    commandId,
+    local: nonEmptyValues(uiState.commandLocalDrafts[commandId]),
+    global: nonEmptyValues(uiState.commandGlobalDrafts[commandId]),
+  };
 }
 
 /**
@@ -1038,10 +1015,15 @@ function getFavoriteScope(commandId) {
 }
 
 /**
- * Saves favorites to the extension.
+ * Sends a single command's favorite change to the extension. Only the change
+ * is sent (never a whole list), so the extension merges it into the freshest
+ * on-disk copy and favorites another VS Code window changed for other commands
+ * are never erased. Omit a scope to leave it untouched.
+ * @param {string} commandId
+ * @param {{ global?: boolean, local?: boolean }} changes - true adds, false removes
  */
-function persistFavorites(payload) {
-  vscode.postMessage({ type: "saveFavorites", payload });
+function persistFavorites(commandId, changes) {
+  vscode.postMessage({ type: "saveFavorites", payload: Object.assign({ commandId }, changes) });
 }
 
 // ─── Persist Helpers ──────────────────────────────────────────────────────────
@@ -1135,9 +1117,13 @@ function persistCommandMoveThenRender(command, direction, successMessage) {
   });
 }
 
-function persistCommandVariables() {
-  const payload = buildCommandVariablesPayload();
-  vscode.postMessage({ type: "saveCommandVariables", payload });
+/**
+ * Persists the Local and Global variable values of one command.
+ * @param {string} commandId
+ */
+function persistCommandVariables(commandId) {
+  uiState.pendingVariableSaves[commandId] = (uiState.pendingVariableSaves[commandId] || 0) + 1;
+  vscode.postMessage({ type: "saveCommandVariables", payload: buildCommandVariablesPayload(commandId) });
 }
 
 // ─── Actions Cell Renderer ────────────────────────────────────────────────────

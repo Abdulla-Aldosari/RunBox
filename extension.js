@@ -20,6 +20,8 @@ const {
   getAllWorkspaceFolders,
   resolveActiveWorkspaceFolder,
   GLOBAL_COMMANDS_FILE,
+  GLOBAL_DATA_FILE,
+  GLOBAL_AUTO_VARIABLES_SETTINGS_FILE,
   GLOBAL_DIR,
   readWorkspaceId,
   readWorkspaceCommandsSection,
@@ -211,16 +213,21 @@ function activate(context) {
   // Wrapping the path in a RelativePattern (rooted at its containing
   // directory) forces VS Code to use its directory-level watch service
   // instead, which survives rename-based atomic writes indefinitely.
-  const globalCommandsWatcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(GLOBAL_DIR), "commands.json"));
   const refreshOnExternalChange = function () {
     if (panel) {
       postState(panel);
     }
   };
-  globalCommandsWatcher.onDidChange(refreshOnExternalChange);
-  globalCommandsWatcher.onDidCreate(refreshOnExternalChange);
-  globalCommandsWatcher.onDidDelete(refreshOnExternalChange);
-  context.subscriptions.push(globalCommandsWatcher);
+  // Every shared global file the panel state is built from: commands, the
+  // unified data file (Global variables + Global favorites), and the Auto
+  // Variables settings. One watcher per file, each rooted at GLOBAL_DIR.
+  [GLOBAL_COMMANDS_FILE, GLOBAL_DATA_FILE, GLOBAL_AUTO_VARIABLES_SETTINGS_FILE].forEach(function (filePath) {
+    const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(vscode.Uri.file(GLOBAL_DIR), path.basename(filePath)));
+    watcher.onDidChange(refreshOnExternalChange);
+    watcher.onDidCreate(refreshOnExternalChange);
+    watcher.onDidDelete(refreshOnExternalChange);
+    context.subscriptions.push(watcher);
+  });
 
   // Workspace-local runbox.data.json lives under each workspace folder's
   // .vscode/ (or the configured runBox.localWorkspaceFilesPath). Re-created

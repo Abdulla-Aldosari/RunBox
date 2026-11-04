@@ -150,26 +150,24 @@ expectFn(storage, "readDataFile");
 
 expectFn(storage, "writeDataFile");
 expectFn(storage, "readWorkspaceVariables");
-expectFn(storage, "writeWorkspaceVariables");
-expectFn(storage, "mergeWorkspaceVariables");
+expectFn(storage, "setWorkspaceCommandVariables");
 expectFn(storage, "readGlobalVariables");
-expectFn(storage, "writeGlobalVariables");
-expectFn(storage, "mergeGlobalVariables");
+expectFn(storage, "setGlobalCommandVariables");
 expectFn(storage, "readAutoVariablesSettings");
 expectFn(storage, "writeAutoVariablesSettings");
 expectFn(storage, "readGlobalFavorites");
 expectFn(storage, "readWorkspaceFavorites");
-expectFn(storage, "writeGlobalFavorites");
-expectFn(storage, "writeWorkspaceFavorites");
+expectFn(storage, "setGlobalFavorite");
+expectFn(storage, "setWorkspaceFavorite");
 expectFn(storage, "readWorkspaceId");
 expectFn(storage, "ensureWorkspaceId");
 expectFn(storage, "readWorkspaceCommandsSection");
 expectFn(storage, "writeWorkspaceCommandsSection");
 expectFn(storage, "applyWorkspaceCommandsOperation");
 
-test("has exactly 33 exports (4 constants + 29 functions)", function () {
+test("has exactly 31 exports (4 constants + 27 functions)", function () {
   const keys = Object.keys(storage);
-  assert.strictEqual(keys.length, 33, `Expected 33 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 31, `Expected 31 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // Spot-check path constant values
