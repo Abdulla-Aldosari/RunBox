@@ -31,7 +31,8 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiRefreshAllModels` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiRefreshAllModels` |
 | `setActiveWorkspaceFolder` | `media/render.js` (`bindTopActions`) | dispatch table in `extension.js` — persists `fsPath` in `context.workspaceState` and calls `postState()` |
 | `saveUiPreference` | `media/utils.js` (`saveUiPreference`) | dispatch table in `extension.js`, persists one key of `uiPreferences` in `context.workspaceState`, does not call `postState()` |
-| `aiExplain` | `media/modals/ai-explain.js` (`openAiExplainModal`) | `handleAiExplain` |
+| `aiExplain` | `media/modals/ai-explain.js` (`openAiExplainModal`; payload `{ command, requestId }`) | `handleAiExplain` |
+| `aiCancelExplain` | `media/modals/ai-explain.js` (`closeAiExplainModal` while loading, including the Cancel button) | `handleAiCancelExplain` |
 | `aiCheckConnection` | `media/modals/ai-check-status.js` (`openAiCheckConnectionModal`) | `handleAiCheckConnection` |
 | `aiCheckRateLimits` | `media/modals/ai-check-status.js` (`openAiCheckRateLimitsModal`) | `handleAiCheckRateLimits` |
 
@@ -59,5 +60,5 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `saveAutoVariablesSettingsResult` | `handleSaveAutoVariablesSettingsResult` | Shows auto-vars save result |
 | `aiListModelsResult` | inline in message dispatcher | On success: saves fetched models to localStorage cache and applies them to `aiState.aiProviderSetup[provider].models`. On failure or empty result: caches the static models from config to prevent re-fetching on next open. Re-renders only if result is for the currently displayed provider. |
 | `aiDeleteKeyResult` | inline in message dispatcher | On success: clears the model cache for the provider and re-fetches settings via `aiGetSettings`. Shows a confirmation notice. |
-| `aiExplainResult` | `handleAiExplainResult` (in `media/modals/ai-explain.js`) | Sets `aiExplainState.loading = false`; populates `markdown` or `error`; repaints the explain modal content without calling `render()` |
+| `aiExplainResult` | `handleAiExplainResult` (in `media/modals/ai-explain.js`) | Ignored unless `payload.requestId` matches `aiExplainState.requestId` and the modal is visible. Sets `aiExplainState.loading = false`; populates `markdown` or `error`; repaints the explain modal content without calling `render()` |
 | `pickFileResult` | inline in message dispatcher | On success: writes the selected `fsPath` into the matching `.variable-modal-input[data-variable-name]` and updates `variableInputState.inputValues`. No `render()` call, to avoid focus loss while editing. |

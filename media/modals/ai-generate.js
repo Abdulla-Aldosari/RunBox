@@ -179,10 +179,13 @@ function mergeAiProgress(prev, payload) {
   return payload;
 }
 
-/** The planning visual: a living network drawn on a canvas with a softly pulsing orb at its centre. */
-function renderAiPlanVisual() {
+/**
+ * The planning visual: a living network drawn on a canvas with a softly pulsing orb at its centre.
+ * @param {boolean} [withPhrase=true] - Adds the rotating planning phrase in full mode.
+ */
+function renderAiPlanVisual(withPhrase = true) {
   const phrase =
-    aiState.mode === "full"
+    withPhrase && aiState.mode === "full"
       ? `<p class="ai-loading-phrase is-in" id="ai-loading-phrase" aria-hidden="true">${escapeHtml(AI_LOADING_PHRASES[aiLoadingPhraseIndex % AI_LOADING_PHRASES.length])}</p>`
       : "";
   return `

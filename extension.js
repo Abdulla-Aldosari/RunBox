@@ -528,6 +528,12 @@ function activate(context) {
           return;
         }
 
+        // Aborts the in-flight AI explanation (user closed the explain modal).
+        if (message.type === "aiCancelExplain") {
+          H.handleAiCancelExplain(panel);
+          return;
+        }
+
         // Inserts AI-generated commands into the commands data and refreshes the panel state.
         if (message.type === "aiInsert") {
           await H.handleAiInsert(panel, message.payload, postState);
@@ -629,6 +635,7 @@ function activate(context) {
     targetPanel.onDidDispose(function () {
       // Stop any AI generation still running for this panel so it does not keep consuming quota.
       H.handleAiCancelGenerate(targetPanel);
+      H.handleAiCancelExplain(targetPanel);
       if (panel === targetPanel) {
         panel = null;
       }

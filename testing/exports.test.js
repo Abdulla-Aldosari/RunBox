@@ -210,6 +210,7 @@ expectFn(handlers, "handleAiGetSettings");
 expectFn(handlers, "handleAiSaveSettings");
 expectFn(handlers, "handleAiGenerate");
 expectFn(handlers, "handleAiCancelGenerate");
+expectFn(handlers, "handleAiCancelExplain");
 expectFn(handlers, "handleAiInsert");
 expectFn(handlers, "handleAiInsertWorkspace");
 expectFn(handlers, "handleSaveAutoVariablesSettings");
@@ -221,9 +222,9 @@ expectFn(handlers, "handleAiExplain");
 expectFn(handlers, "handleAiCheckConnection");
 expectFn(handlers, "handleAiCheckRateLimits");
 
-test("has exactly 25 exports", function () {
+test("has exactly 26 exports", function () {
   const keys = Object.keys(handlers);
-  assert.strictEqual(keys.length, 25, `Expected 25 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 26, `Expected 26 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

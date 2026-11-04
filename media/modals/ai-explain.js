@@ -20,18 +20,24 @@
 function openAiExplainModal(command) {
   aiExplainState.visible = true;
   aiExplainState.loading = true;
+  aiExplainState.requestId = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   aiExplainState.command = command;
   aiExplainState.markdown = "";
   aiExplainState.error = "";
 
   _injectAiExplainModal();
-  vscode.postMessage({ type: "aiExplain", payload: { command } });
+  vscode.postMessage({ type: "aiExplain", payload: { command, requestId: aiExplainState.requestId } });
 }
 
 /**
  * Closes the explain modal and removes it from the DOM.
+ * Aborts the pending request when the explanation is still loading.
  */
 function closeAiExplainModal() {
+  if (aiExplainState.loading) {
+    vscode.postMessage({ type: "aiCancelExplain" });
+  }
+  aiExplainState.requestId = "";
   aiExplainState.visible = false;
   aiExplainState.loading = false;
   aiExplainState.markdown = "";
@@ -66,6 +72,23 @@ function _injectAiExplainModal() {
 
   document.body.appendChild(overlay);
   _bindAiExplainCloseBtn();
+  _activateAiExplainLoading();
+}
+
+/**
+ * Starts the network animation and binds the Cancel button when the loading view is shown.
+ */
+function _activateAiExplainLoading() {
+  if (!aiExplainState.loading) {
+    return;
+  }
+  startAiPlanNet();
+  var cancelBtn = document.getElementById("btn-ai-explain-cancel");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", function () {
+      closeAiExplainModal();
+    });
+  }
 }
 
 /**
@@ -78,6 +101,7 @@ function _repaintAiExplainContent() {
     return;
   }
   contentEl.innerHTML = _renderAiExplainContent();
+  _activateAiExplainLoading();
 }
 
 // ─── Render ───────────────────────────────────────────────────────────────────
@@ -97,7 +121,7 @@ function _renderAiExplainModal() {
       <button class="btn icon-btn secondary ai-explain-close d-focus" id="btn-ai-explain-close" type="button" data-tooltip="Close" data-tooltip-pos="left">&#x2715;</button>
     </div>
     <div class="ai-explain-command-bar">
-      <code class="ai-explain-command-text">${commandHtml}</code>
+      <pre class="ai-explain-command-pre"><code class="ai-explain-command-text">${commandHtml}</code></pre>
     </div>
     <div class="ai-explain-body" id="ai-explain-content">
       ${_renderAiExplainContent()}
@@ -111,9 +135,10 @@ function _renderAiExplainModal() {
  */
 function _renderAiExplainContent() {
   if (aiExplainState.loading) {
-    return `<div class="ai-explain-loading">
-      <div class="ai-explain-spinner"></div>
-      <span>Generating explanation…</span>
+    return `<div class="ai-explain-generating">
+      ${renderAiPlanVisual(false)}
+      <p class="ai-explain-generating-text" role="status" aria-live="polite">Generating explanation…</p>
+      <button class="btn small secondary action min-w65" id="btn-ai-explain-cancel" type="button">Cancel</button>
     </div>`;
   }
 
@@ -169,9 +194,13 @@ function _onAiExplainEscKey(e) {
 /**
  * Called by messages.js when aiExplainResult arrives.
  * Updates state and repaints only the content area.
- * @param {{ success: boolean, markdown?: string, message?: string }} payload
+ * Results whose requestId does not match the pending request are ignored.
+ * @param {{ success: boolean, markdown?: string, message?: string, requestId?: string }} payload
  */
 function handleAiExplainResult(payload) {
+  if (!aiExplainState.visible || !payload || payload.requestId !== aiExplainState.requestId) {
+    return;
+  }
   aiExplainState.loading = false;
 
   if (payload && payload.success) {

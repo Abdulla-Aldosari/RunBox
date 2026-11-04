@@ -3424,18 +3424,30 @@ kbd {
 }
 
 .ai-explain-command-bar {
-  padding: 8px 14px;
-  background: var(--runbox-input-background);
+  padding: 10px 14px;
   border-bottom: 1px solid var(--runbox-panel-border);
-  overflow-x: auto;
+  max-height: 30vh;
+  overflow-y: auto;
   flex-shrink: 0;
+}
+
+.ai-explain-command-pre {
+  background: var(--runbox-input-background);
+  border: 1px solid var(--runbox-panel-border);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin: 0;
 }
 
 .ai-explain-command-text {
   font-family: var(--runbox-editor-font-family, Consolas, monospace);
-  font-size: 0.82rem;
+  font-size: 0.82em;
+  background: none;
+  border: none;
+  padding: 0;
   color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .ai-explain-body {
@@ -3445,6 +3457,20 @@ kbd {
 }
 
 /* ── Loading state ────────────────────── */
+
+.ai-explain-generating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 0;
+}
+
+.ai-explain-generating-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--runbox-muted-foreground);
+}
 
 .ai-explain-loading {
   display: flex;
@@ -3536,6 +3562,8 @@ kbd {
   border-radius: 3px;
   padding: 1px 5px;
   color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .md-body .md-pre {
@@ -3554,6 +3582,8 @@ kbd {
   border: none;
   padding: 0;
   color: var(--vscode-textPreformat-foreground, var(--runbox-foreground));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .md-body .md-blockquote {

@@ -213,6 +213,7 @@ let aiProviderSetupModalState = {
 let aiExplainState = {
   visible: false,
   loading: false,
+  requestId: "", // identifies the pending request; results with another id are ignored
   command: "", // raw command text being explained
   markdown: "", // raw Markdown received from AI
   error: "",

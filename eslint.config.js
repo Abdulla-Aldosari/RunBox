@@ -80,6 +80,8 @@ const browserGlobals = {
   getAiLoadingText: "readonly",
   mergeAiProgress: "readonly",
   updateAiLoadingView: "readonly",
+  startAiPlanNet: "readonly",
+  renderAiPlanVisual: "readonly",
   playAiLoadingFinale: "readonly",
   applyAiGenerateResult: "readonly",
   getCachedModels: "readonly",
