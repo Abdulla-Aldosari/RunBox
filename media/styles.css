@@ -1885,7 +1885,29 @@ input[type="checkbox"]:checked::after {
 /* AI Results modal */
 .ai-results-box {
   width: min(1300px, 100%) !important;
-  max-height: 90vh;
+  max-height: 95vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-results-box > * {
+  flex-shrink: 0;
+}
+
+.ai-results-box .table-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--runbox-panel-border);
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-results-table-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
 }
 

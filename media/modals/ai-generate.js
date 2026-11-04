@@ -198,6 +198,7 @@ function renderAiResultsModal() {
         }
         ${groupTabs}
         <div class="table-wrap">
+          <div class="ai-results-table-scroll">
           <table class="cmds-table commands-table ai-results-table">
             <thead>
               <tr>
@@ -235,6 +236,7 @@ function renderAiResultsModal() {
                 .join("")}
             </tbody>
           </table>
+          </div>
         </div>
         <div class="row justify-content-flex-end mt-20">
           <span class="muted ai-results-count">${selectedCount} of ${allCommands.length} selected</span>
