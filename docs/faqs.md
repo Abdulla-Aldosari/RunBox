@@ -40,18 +40,18 @@ The first time you add a group or a command under **Current Workspace**, RunBox 
 
 ### 🔵 Is it safe to have RunBox open in multiple VS Code windows at the same time?
 
-Yes. RunBox is designed to be used in several VS Code windows at once, whether that is the same project opened twice or several different projects, all sharing the same global `~/.runbox/commands.json` file.
+Yes. RunBox is designed to be used in several VS Code windows at once, whether they show several different projects or the same project (VS Code opens a folder in a second window only through **File > Duplicate Workspace**). All windows share the same global files in `~/.runbox/`, and windows showing the same project also share its `.vscode/runbox.data.json`.
 
 - **Every save is written safely.** Files are written atomically (to a temporary file that is then renamed), so a crash or interruption in the middle of a save can never leave a corrupted file on disk.
-- **Adding, deleting, or reordering never loses another window's changes.** Each of these actions is applied to the current content of the file at the moment of saving, not to a stale copy held in memory. If another window added a command a second ago, your save does not erase it.
-- **Other windows update live.** If you add, edit, delete, move, or reorder something in one window, every other open window reflects the change automatically, without closing and reopening the panel.
+- **Saving never loses another window's changes.** Adding, deleting, or reordering commands, adding or removing favorites, and saving variable values are each applied to the current content of the file at the moment of saving, not to a stale copy held in memory. If another window added a command or changed a value a second ago, your save does not erase it.
+- **Other windows update live.** If you change commands, favorites, variable values, or Auto Variables settings in one window, every other open window reflects the change automatically, without closing and reopening the panel.
 - **Editing the exact same command in two windows at once is the one case that needs your input.** If two windows have the same command open for editing and both try to save, the second window to save sees a dialog explaining that the command was changed elsewhere. It offers two choices: **Overwrite anyway** (save your version over the other one) or **Discard my changes** (reload the newer version instead). This is rare, and it exists so that neither window's edit can silently disappear.
 
 ---
 
 ### 🔵 Can I back up my commands or share them with my team?
 
-Yes. Copy `~/.runbox/commands.json` to a safe location, or commit it to a shared repository. To restore it, replace the file at the same path. Anyone who has this file can load your full set of commands by placing it at the same path on their machine.
+Yes. Copy `~/.runbox/commands.json` to a safe location, or commit it to a shared repository, plus `~/.runbox/data.json` if you also want your Global variable values and Global favorites. To restore them, replace the files at the same paths. Anyone who has these files can load your full set of commands by placing them at the same paths on their machine.
 
 ---
 

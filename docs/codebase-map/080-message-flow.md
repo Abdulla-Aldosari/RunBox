@@ -26,7 +26,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiCancelGenerate` | `media/modals/ai-generate.js` (`btn-ai-loading-cancel`) | `handleAiCancelGenerate` |
 | `aiInsert` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiInsert` |
 | `saveAutoVariablesSettings` | `media/tabs/variables.js` | `handleSaveAutoVariablesSettings` |
-| `saveFavorites` | `media/utils.js` (`persistFavorites`), `media/tabs/favorites.js` | `handleSaveFavorites` |
+| `saveFavorites` | `media/utils.js` (`persistFavorites(commandId, { global?, local? })`), called from `media/tabs/commands.js`, `media/tabs/favorites.js`, `media/modals/command-form.js`. Payload carries one command's change only, never a whole list. | `handleSaveFavorites` |
 | `aiListModels` | `media/modals/ai-settings.js`, `media/messages.js` | `handleAiListModels` |
 | `aiRefreshAllModels` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiRefreshAllModels` |
 | `setActiveWorkspaceFolder` | `media/render.js` (`bindTopActions`) | dispatch table in `extension.js` — persists `fsPath` in `context.workspaceState` and calls `postState()` |
@@ -36,7 +36,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiCheckConnection` | `media/modals/ai-check-status.js` (`openAiCheckConnectionModal`) | `handleAiCheckConnection` |
 | `aiCheckRateLimits` | `media/modals/ai-check-status.js` (`openAiCheckRateLimitsModal`) | `handleAiCheckRateLimits` |
 
-**`saveCommandVariables` payload format:** `{ local: { commands:{} }, global: { commands:{} } }` — both scopes sent together; each written independently to its section of the unified data file.
+**`saveCommandVariables` payload format:** `{ commandId, local: { [varName]: value }, global: { [varName]: value } }` — one command's values in both scopes; each replaces only that command's entry in its own data file (an empty map deletes it).
 
 **`performAction` payload format (multi-root addition):** includes `activeFsPath?: string` — the workspace folder path selected in the run-confirm modal. Used by `handlePerformAction` to resolve `${workspaceFolder}`, write local variables, and open the terminal with `cwd`. Absent or `null` in single-root workspaces or when `alwaysFirst` is used.
 
@@ -49,7 +49,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `saveResult` | `handleSaveResult` | Shows success/error notice |
 | `saveWorkspaceCommandsDataResult` | inline in message dispatcher | Shows success/error notice for a full "Current Workspace" section overwrite; on failure, requests a fresh `state` to roll back the optimistic render |
 | `applyOperationResult` | inline in message dispatcher | On success: shows success notice (authoritative state already refreshed by the extension's own `postState()` call before this message). On `conflict: true`: calls `handleEditConflict(currentCommand)` to open the edit-edit conflict modal instead of a generic failure notice. On any other failure: shows error notice and requests a fresh `state` to roll back the optimistic render. |
-| `saveVariablesResult` | `handleSaveVariablesResult` | Shows result + updates local/global vars |
+| `saveVariablesResult` | inline in message dispatcher | Clears the command's `uiState.pendingVariableSaves` entry (`payload.commandId`); on success updates `state.commandVariables`/`state.globalCommandVariables` (no re-render, to keep input focus) |
 | `actionResult` | `handleActionResult` | Shows notice for copy/run/use |
 | `aiSettingsResult` | `handleAiSettingsResult` | Populates `aiState` + re-renders |
 | `aiSaveSettingsResult` | `handleAiSaveSettingsResult` | Shows save confirmation |

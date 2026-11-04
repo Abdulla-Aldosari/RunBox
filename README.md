@@ -144,7 +144,7 @@ How the folder is chosen when the panel opens is controlled by the `runBox.multi
 
 ### 🛡️ Safe Across Multiple Windows
 
-Open RunBox in as many VS Code windows as you like, whether it is the same project twice or several different projects at once. Every save is written atomically, adding or removing a command in one window never erases what another window just saved, and every open window updates live to reflect changes made elsewhere. If two windows edit the exact same command at the same time, a dialog lets you choose which version to keep.
+Open RunBox in as many VS Code windows as you like, whether they show different projects or the same project (opened again with **File > Duplicate Workspace**). Every save is written atomically, and saving a command, a favorite, or a variable value in one window never erases what another window just saved. Every open window also updates live to reflect changes made elsewhere. If two windows edit the exact same command at the same time, a dialog lets you choose which version to keep.
 
 <br>
 

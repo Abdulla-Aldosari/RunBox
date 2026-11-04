@@ -24,7 +24,8 @@ Variables support three storage scopes. The `[Local | Off | Global]` toggle on e
 | `getCommandSessionDraft(commandId)` | Returns mutable `{ [varName]: value }` for the session-only scope (Off) |
 | `getCommandDraft(commandId)` | **Read-only computed** — resolved value per variable based on `commandRemember` |
 | `getCommandRemember(commandId)` | Returns `{ [varName]: "local" \| "global" \| "off" }` — the scope preference map |
-| `buildCommandVariablesPayload()` | Returns `{ local, global }` — full payload for persistence (session excluded) |
+| `buildCommandVariablesPayload(commandId)` | Returns `{ commandId, local, global }` — the non-empty Local/Global values of that one command (session excluded). An empty map deletes the command's entry in that scope. |
+| `persistCommandVariables(commandId)` | Sends `buildCommandVariablesPayload(commandId)` as `saveCommandVariables` and counts it in `uiState.pendingVariableSaves` until `saveVariablesResult` confirms it |
 | `updateScopeIndicatorDots(container, ...)` | Toggles `.has-value` class on scope buttons to show/hide blue indicator dot |
 
 ## `uiState` Scope-Related Fields
@@ -38,8 +39,13 @@ uiState = {
 
   // Scope preference per variable
   commandRemember: {}, // { [commandId]: { [varName]: "local"|"global"|"off" } }
+
+  // Variable saves sent but not yet confirmed
+  pendingVariableSaves: {}, // { [commandId]: number }
 };
 ```
+
+`commandLocalDrafts`/`commandGlobalDrafts` mirror disk: `hydrateState()` (`media/render.js`) rebuilds them from `state.commandVariables`/`state.globalCommandVariables` on every `state` message, including those triggered by another VS Code window's saves, and clears entries no longer on disk. A command listed in `pendingVariableSaves` is skipped, so a `state` message read before its save landed cannot revert it. Open editors keep their input: the command form and the variable input modal edit their own buffers.
 
 ## `variableInputState` Buffer Fields
 
