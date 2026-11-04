@@ -516,9 +516,15 @@ function activate(context) {
           return;
         }
 
-        // Sends the user's prompt to the configured AI provider and streams the result back.
+        // Sends the user's prompt to the configured AI provider; posts progress and the final result.
         if (message.type === "aiGenerate") {
           await H.handleAiGenerate(panel, context, message.payload);
+          return;
+        }
+
+        // Aborts the in-flight AI generation (user cancelled the loading overlay).
+        if (message.type === "aiCancelGenerate") {
+          H.handleAiCancelGenerate(panel);
           return;
         }
 
@@ -621,6 +627,8 @@ function activate(context) {
     // dispose event belongs to the panel currently tracked there, so a stale dispose
     // from a superseded panel can never null out a newer, still-open one.
     targetPanel.onDidDispose(function () {
+      // Stop any AI generation still running for this panel so it does not keep consuming quota.
+      H.handleAiCancelGenerate(targetPanel);
       if (panel === targetPanel) {
         panel = null;
       }
