@@ -180,7 +180,7 @@ let aiState = {
   prompt: "",
   result: null, // full mode: { category, commands }; single mode: the command object
   warnings: [], // full mode: notes about removed commands or skipped groups
-  progress: null, // full mode while loading: { stage: 'outline'|'details', done?, total? }
+  progress: null, // full mode while loading: { stage: 'outline' } or { stage: 'details', done, total, groups: [{ name, commands, status: 'queued'|'active'|'done'|'failed' }] }
   categoryId: "", // for single mode: pre-selected category
   groupId: "", // for single mode: pre-selected group
   checkedIds: {}, // { [commandId]: boolean }

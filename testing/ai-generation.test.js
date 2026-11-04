@@ -402,7 +402,35 @@ test("builds the category, groups, and commands with local IDs and references", 
   assert.deepStrictEqual(result.warnings, []);
   assert.strictEqual(provider.requests.length, 3);
   assert.deepStrictEqual(progress[0], { stage: "outline" });
-  assert.deepStrictEqual(progress[progress.length - 1], { stage: "details", done: 2, total: 2 });
+  assert.deepStrictEqual(progress[1], {
+    stage: "groups",
+    groups: [
+      { name: "Setup", commands: ["git init", "git clone ${Url}"] },
+      { name: "Branching", commands: ["git branch ${BranchName}"] },
+    ],
+  });
+  const detailEvents = progress.filter(function (p) {
+    return p.stage === "details";
+  });
+  assert.deepStrictEqual(
+    detailEvents.filter(function (p) {
+      return p.status === "active";
+    }).length,
+    2
+  );
+  assert.deepStrictEqual(
+    detailEvents
+      .filter(function (p) {
+        return p.status === "done";
+      })
+      .map(function (p) {
+        return p.index;
+      })
+      .sort(),
+    [0, 1]
+  );
+  assert.deepStrictEqual(detailEvents[detailEvents.length - 1].done, 2);
+  assert.deepStrictEqual(detailEvents[detailEvents.length - 1].total, 2);
 });
 
 test("details requests carry the language and the numbered commands", async function () {

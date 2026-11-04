@@ -1842,15 +1842,442 @@ input[type="checkbox"]:checked::after {
   padding: 28px 36px !important;
 }
 
-/* AI Spinner */
-.ai-spinner {
-  width: 36px;
-  height: 36px;
-  border: 3px solid color-mix(in srgb, var(--runbox-button-background) 25%, transparent);
-  border-top-color: var(--runbox-button-background);
+/* AI loading: planning visual (constellation + orb) */
+.ai-loading-box.has-groups {
+  width: min(440px, 92vw) !important;
+  align-items: stretch;
+}
+
+.ai-loading-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.ai-plan-visual {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  aspect-ratio: 300 / 110;
+}
+
+.ai-plan-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.ai-orb {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translate(-50%, -50%);
+}
+
+.ai-orb-core {
+  position: absolute;
+  inset: 4px;
   border-radius: 50%;
-  animation: ai-spin 0.8s linear infinite;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--runbox-button-foreground) 70%, var(--runbox-button-background)), var(--runbox-button-background));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--runbox-button-background) 70%, transparent);
+  animation: ai-orb-breathe 2.4s ease-in-out infinite;
+}
+
+.ai-orb-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--runbox-button-background) 60%, transparent);
+  opacity: 0;
+  animation: ai-orb-ripple 2.4s ease-out infinite;
+}
+
+.ai-orb-ring-2 {
+  animation-delay: 1.2s;
+}
+
+@keyframes ai-orb-breathe {
+  50% {
+    transform: scale(1.18);
+  }
+}
+
+@keyframes ai-orb-ripple {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+
+.ai-loading-phrase {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.8rem;
+  color: var(--runbox-descriptionForeground);
+}
+
+.ai-loading-phrase.is-in {
+  animation: ai-phrase-in 0.5s ease both;
+}
+
+@keyframes ai-phrase-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* AI loading: overall counter and bar */
+.ai-loading-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  width: 100%;
+}
+
+.ai-loading-counter {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-loading-counter-num {
+  display: inline-block;
+  font-size: 1.7rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.ai-loading-counter-num.is-bump {
+  animation: ai-counter-bump 0.35s ease;
+}
+
+.ai-loading-counter-sep,
+.ai-loading-counter-total {
+  font-size: 1rem;
+  opacity: 0.55;
+}
+
+.ai-loading-counter-label {
+  font-size: 0.8rem;
+  color: var(--runbox-descriptionForeground);
+}
+
+@keyframes ai-counter-bump {
+  40% {
+    transform: translateY(-3px);
+    color: var(--runbox-button-background);
+  }
+}
+
+.ai-loading-bar {
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--runbox-foreground) 12%, transparent);
+}
+
+.ai-loading-bar-fill {
+  --progress: 0;
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--runbox-button-background);
+  transform-origin: left center;
+  transform: scaleX(var(--progress));
+  transition: transform 0.45s ease;
+}
+
+/* AI loading: group rows */
+.ai-group-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-height: 46vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ai-group-row {
+  --i: 0;
   flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--runbox-panel-border);
+  border-radius: var(--runbox-cornerRadius-medium);
+  background: color-mix(in srgb, var(--runbox-foreground) 3%, transparent);
+  animation: ai-row-in 0.4s ease both;
+  animation-delay: calc(var(--i) * 45ms);
+  transition:
+    opacity 0.4s ease,
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+}
+
+@keyframes ai-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+.ai-group-row.is-queued {
+  opacity: 0.5;
+  border-style: dashed;
+}
+
+.ai-group-row.is-queued .ai-status-dot {
+  animation: ai-queued-breathe 3.2s ease-in-out infinite;
+}
+
+.ai-group-row.is-active {
+  border-color: var(--runbox-button-background);
+  background: color-mix(in srgb, var(--runbox-button-background) 9%, transparent);
+  animation: ai-row-active-glow 2s ease-in-out infinite;
+}
+
+.ai-group-row.is-done {
+  border-color: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 40%, transparent);
+  animation: none;
+}
+
+.ai-group-row.is-failed {
+  border-color: color-mix(in srgb, var(--vscode-errorForeground, #e05252) 50%, transparent);
+  animation: none;
+}
+
+/* Balanced: spinning glow border and a light sweep across the active row */
+@property --ai-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.ai-group-row.is-active {
+  position: relative;
+  overflow: hidden;
+  border-color: transparent;
+  background:
+    linear-gradient(var(--runbox-editor-background), var(--runbox-editor-background)) padding-box,
+    conic-gradient(from var(--ai-angle), transparent 0deg, var(--runbox-button-background) 90deg, transparent 180deg, transparent 360deg) border-box;
+  animation: ai-border-spin 2.4s linear infinite;
+}
+
+.ai-group-row.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--runbox-button-background) 22%, transparent) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: ai-row-sweep 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ai-border-spin {
+  to {
+    --ai-angle: 360deg;
+  }
+}
+
+@keyframes ai-row-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.ai-group-row.is-done {
+  animation: ai-row-done-flash 0.9s ease;
+}
+
+/* Cinematic: closing flash that ripples down the list */
+.ai-loading-box.is-finale {
+  animation: ai-box-finale 0.95s ease;
+  pointer-events: none;
+}
+
+.ai-loading-box.is-finale .ai-group-row {
+  animation: ai-finale-wave 0.55s ease both;
+  animation-delay: calc(var(--i) * 28ms);
+}
+
+@keyframes ai-finale-wave {
+  40% {
+    background-color: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 28%, transparent);
+    transform: scale(1.015);
+  }
+}
+
+@keyframes ai-box-finale {
+  50% {
+    box-shadow: 0 0 28px color-mix(in srgb, var(--runbox-button-background) 45%, transparent);
+  }
+}
+
+@keyframes ai-row-done-flash {
+  0% {
+    background-color: color-mix(in srgb, var(--vscode-testing-iconPassed, #4caf50) 22%, transparent);
+  }
+}
+
+@keyframes ai-row-active-glow {
+  50% {
+    box-shadow: 0 0 10px color-mix(in srgb, var(--runbox-button-background) 35%, transparent);
+  }
+}
+
+@keyframes ai-queued-breathe {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.ai-group-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ai-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--runbox-foreground);
+  opacity: 0.55;
+}
+
+.ai-status-active {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.ai-status-active i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--runbox-button-background);
+  animation: ai-dot-wave 1.1s ease-in-out infinite;
+}
+
+.ai-status-active i:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.ai-status-active i:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes ai-dot-wave {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+
+.ai-status-check {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--vscode-testing-iconPassed, #4caf50);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ai-status-check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: ai-check-draw 0.4s ease forwards;
+}
+
+@keyframes ai-check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.ai-status-failed {
+  display: inline-flex;
+  color: var(--vscode-errorForeground, #e05252);
+}
+
+.ai-group-main {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ai-group-name {
+  font-size: 0.88rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ai-group-count {
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--runbox-descriptionForeground);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-orb-core,
+  .ai-orb-ring,
+  .ai-loading-phrase.is-in,
+  .ai-group-row,
+  .ai-group-row.is-active,
+  .ai-group-row.is-active::after,
+  .ai-group-row.is-done,
+  .ai-loading-box.is-finale,
+  .ai-loading-box.is-finale .ai-group-row,
+  .ai-group-row.is-queued .ai-status-dot,
+  .ai-status-active i,
+  .ai-status-check path,
+  .ai-loading-counter-num.is-bump {
+    animation: none;
+  }
+
+  .ai-status-check path {
+    stroke-dashoffset: 0;
+  }
+
+  .ai-status-active i {
+    opacity: 1;
+  }
+
+  .ai-loading-bar-fill {
+    transition: none;
+  }
 }
 
 @keyframes ai-spin {

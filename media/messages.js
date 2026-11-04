@@ -184,11 +184,8 @@ window.addEventListener("message", function (event) {
     if (aiState.view !== "loading") {
       return;
     }
-    aiState.progress = message.payload || null;
-    const textEl = document.getElementById("ai-loading-text");
-    if (textEl) {
-      textEl.textContent = getAiLoadingText();
-    }
+    aiState.progress = mergeAiProgress(aiState.progress, message.payload);
+    updateAiLoadingView();
     return;
   }
 
@@ -197,27 +194,17 @@ window.addEventListener("message", function (event) {
     if (aiState.view !== "loading") {
       return;
     }
-    aiState.progress = null;
-    if (message.payload && message.payload.success) {
-      const result = message.payload.result;
-      aiState.mode = result.mode;
-      aiState.result = result.mode === "full" ? { category: result.category, commands: result.commands } : result.command;
-      aiState.warnings = result.mode === "full" ? result.warnings || [] : [];
-      // Initialize all commands as checked
-      const cmds = result.mode === "full" ? result.commands || [] : [result.command];
-      const checked = {};
-      cmds.forEach(function (cmd) {
-        checked[cmd.id] = true;
+    const payload = message.payload;
+    if (payload && payload.success) {
+      // Let the group list finish with a short closing flash; skip it if the user cancelled meanwhile
+      playAiLoadingFinale(function () {
+        if (aiState.view === "loading") {
+          applyAiGenerateResult(payload);
+        }
       });
-      aiState.checkedIds = checked;
-      aiState.filterGroupId = "all";
-      aiState.error = "";
-      aiState.view = "results";
     } else {
-      aiState.error = message.payload && message.payload.message ? message.payload.message : "Unknown error";
-      aiState.view = "prompt";
+      applyAiGenerateResult(payload);
     }
-    render();
     return;
   }
 

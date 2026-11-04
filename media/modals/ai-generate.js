@@ -128,16 +128,454 @@ function getAiLoadingText() {
   return "Generating commands with AI...";
 }
 
+// ─── Loading overlay ──────────────────────────────────────────────────────────
+
+const AI_LOADING_PHRASES = ["Mapping out your workflow...", "Grouping related commands...", "Choosing clear group names...", "Matching your shell's syntax..."];
+
+/** Logical size of the planning network canvas. */
+const AI_NET_WIDTH = 300;
+const AI_NET_HEIGHT = 110;
+const AI_NET_NODE_COUNT = 24;
+const AI_NET_LINK_DISTANCE = 64;
+
+/** Live state of the planning network; node positions survive re-renders so the motion never jumps. */
+const aiNet = { canvas: null, frame: 0, nodes: [], pulses: [], lastTime: 0, nextPulseAt: 0 };
+
+let aiLoadingPhraseTimer = null;
+let aiLoadingPhraseIndex = 0;
+
+/**
+ * Merges one `aiGenerateProgress` payload into the progress kept in `aiState`.
+ * The `groups` payload becomes the per-group list (all queued); each `details`
+ * payload then updates the status of a single group.
+ * @param {object|null} prev - The current `aiState.progress`.
+ * @param {object|null} payload - The incoming progress payload.
+ * @returns {object|null}
+ */
+function mergeAiProgress(prev, payload) {
+  if (!payload) {
+    return null;
+  }
+  if (payload.stage === "groups") {
+    return {
+      stage: "details",
+      done: 0,
+      total: payload.groups.length,
+      groups: payload.groups.map(function (g) {
+        return { name: g.name, commands: g.commands, status: "queued" };
+      }),
+    };
+  }
+  if (payload.stage === "details" && prev && prev.groups) {
+    return {
+      stage: "details",
+      done: payload.done,
+      total: payload.total,
+      groups: prev.groups.map(function (g, i) {
+        return i === payload.index ? Object.assign({}, g, { status: payload.status }) : g;
+      }),
+    };
+  }
+  return payload;
+}
+
+/** The planning visual: a living network drawn on a canvas with a softly pulsing orb at its centre. */
+function renderAiPlanVisual() {
+  const phrase =
+    aiState.mode === "full"
+      ? `<p class="ai-loading-phrase is-in" id="ai-loading-phrase" aria-hidden="true">${escapeHtml(AI_LOADING_PHRASES[aiLoadingPhraseIndex % AI_LOADING_PHRASES.length])}</p>`
+      : "";
+  return `
+    <div class="ai-plan-visual" aria-hidden="true">
+      <canvas class="ai-plan-canvas" id="ai-plan-canvas" width="${AI_NET_WIDTH}" height="${AI_NET_HEIGHT}"></canvas>
+      <div class="ai-orb">
+        <span class="ai-orb-ring"></span>
+        <span class="ai-orb-ring ai-orb-ring-2"></span>
+        <span class="ai-orb-core"></span>
+      </div>
+    </div>
+    ${phrase}
+  `;
+}
+
+/**
+ * Returns the status marker of one group row.
+ * @param {"queued"|"active"|"done"|"failed"} status
+ * @returns {string}
+ */
+function renderAiGroupStatus(status) {
+  if (status === "active") {
+    return `<span class="ai-status-active"><i></i><i></i><i></i></span>`;
+  }
+  if (status === "done") {
+    return `<svg class="ai-status-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5" /></svg>`;
+  }
+  if (status === "failed") {
+    return `<span class="ai-status-failed">${icons.circleX}</span>`;
+  }
+  return `<span class="ai-status-dot"></span>`;
+}
+
+function renderAiGroupRow(group, index) {
+  const count = group.commands.length;
+  return `
+    <li class="ai-group-row is-${group.status}" data-group-index="${index}" data-status="${group.status}">
+      <span class="ai-group-status">${renderAiGroupStatus(group.status)}</span>
+      <span class="ai-group-main">
+        <span class="ai-group-name">${escapeHtml(group.name)}</span>
+      </span>
+      <span class="ai-group-count">${count} ${count === 1 ? "command" : "commands"}</span>
+    </li>
+  `;
+}
+
+/** The group list: overall counter, progress bar, and one row per group. */
+function renderAiGroupList(progress) {
+  return `
+    <div class="ai-loading-summary">
+      <span class="ai-loading-counter">
+        <span class="ai-loading-counter-num" id="ai-loading-done">${progress.done}</span>
+        <span class="ai-loading-counter-sep">/</span>
+        <span class="ai-loading-counter-total">${progress.total}</span>
+      </span>
+      <span class="ai-loading-counter-label">groups written</span>
+    </div>
+    <div class="ai-loading-bar" aria-hidden="true"><span class="ai-loading-bar-fill" id="ai-loading-bar-fill"></span></div>
+    <ul class="ai-group-list" id="ai-group-list">${progress.groups.map(renderAiGroupRow).join("")}</ul>
+  `;
+}
+
+function hasAiGroupProgress() {
+  return !!(aiState.progress && aiState.progress.groups && aiState.progress.groups.length);
+}
+
 function renderAiLoadingOverlay() {
+  const hasGroups = hasAiGroupProgress();
   return `
     <div class="modal-overlay" id="ai-loading-overlay" data-dismiss-on-outside-click="false">
-      <div class="modal-box ai-loading-box">
-        <div class="ai-spinner" aria-label="Loading..."></div>
+      <div class="modal-box ai-loading-box${hasGroups ? " has-groups" : ""}" id="ai-loading-box">
+        <div class="ai-loading-stage" id="ai-loading-stage">${hasGroups ? renderAiGroupList(aiState.progress) : renderAiPlanVisual()}</div>
         <p class="ai-loading-text" id="ai-loading-text" role="status" aria-live="polite">${escapeHtml(getAiLoadingText())}</p>
         <button class="btn small secondary action min-w65" id="btn-ai-loading-cancel" type="button">Cancel</button>
       </div>
     </div>
   `;
+}
+
+/**
+ * Brings the visible loading overlay in line with `aiState.progress` without a
+ * full render, so running animations are never interrupted. Safe to call at any time.
+ */
+function updateAiLoadingView() {
+  const textEl = document.getElementById("ai-loading-text");
+  if (textEl) {
+    textEl.textContent = getAiLoadingText();
+  }
+  const box = document.getElementById("ai-loading-box");
+  const stage = document.getElementById("ai-loading-stage");
+  if (!box || !stage || !hasAiGroupProgress()) {
+    return;
+  }
+  const progress = aiState.progress;
+
+  if (!document.getElementById("ai-group-list")) {
+    stage.innerHTML = renderAiGroupList(progress);
+    box.classList.add("has-groups");
+  }
+
+  document.querySelectorAll(".ai-group-row").forEach(function (row) {
+    const index = Number(row.dataset.groupIndex);
+    const group = progress.groups[index];
+    row.style.setProperty("--i", index);
+    if (!group || row.dataset.status === group.status) {
+      return;
+    }
+    row.dataset.status = group.status;
+    row.className = `ai-group-row is-${group.status}`;
+    row.querySelector(".ai-group-status").innerHTML = renderAiGroupStatus(group.status);
+    if (group.status === "active") {
+      row.scrollIntoView({ block: "nearest" });
+    }
+  });
+  riseAiFinishedRows();
+
+  const doneEl = document.getElementById("ai-loading-done");
+  if (doneEl && doneEl.textContent !== String(progress.done)) {
+    doneEl.textContent = progress.done;
+    doneEl.classList.remove("is-bump");
+    void doneEl.offsetWidth;
+    doneEl.classList.add("is-bump");
+  }
+  const fill = document.getElementById("ai-loading-bar-fill");
+  if (fill) {
+    fill.style.setProperty("--progress", progress.total > 0 ? progress.done / progress.total : 0);
+  }
+}
+
+/**
+ * Moves finished group rows up, right after the last finished row, and slides
+ * every row that changed position into place.
+ */
+function riseAiFinishedRows() {
+  const list = document.getElementById("ai-group-list");
+  if (!list || !hasAiGroupProgress()) {
+    return;
+  }
+  const rows = Array.from(list.children);
+  const before = new Map(
+    rows.map(function (row) {
+      return [row, row.getBoundingClientRect().top];
+    })
+  );
+  let moved = false;
+  rows.forEach(function (row) {
+    const group = aiState.progress.groups[Number(row.dataset.groupIndex)];
+    if (!group || group.status !== "done" || row.dataset.risen === "1") {
+      return;
+    }
+    row.dataset.risen = "1";
+    const firstOpen = Array.from(list.children).find(function (el) {
+      return el.dataset.risen !== "1" || el === row;
+    });
+    if (firstOpen && firstOpen !== row) {
+      list.insertBefore(row, firstOpen);
+      moved = true;
+    }
+  });
+  if (!moved || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+  rows.forEach(function (row) {
+    const delta = before.get(row) - row.getBoundingClientRect().top;
+    if (delta !== 0) {
+      row.animate([{ transform: `translateY(${delta}px)` }, { transform: "none" }], { duration: 450, easing: "ease" });
+    }
+  });
+}
+
+let aiFinaleTimer = null;
+
+/** Stops a pending finale so a cancelled or restarted run is never overwritten. */
+function cancelAiLoadingFinale() {
+  clearTimeout(aiFinaleTimer);
+  aiFinaleTimer = null;
+}
+
+/**
+ * Plays the short closing flash over the group list, then calls `onDone`.
+ * Skips the wait when there is no group list or motion is reduced.
+ * @param {() => void} onDone
+ */
+function playAiLoadingFinale(onDone) {
+  const box = document.getElementById("ai-loading-box");
+  if (!box || !document.getElementById("ai-group-list") || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    onDone();
+    return;
+  }
+  box.classList.add("is-finale");
+  cancelAiLoadingFinale();
+  aiFinaleTimer = setTimeout(function () {
+    aiFinaleTimer = null;
+    onDone();
+  }, 950);
+}
+
+/**
+ * Applies a finished generation result: shows the results view, or the prompt with the error.
+ * @param {{ success: boolean, result?: object, message?: string }|undefined} payload
+ */
+function applyAiGenerateResult(payload) {
+  aiState.progress = null;
+  if (payload && payload.success) {
+    const result = payload.result;
+    aiState.mode = result.mode;
+    aiState.result = result.mode === "full" ? { category: result.category, commands: result.commands } : result.command;
+    aiState.warnings = result.mode === "full" ? result.warnings || [] : [];
+    // Initialize all commands as checked
+    const cmds = result.mode === "full" ? result.commands || [] : [result.command];
+    const checked = {};
+    cmds.forEach(function (cmd) {
+      checked[cmd.id] = true;
+    });
+    aiState.checkedIds = checked;
+    aiState.filterGroupId = "all";
+    aiState.error = "";
+    aiState.view = "results";
+  } else {
+    aiState.error = payload && payload.message ? payload.message : "Unknown error";
+    aiState.view = "prompt";
+  }
+  render();
+}
+
+/**
+ * Creates the drifting nodes of the planning network at random positions.
+ * Each node has its own speed and a slowly changing heading, so no two runs look alike.
+ */
+function createAiNetNodes() {
+  const nodes = [];
+  for (let i = 0; i < AI_NET_NODE_COUNT; i++) {
+    nodes.push({
+      x: Math.random() * AI_NET_WIDTH,
+      y: Math.random() * AI_NET_HEIGHT,
+      heading: Math.random() * Math.PI * 2,
+      turn: (Math.random() - 0.5) * 0.9,
+      speed: 5 + Math.random() * 9,
+      radius: 1.2 + Math.random() * 1.6,
+      phase: Math.random() * Math.PI * 2,
+      energy: 0,
+    });
+  }
+  return nodes;
+}
+
+/** Moves every node one step; headings wander and nodes are steered gently back near the edges. */
+function stepAiNet(dt) {
+  aiNet.nodes.forEach(function (node) {
+    node.turn += (Math.random() - 0.5) * 1.6 * dt;
+    node.turn = Math.max(-1.1, Math.min(1.1, node.turn));
+    node.heading += node.turn * dt;
+    node.x += Math.cos(node.heading) * node.speed * dt;
+    node.y += Math.sin(node.heading) * node.speed * dt;
+    const margin = 14;
+    if (node.x < margin) node.heading = Math.atan2(Math.sin(node.heading), Math.abs(Math.cos(node.heading)));
+    if (node.x > AI_NET_WIDTH - margin) node.heading = Math.atan2(Math.sin(node.heading), -Math.abs(Math.cos(node.heading)));
+    if (node.y < margin) node.heading = Math.atan2(Math.abs(Math.sin(node.heading)), Math.cos(node.heading));
+    if (node.y > AI_NET_HEIGHT - margin) node.heading = Math.atan2(-Math.abs(Math.sin(node.heading)), Math.cos(node.heading));
+    node.energy = Math.max(0, node.energy - dt * 1.4);
+  });
+}
+
+/** Sends a light pulse along a random link between two nearby nodes, at random moments. */
+function spawnAiNetPulse(now) {
+  if (now < aiNet.nextPulseAt) {
+    return;
+  }
+  aiNet.nextPulseAt = now + 260 + Math.random() * 700;
+  const from = aiNet.nodes[Math.floor(Math.random() * aiNet.nodes.length)];
+  const near = aiNet.nodes.filter(function (other) {
+    return other !== from && Math.hypot(other.x - from.x, other.y - from.y) < AI_NET_LINK_DISTANCE;
+  });
+  if (!near.length) {
+    return;
+  }
+  const to = near[Math.floor(Math.random() * near.length)];
+  from.energy = 1;
+  aiNet.pulses.push({ from, to, t: 0, speed: 0.9 + Math.random() * 0.9 });
+}
+
+/** Draws one frame of the network: soft links, twinkling nodes, and travelling pulses. */
+function drawAiNet(ctx, time) {
+  const style = getComputedStyle(aiNet.canvas);
+  const accent = style.getPropertyValue("--runbox-button-background").trim() || "#3794ff";
+  const light = style.getPropertyValue("--runbox-foreground").trim() || "#ffffff";
+  ctx.clearRect(0, 0, AI_NET_WIDTH, AI_NET_HEIGHT);
+
+  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = accent;
+  for (let i = 0; i < aiNet.nodes.length; i++) {
+    for (let j = i + 1; j < aiNet.nodes.length; j++) {
+      const a = aiNet.nodes[i];
+      const b = aiNet.nodes[j];
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      if (dist < AI_NET_LINK_DISTANCE) {
+        ctx.globalAlpha = (1 - dist / AI_NET_LINK_DISTANCE) * 0.5;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+  }
+
+  aiNet.nodes.forEach(function (node) {
+    const twinkle = 0.55 + 0.45 * Math.sin(time / 650 + node.phase);
+    ctx.globalAlpha = Math.min(1, 0.35 * twinkle + node.energy * 0.7);
+    ctx.fillStyle = node.energy > 0.05 ? light : accent;
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, node.radius + node.energy * 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  aiNet.pulses.forEach(function (pulse) {
+    const x = pulse.from.x + (pulse.to.x - pulse.from.x) * pulse.t;
+    const y = pulse.from.y + (pulse.to.y - pulse.from.y) * pulse.t;
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.globalAlpha = 0.95;
+    ctx.fillStyle = light;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+}
+
+/** Animation loop; ends by itself once the canvas has left the page. */
+function tickAiNet(time) {
+  const canvas = aiNet.canvas;
+  if (!canvas || !canvas.isConnected) {
+    aiNet.frame = 0;
+    aiNet.canvas = null;
+    return;
+  }
+  const dt = aiNet.lastTime ? Math.min(0.05, (time - aiNet.lastTime) / 1000) : 0.016;
+  aiNet.lastTime = time;
+  stepAiNet(dt);
+  spawnAiNetPulse(time);
+  aiNet.pulses.forEach(function (pulse) {
+    pulse.t += dt * pulse.speed;
+    if (pulse.t >= 1) {
+      pulse.to.energy = 1;
+    }
+  });
+  aiNet.pulses = aiNet.pulses.filter(function (pulse) {
+    return pulse.t < 1;
+  });
+  drawAiNet(canvas.getContext("2d"), time);
+  aiNet.frame = requestAnimationFrame(tickAiNet);
+}
+
+/** Attaches the animation to the planning canvas of the current render; a still frame when motion is reduced. */
+function startAiPlanNet() {
+  const canvas = document.getElementById("ai-plan-canvas");
+  if (!canvas) {
+    return;
+  }
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(AI_NET_WIDTH * dpr);
+  canvas.height = Math.round(AI_NET_HEIGHT * dpr);
+  canvas.getContext("2d").setTransform(dpr, 0, 0, dpr, 0, 0);
+  if (!aiNet.nodes.length) {
+    aiNet.nodes = createAiNetNodes();
+  }
+  aiNet.canvas = canvas;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    drawAiNet(canvas.getContext("2d"), 0);
+    return;
+  }
+  if (!aiNet.frame) {
+    aiNet.lastTime = 0;
+    aiNet.frame = requestAnimationFrame(tickAiNet);
+  }
+}
+
+/** Swaps the planning phrase every few seconds; stops by itself once the phrase is gone. */
+function rotateAiLoadingPhrase() {
+  const el = document.getElementById("ai-loading-phrase");
+  if (!el) {
+    clearInterval(aiLoadingPhraseTimer);
+    aiLoadingPhraseTimer = null;
+    return;
+  }
+  aiLoadingPhraseIndex = (aiLoadingPhraseIndex + 1) % AI_LOADING_PHRASES.length;
+  el.classList.remove("is-in");
+  void el.offsetWidth;
+  el.textContent = AI_LOADING_PHRASES[aiLoadingPhraseIndex];
+  el.classList.add("is-in");
 }
 
 function renderAiResultsModal() {
@@ -340,6 +778,7 @@ function bindAiGenerateEvents() {
           render();
           return;
         }
+        cancelAiLoadingFinale();
         savePromptToHistory(promptValue);
         aiState.prompt = promptValue;
         aiState.error = "";
@@ -449,9 +888,15 @@ function bindAiGenerateEvents() {
 
   // --- Loading overlay events ---
   if (aiState.view === "loading") {
+    updateAiLoadingView();
+    startAiPlanNet();
+    if (!aiLoadingPhraseTimer && document.getElementById("ai-loading-phrase")) {
+      aiLoadingPhraseTimer = setInterval(rotateAiLoadingPhrase, 2800);
+    }
     const loadingCancelBtn = document.getElementById("btn-ai-loading-cancel");
     if (loadingCancelBtn) {
       loadingCancelBtn.addEventListener("click", function () {
+        cancelAiLoadingFinale();
         vscode.postMessage({ type: "aiCancelGenerate" });
         aiState.progress = null;
         aiState.view = "prompt";
