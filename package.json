@@ -85,11 +85,24 @@
           "default": "",
           "description": "The model ID to use for the selected AI provider. Leave empty to use the provider's default model. This is set automatically when you select a model in AI Settings."
         },
-        "runBox.customSystemInstructions": {
+        "runBox.aiOutputLanguage": {
           "type": "string",
-          "default": "",
-          "editPresentation": "multilineText",
-          "description": "Custom system instructions for the AI command generator. Leave empty to use the default instructions."
+          "enum": [
+            "English",
+            "Arabic",
+            "Chinese",
+            "Spanish",
+            "French",
+            "German",
+            "Japanese",
+            "Korean",
+            "Portuguese",
+            "Russian",
+            "Turkish",
+            "Hindi"
+          ],
+          "default": "English",
+          "description": "Language of AI-written text: command titles, descriptions, enum value labels, and command explanations. Commands, variable names, enum values, and category/group names are always kept as is."
         },
         "runBox.debugOutput": {
           "type": "boolean",
