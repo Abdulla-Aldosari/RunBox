@@ -176,7 +176,7 @@
     "url": "https://github.com/Abdulla-Aldosari/runbox"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.111.0",
+    "@anthropic-ai/sdk": "^1.4.0",
     "@google/generative-ai": "^0.24.1",
     "@mistralai/mistralai": "^2.7.0",
     "cohere-ai": "^8.1.0",
@@ -193,5 +193,8 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8"
+  },
+  "overrides": {
+    "minimatch": "^11.0.4"
   }
 }
