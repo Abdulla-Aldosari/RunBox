@@ -27,6 +27,7 @@ const TESTS = [
   { label: "Storage", header: "Storage test :", file: "testing/storage.test.js" },
   { label: "Exports", header: "Exports test :", file: "testing/exports.test.js" },
   { label: "HelpLinks", header: "Help Links test :", file: "testing/help-links.test.js" },
+  { label: "AiGeneration", header: "AI Generation test :", file: "testing/ai-generation.test.js" },
   { label: "Inline-Styles", header: "Inline Styles test :", file: "testing/style-lint.test.js" },
 ];
 
