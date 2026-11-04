@@ -91,27 +91,35 @@ npm test                # Run all tests
 
 > [!NOTE]
 >
-> `npm test` runs 5 test suites sequentially via `testing/run-tests.js`:
+> `npm test` runs 9 test suites sequentially via `testing/run-tests.js`:
 >
-> - **Syntax** — checks all JS files for syntax errors (`node --check`)
-> - **Function** — unit tests for `lib/normalize.js`
-> - **FixShellPath** — unit tests for `lib/terminal.js`
-> - **Exports** — verifies public exports of all `lib/` modules
-> - **Inline-Styles** — scans `media/` files for forbidden inline styles
+> - **Syntax**: checks all JS files for syntax errors (`node --check`)
+> - **Function**: unit tests for `lib/normalize.js`
+> - **FixShellPath**: unit tests for `lib/terminal.js`
+> - **RunShell**: tests for shell selection when running a command
+> - **Storage**: tests for `lib/storage.js`
+> - **Exports**: verifies the public exports of all `lib/` modules
+> - **HelpLinks**: tests for the help link registry in `lib/help-links.js`
+> - **AiGeneration**: tests for the AI command generation flow
+> - **Inline-Styles**: scans `media/` files for forbidden inline styles
 >
-> A unified summary table is printed at the end showing Total / Passed / Failed per suite.
+> A unified summary table is printed at the end, showing Total / Passed / Failed per suite. The exact counts change as tests are added.
 
-Test summary table
+Example summary table:
 
 ```sh
 ───────────────────────────────────────────────────────
-  Final Result:
+# Final Result :
 ───────────────────────────────────────────────────────
-  Syntax         ( Total: 45 / Passed: 45 / Failed: 0 )
-  Function       ( Total: 64 / Passed: 64 / Failed: 0 )
-  FixShellPath   ( Total: 10 / Passed: 10 / Failed: 0 )
-  Exports        ( Total: 62 / Passed: 62 / Failed: 0 )
-  Inline-Styles  ( Total: 18 / Passed: 18 / Failed: 0 )
+  Syntax         ( Total: 55 / Passed: 55 / Failed: 00 )
+  Function       ( Total: 78 / Passed: 78 / Failed: 00 )
+  FixShellPath   ( Total: 30 / Passed: 30 / Failed: 00 )
+  RunShell       ( Total: 06 / Passed: 06 / Failed: 00 )
+  Storage        ( Total: 09 / Passed: 09 / Failed: 00 )
+  Exports        ( Total: 90 / Passed: 90 / Failed: 00 )
+  HelpLinks      ( Total: 04 / Passed: 04 / Failed: 00 )
+  AiGeneration   ( Total: 39 / Passed: 39 / Failed: 00 )
+  Inline-Styles  ( Total: 19 / Passed: 19 / Failed: 00 )
 ───────────────────────────────────────────────────────
 ```
 
