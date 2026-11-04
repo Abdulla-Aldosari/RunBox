@@ -26,7 +26,6 @@ commitlint.config.js
 cliff.toml
 
 # Internal documentation (not for users)
-SECURITY.md
 NOTICE
 docs/
 .mindstream/

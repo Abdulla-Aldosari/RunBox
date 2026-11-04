@@ -173,7 +173,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Abdulla-Aldosari/runbox"
+    "url": "https://github.com/Abdulla-Aldosari/RunBox.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Abdulla-Aldosari/RunBox/issues"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.4.0",
