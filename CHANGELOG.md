@@ -1,10 +1,12 @@
 All notable changes to **[RunBox](https://github.com/Abdulla-Aldosari/runbox)** are documented here.<br>
 
-## [unreleased]
+## [1.1.0](https://github.com/Abdulla-Aldosari/runbox/compare/v1.0.0..v1.1.0) - 2026-11-05
 
 ### 🚀 Features
 
 - _(ai)_ Add AI connection and rate limits checks - ([99978c4](https://github.com/Abdulla-Aldosari/runbox/commit/99978c428ecd80bef66808254c6a906ce4b96af2))
+- _(ai-explain)_ Add per-explanation language picker - ([d917763](https://github.com/Abdulla-Aldosari/runbox/commit/d91776377a48636b93c56c252edc2d5acff5f892))
+- _(ai-generate)_ Redesign loading view with live group progress - ([16f8f6d](https://github.com/Abdulla-Aldosari/runbox/commit/16f8f6dfacad8ba7a3bb47ed3fd19b8501183163))
 - _(ai-generate)_ Add cancel button and progress to generation - ([b6a2353](https://github.com/Abdulla-Aldosari/runbox/commit/b6a2353e155a8b463c9823b06f7436098156128a))
 - _(ai-generate)_ Tag AI-generated commands with targetShell - ([14e561e](https://github.com/Abdulla-Aldosari/runbox/commit/14e561e639d463794f2fe82f7def769c128c6256))
 - _(ai-settings)_ Add aiOutputLanguage setting for AI-written text - ([e2325b6](https://github.com/Abdulla-Aldosari/runbox/commit/e2325b696fa4373ec7531c32a5d98e43b53f4d8d))
@@ -16,6 +18,7 @@ All notable changes to **[RunBox](https://github.com/Abdulla-Aldosari/runbox)** 
 - _(edit-command)_ Auto-transfer variable values on rename - ([bb7ce98](https://github.com/Abdulla-Aldosari/runbox/commit/bb7ce980f96eb5b162ed83dc41a7e634bbb65eb2))
 - _(storage)_ Allow custom path for local workspace files - ([df1543d](https://github.com/Abdulla-Aldosari/runbox/commit/df1543d9aa5d97dbacb307733246fbb839b4fc93))
 - _(terminal)_ Warn users about duplicate shell terminal profiles - ([6267c7f](https://github.com/Abdulla-Aldosari/runbox/commit/6267c7f789582ea4396398708c12b71baf772591))
+- _(variables)_ Add Ctrl/Cmd+Shift+O/E variable field shortcuts - ([1c5a0e7](https://github.com/Abdulla-Aldosari/runbox/commit/1c5a0e7770d3387a820341daa49f641ec9d109e7))
 - _(webview)_ Detect a lost extension host connection ([#27](https://github.com/Abdulla-Aldosari/runbox/issues/27)) - ([23186ce](https://github.com/Abdulla-Aldosari/runbox/commit/23186ce783f649af283d461233010a9d38d0e36d))
 
 ### 🐛 Bug Fixes
