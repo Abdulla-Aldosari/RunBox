@@ -1,16 +1,18 @@
-<div align="center">
+<!-- LOGO_START -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Abdulla-Aldosari/RunBox/refs/heads/main/media/icon.png" width="80" alt="RunBox icon" />
+</p>
+<!-- LOGO_END -->
 
-<img src="https://raw.githubusercontent.com/Abdulla-Aldosari/RunBox/refs/heads/main/media/icon.png" alt="RunBox icon" width="96" height="96">
+<div align="center">
 
 # RunBox
 
 **Your terminal command library inside VS Code: store, organize, and launch your everyday commands in one click, with reusable variables, favorites, automatic shell matching, and AI that writes and explains commands for you.**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
 </div>
 
-![RunBox Overview](https://raw.githubusercontent.com/Abdulla-Aldosari/RunBox/refs/heads/main/docs/images/hero-screenshot.png)
+![RunBox Overview](docs/images/hero-screenshot.png)
 
 RunBox gives you a central panel inside VS Code for the terminal commands you use again and again. Store them once, organize them by category and group, fill in their changing parts with variables, and run them in the right shell and folder with a single click, in every project you open.
 
