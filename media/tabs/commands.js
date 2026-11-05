@@ -608,7 +608,7 @@ function bindCommandActionButtons() {
 
   document.querySelectorAll(".btn-use").forEach(function (button) {
     button.addEventListener("click", function (e) {
-      performCommandAction(button.dataset.commandId, "use", e.ctrlKey);
+      performCommandAction(button.dataset.commandId, "use", isModKeyPressed(e));
     });
   });
 
@@ -660,7 +660,7 @@ function bindCommandActionButtons() {
       if (!command) {
         return;
       }
-      if (e.ctrlKey || e.metaKey) {
+      if (isModKeyPressed(e)) {
         openAiExplainLanguageModal(command);
         return;
       }
@@ -695,7 +695,7 @@ function bindCommandActionButtons() {
     // ── Left-click ────────────────────────────────────────────────────────────
     button.addEventListener("click", function (e) {
       const commandId = button.dataset.commandId;
-      const ctrlOrMeta = e.ctrlKey || e.metaKey;
+      const ctrlOrMeta = isModKeyPressed(e);
       const shift = e.shiftKey;
       const hasWorkspace = !!state.workspaceFolder;
       // "Current Workspace" commands never leave this workspace folder — Global
@@ -758,7 +758,7 @@ function bindCommandActionButtons() {
 
     // ── Right-click (contextmenu) — modifier key required ─────────────────────
     button.addEventListener("contextmenu", function (e) {
-      const ctrlOrMeta = e.ctrlKey || e.metaKey;
+      const ctrlOrMeta = isModKeyPressed(e);
       const shift = e.shiftKey;
 
       // Only intercept when a modifier is held; otherwise let global handler handle it
@@ -941,98 +941,6 @@ function bindCommandActionButtons() {
       render();
     });
   }
-
-  // Alt+0 to toggle empty value on modal inputs; Alt+P to pick a file path from disk
-  document.querySelectorAll(".variable-modal-input").forEach(function (input) {
-    input.addEventListener("keydown", function (e) {
-      if (isAltPressed(e) && e.code === "Digit0") {
-        e.preventDefault();
-        const varName = input.dataset.variableName;
-        if (!varName) return;
-        if (input.dataset.isEmptyValue === "true") {
-          const saved = input.dataset.preEmptyValue !== undefined ? input.dataset.preEmptyValue : "";
-          input.removeAttribute("data-pre-empty-value");
-          input.readOnly = false;
-          input.removeAttribute("data-is-empty-value");
-          input.value = saved;
-          variableInputState.inputValues[varName] = saved;
-        } else {
-          input.setAttribute("data-pre-empty-value", input.value);
-          input.readOnly = true;
-          input.setAttribute("data-is-empty-value", "true");
-          input.value = "[EmptyValue]";
-          variableInputState.inputValues[varName] = RUNBOX_EMPTY_VALUE;
-        }
-        return;
-      }
-
-      if (isAltPressed(e) && e.code === "KeyP") {
-        e.preventDefault();
-        const varName = input.dataset.variableName;
-        if (!varName || input.readOnly) return;
-        vscode.postMessage({ type: "pickFile", payload: { variableName: varName } });
-      }
-    });
-  });
-
-  // Alt+0 on enum dropdown buttons — switch to custom value and toggle empty value
-  document.querySelectorAll(".cs-btn-enum-var").forEach(function (btn) {
-    btn.addEventListener("keydown", function (e) {
-      if (isAltPressed(e) && e.code === "Digit0") {
-        e.preventDefault();
-        var wrapEl = btn.closest(".enum-input-wrap");
-        if (!wrapEl) return;
-        var varName = wrapEl.dataset.variableName;
-        if (!varName) return;
-        var customInput = wrapEl.querySelector(".variable-modal-custom-input");
-        if (!customInput) return;
-
-        // If custom input is hidden, switch dropdown to custom mode first
-        if (customInput.classList.contains("hidden")) {
-          var btnEl = document.getElementById("enum-var-btn-" + varName);
-          var menuEl = document.getElementById("enum-var-menu-" + varName);
-
-          // Update button label
-          if (btnEl) {
-            var lbl = btnEl.querySelector(".cs-btn-label");
-            if (lbl) lbl.textContent = "✏️ Custom value...";
-          }
-
-          // Update menu checkmark
-          if (menuEl) {
-            menuEl.querySelectorAll(".cs-item").forEach(function (item) {
-              item.querySelectorAll(".cs-check").forEach(function (el) {
-                el.remove();
-              });
-              if (item.dataset.value === "__custom__") {
-                item.insertAdjacentHTML("beforeend", icons.checkmark);
-              }
-            });
-          }
-
-          // Show custom input and focus it
-          customInput.classList.remove("hidden");
-          customInput.focus();
-        }
-
-        // Apply EmptyValue toggle logic (same as regular input)
-        if (customInput.dataset.isEmptyValue === "true") {
-          var saved = customInput.dataset.preEmptyValue !== undefined ? customInput.dataset.preEmptyValue : "";
-          customInput.removeAttribute("data-pre-empty-value");
-          customInput.readOnly = false;
-          customInput.removeAttribute("data-is-empty-value");
-          customInput.value = saved;
-          variableInputState.inputValues[varName] = saved;
-        } else {
-          customInput.setAttribute("data-pre-empty-value", customInput.value);
-          customInput.readOnly = true;
-          customInput.setAttribute("data-is-empty-value", "true");
-          customInput.value = "[EmptyValue]";
-          variableInputState.inputValues[varName] = RUNBOX_EMPTY_VALUE;
-        }
-      }
-    });
-  });
 
   // Bind custom selects for enum variables in variable input modal
   document.querySelectorAll(".enum-input-wrap[data-variable-name]").forEach(function (wrapEl) {

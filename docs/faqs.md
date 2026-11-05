@@ -107,6 +107,23 @@ To define enum options, open the **Edit Command** form for any command and click
 
 ---
 
+### 🔵 Are there keyboard shortcuts for variable fields?
+
+Yes. While a variable field has focus, RunBox provides two shortcuts:
+
+| Action                                                         | Windows / Linux | macOS | Where it works                                                                                          |
+| -------------------------------------------------------------- | --------------- | ----- | ------------------------------------------------------------------------------------------------------- |
+| Set the field to an empty value (or restore the previous text) | `Ctrl+Shift+E`  | `⌘⇧E` | The variables dialog shown before you run or use a command, and the variable fields of the command form |
+| Pick a file path with the file dialog                          | `Ctrl+Shift+O`  | `⌘⇧O` | The variables dialog only                                                                               |
+
+For an enum variable, focus its dropdown and press the empty-value shortcut: RunBox switches it to **Custom value...** and sets the empty value.
+
+These shortcuts only take over from VS Code's own shortcuts (**Explorer** and **Go to Symbol**) while a variable field has focus. As soon as you click away from the field or close the panel, `Ctrl+Shift+E` and `Ctrl+Shift+O` work as usual in VS Code.
+
+If another extension uses the same keys, or you prefer different ones, open **Keyboard Shortcuts** (`Ctrl+K Ctrl+S` / `Cmd+K Cmd+S`) and search for `RunBox`. The two commands are named **RunBox: Toggle Empty Value for the Focused Variable** and **RunBox: Pick a File for the Focused Variable**. The hint shown under the variable fields keeps displaying the default keys.
+
+---
+
 <br>
 
 ## 🤖 AI Assistant

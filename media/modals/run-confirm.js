@@ -209,7 +209,7 @@ function renderVariableInputModal() {
             .join("")}
           <div class="variable-row">
             <span></span>
-            <p class="muted variables-empty-hint"><kbd>Alt+0</kbd> to set focused variable as empty value, <kbd>Alt+P</kbd> to pick a file path</p>
+            <p class="muted variables-empty-hint"><kbd>${MOD_KEY_LABEL}+Shift+E</kbd> to set focused variable as empty value, <kbd>${MOD_KEY_LABEL}+Shift+O</kbd> to pick a file path</p>
             <span></span>
           </div>
         </div>

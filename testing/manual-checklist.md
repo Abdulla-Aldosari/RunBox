@@ -150,7 +150,15 @@
   - `Global` saves to the global variables file
 - [ ] **Workspace toggle** is **disabled** (greyed out) when no workspace folder is open
 - [ ] **Enum variable**: rendered as a custom dropdown in the modal
-- [ ] The **resolved command preview** updates in real time as variables are changed
+- [ ] **`Ctrl+Shift+E`** (**`⌘⇧E`** on macOS) with a variable text field focused toggles its empty value (field shows `[EmptyValue]` and becomes read-only); pressing it again restores the previous text
+- [ ] **`Ctrl+Shift+E`** with an enum dropdown focused switches it to **Custom value...** and sets the empty value
+- [ ] **`Ctrl+Shift+O`** (**`⌘⇧O`** on macOS) with a variable text field focused opens the native file dialog and writes the picked path into that field
+- [ ] With **no** variable field focused (e.g. a button or the table has focus, or the panel has lost focus), **`Ctrl+Shift+O`** still runs VS Code's **Go to Symbol** and **`Ctrl+Shift+E`** still opens the **Explorer**
+- [ ] While a variable field is focused, neither shortcut triggers a VS Code action; after clicking away from the field or closing the panel, both work as in VS Code again
+- [ ] The hint under the variables shows `Ctrl+Shift+E` / `Ctrl+Shift+O` (`⌘+Shift+E` / `⌘+Shift+O` on macOS)
+- [ ] Check on Windows, macOS, and Linux, and with a non-English keyboard layout; on Linux with IBus, check that `Ctrl+Shift+E` is not captured by the emoji picker
+- [ ] In the Command Palette, the two `RunBox: ... Focused Variable` commands do not appear
+- [ ] **`Ctrl+Shift+E`** also works in the Add/Edit command form's variable fields (**`Ctrl+Shift+O`** does nothing there)- [ ] The **resolved command preview** updates in real time as variables are changed
 - [ ] **Run** button:
   - Executes the command in a terminal using the selected shell
   - Closes the modal

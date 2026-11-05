@@ -225,8 +225,8 @@ function bindFavoritesTabEvents() {
       const commandId = button.dataset.commandId;
       const scope = uiState.favoritesScope;
 
-      if (e.ctrlKey) {
-        // CTRL+click → open unified manage modal with current state pre-filled
+      if (isModKeyPressed(e)) {
+        // Ctrl/⌘+click → open unified manage modal with current state pre-filled
         favoriteModalState = {
           visible: true,
           commandId,

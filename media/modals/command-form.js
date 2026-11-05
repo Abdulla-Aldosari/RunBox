@@ -308,7 +308,7 @@ function renderCommandFormVariables(variables) {
             ${rows}
             <div class="variable-row">
               <span></span>
-              <p class="muted variables-empty-hint"><kbd>Alt+0</kbd> to set focused variable as empty value</p>
+              <p class="muted variables-empty-hint"><kbd>${MOD_KEY_LABEL}+Shift+E</kbd> to set focused variable as empty value</p>
               <span></span>
               <span></span>
             </div>
@@ -532,7 +532,8 @@ function closeCommandForm(savedCommandId) {
 // ─── Events ───────────────────────────────────────────────────────────────────
 
 /**
- * Binds the variable value inputs (typing + Alt+0 empty-value toggle).
+ * Binds the variable value inputs (typing). The empty-value toggle (Ctrl/Cmd+Shift+E) is applied
+ * through applyVariableShortcut() in media/utils.js.
  */
 function bindCommandFormVariableInputs() {
   document.querySelectorAll('.variable-input[data-command-id="' + COMMAND_FORM_CTX + '"]').forEach(function (input) {
@@ -543,35 +544,6 @@ function bindCommandFormVariableInputs() {
 
       const toggleContainer = document.querySelector('.variable-remember-toggle[data-command-id="' + COMMAND_FORM_CTX + '"][data-variable-name="' + variableName + '"]');
       updateScopeIndicatorDots(toggleContainer, variableName, commandFormBuffer.scopeSource());
-    });
-
-    input.addEventListener("keydown", function (e) {
-      if (!isAltPressed(e) || e.code !== "Digit0") {
-        return;
-      }
-      e.preventDefault();
-
-      const variableName = input.dataset.variableName;
-      if (!variableName) {
-        return;
-      }
-      const scope = input.dataset.scope || commandFormBuffer.remember[variableName] || "off";
-      const scopeDraft = commandFormBuffer.scopeDraft(scope);
-
-      if (input.dataset.isEmptyValue === "true") {
-        const saved = input.dataset.preEmptyValue !== undefined ? input.dataset.preEmptyValue : "";
-        input.removeAttribute("data-pre-empty-value");
-        input.readOnly = false;
-        input.removeAttribute("data-is-empty-value");
-        input.value = saved;
-        scopeDraft[variableName] = saved;
-      } else {
-        input.setAttribute("data-pre-empty-value", input.value);
-        input.readOnly = true;
-        input.setAttribute("data-is-empty-value", "true");
-        input.value = "[EmptyValue]";
-        scopeDraft[variableName] = RUNBOX_EMPTY_VALUE;
-      }
     });
   });
 }

@@ -26,14 +26,166 @@ function escapeRegExp(value) {
 
 // ─── Keyboard Helpers ─────────────────────────────────────────────────────────
 
-// Returns true when the Alt modifier is active, covering both the left Alt key
-// (always reported via e.altKey) and the right Alt key. On many non-US keyboard
-// layouts the right Alt key acts as AltGr: browsers may not set e.altKey for it,
-// instead exposing it only through the AltGraph modifier state. Checking both
-// keeps Alt-based shortcuts working regardless of the active keyboard layout or
-// which physical Alt key (left/right) the user presses.
-function isAltPressed(e) {
-  return Boolean(e.altKey || (typeof e.getModifierState === "function" && e.getModifierState("AltGraph")));
+// Platform-aware "primary modifier" helpers. On macOS the Control+Click gesture
+// is reserved by the OS for the context menu, so Command (metaKey) is the primary
+// modifier there. On Windows and Linux the primary modifier is Ctrl.
+const IS_MAC_PLATFORM = typeof navigator !== "undefined" && /mac/i.test((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || "");
+const MOD_KEY_LABEL = IS_MAC_PLATFORM ? "⌘" : "Ctrl";
+
+function isModKeyPressed(e) {
+  return IS_MAC_PLATFORM ? Boolean(e.metaKey) : Boolean(e.ctrlKey);
+}
+
+// ─── Variable Field Shortcuts (Ctrl/Cmd+Shift+O / Ctrl/Cmd+Shift+E) ──────────
+
+/**
+ * Switches a variable text input into or out of the "empty value" state and
+ * returns the value that should be stored for the variable: RUNBOX_EMPTY_VALUE
+ * when it just became empty, or the text the field held before it was emptied.
+ * Only the DOM state is changed here; the caller stores the returned value.
+ * @param {HTMLInputElement} input
+ * @returns {string}
+ */
+function toggleInputEmptyValue(input) {
+  if (input.dataset.isEmptyValue === "true") {
+    const saved = input.dataset.preEmptyValue !== undefined ? input.dataset.preEmptyValue : "";
+    input.removeAttribute("data-pre-empty-value");
+    input.readOnly = false;
+    input.removeAttribute("data-is-empty-value");
+    input.value = saved;
+    return saved;
+  }
+  input.setAttribute("data-pre-empty-value", input.value);
+  input.readOnly = true;
+  input.setAttribute("data-is-empty-value", "true");
+  input.value = "[EmptyValue]";
+  return RUNBOX_EMPTY_VALUE;
+}
+
+/**
+ * Returns the variable text input the shortcut should act on: the focused text
+ * input, or, when an enum dropdown button has focus, that variable's custom-value
+ * input. Returns null when no variable field has focus.
+ * @returns {HTMLInputElement|null}
+ */
+function getFocusedVariableInput() {
+  const active = document.activeElement;
+  if (!active) {
+    return null;
+  }
+  if (active.matches && active.matches(".variable-modal-input, .variable-input")) {
+    return active;
+  }
+  const enumWrap = active.closest ? active.closest(".enum-input-wrap") : null;
+  return enumWrap ? enumWrap.querySelector(".variable-modal-custom-input") : null;
+}
+
+/**
+ * For an enum variable whose custom-value input is still hidden, switches the
+ * dropdown to "Custom value..." and reveals the input so it can hold a value.
+ * @param {HTMLInputElement} customInput
+ * @param {string} varName
+ */
+function revealEnumCustomInput(customInput, varName) {
+  if (!customInput.classList.contains("hidden")) {
+    return;
+  }
+  const btnEl = document.getElementById("enum-var-btn-" + varName);
+  const menuEl = document.getElementById("enum-var-menu-" + varName);
+  if (btnEl) {
+    const label = btnEl.querySelector(".cs-btn-label");
+    if (label) {
+      label.textContent = "✏️ Custom value...";
+    }
+  }
+  if (menuEl) {
+    menuEl.querySelectorAll(".cs-item").forEach(function (item) {
+      item.querySelectorAll(".cs-check").forEach(function (el) {
+        el.remove();
+      });
+      if (item.dataset.value === "__custom__") {
+        item.insertAdjacentHTML("beforeend", icons.checkmark);
+      }
+    });
+  }
+  customInput.classList.remove("hidden");
+  customInput.focus();
+}
+
+/**
+ * Applies a keyboard shortcut relayed by the extension (message "variableShortcut")
+ * to the variable field that currently has focus. Does nothing when no variable
+ * field has focus. Works in the Enter Variable Values modal and in the Command form.
+ * @param {"pickFile"|"toggleEmpty"} action
+ */
+function applyVariableShortcut(action) {
+  const input = getFocusedVariableInput();
+  if (!input) {
+    return;
+  }
+  const varName = input.dataset.variableName;
+  if (!varName) {
+    return;
+  }
+
+  if (action === "pickFile") {
+    // Only the Enter Variable Values modal receives the picked path (pickFileResult).
+    if (!input.classList.contains("variable-modal-input") || input.readOnly || input.classList.contains("hidden")) {
+      return;
+    }
+    vscode.postMessage({ type: "pickFile", payload: { variableName: varName } });
+    return;
+  }
+
+  if (action !== "toggleEmpty") {
+    return;
+  }
+
+  revealEnumCustomInput(input, varName);
+  const storedValue = toggleInputEmptyValue(input);
+
+  if (input.classList.contains("variable-input")) {
+    const scope = input.dataset.scope || commandFormBuffer.remember[varName] || "off";
+    commandFormBuffer.scopeDraft(scope)[varName] = storedValue;
+    return;
+  }
+  variableInputState.inputValues[varName] = storedValue;
+}
+
+/**
+ * Describes what the variable shortcuts could act on right now. `focused` is true while
+ * a variable text field (or its enum dropdown) has focus; `filePickable` is true when
+ * that field can also receive a picked file path.
+ * @returns {{ focused: boolean, filePickable: boolean }}
+ */
+function getVariableFieldFocusState() {
+  const input = getFocusedVariableInput();
+  if (!input || !input.dataset.variableName) {
+    return { focused: false, filePickable: false };
+  }
+  const filePickable = input.classList.contains("variable-modal-input") && !input.readOnly && !input.classList.contains("hidden");
+  return { focused: true, filePickable };
+}
+
+// Last focus state sent to the extension, so only real changes are posted.
+let _lastVariableFieldFocusKey = null;
+
+/**
+ * Tells the extension whether a variable field has focus. The extension mirrors this
+ * into the context keys that gate the Ctrl/Cmd+Shift+O and Ctrl/Cmd+Shift+E keybindings,
+ * so those keys only override VS Code's own shortcuts while a variable field is focused.
+ * Posts nothing when the state has not changed since the last report.
+ * @param {boolean} [forceFalse=false] - report "not focused" regardless of the DOM
+ *   (used when the webview loses window focus, where document.activeElement is stale)
+ */
+function reportVariableFieldFocus(forceFalse) {
+  const state = forceFalse ? { focused: false, filePickable: false } : getVariableFieldFocusState();
+  const key = `${state.focused}|${state.filePickable}`;
+  if (key === _lastVariableFieldFocusKey) {
+    return;
+  }
+  _lastVariableFieldFocusKey = key;
+  vscode.postMessage({ type: "variableFieldFocus", payload: state });
 }
 
 // ─── Time Helpers ─────────────────────────────────────────────────────────────
@@ -1154,7 +1306,7 @@ function renderActionsCell(command, options) {
   });
   var _useMissing = getMissingVariables(command);
   var _useCtrlHint = _useVars.length > 0 && _useMissing.length === 0;
-  var _useTitle = _useCtrlHint ? "Insert into terminal (without running)<br>Press CTRL key to edit the variables" : "Insert into terminal (without running)";
+  var _useTitle = _useCtrlHint ? `Insert into terminal (without running)<br>Press ${MOD_KEY_LABEL} key to edit the variables` : "Insert into terminal (without running)";
 
   var useBtn = command.command.includes("\n")
     ? `<button class="btn icon-btn secondary d-focus" disabled data-tooltip="Use is not available for multi-line commands">${icons.use}</button>`
@@ -1167,7 +1319,7 @@ function renderActionsCell(command, options) {
 
   // ── Explain button (Commands tab only) ─────────────────────────────────────
   var explainBtn = showEdit
-    ? `<button class="btn icon-btn secondary btn-explain d-focus" data-command-id="${escapeAttr(command.id)}" data-command="${escapeAttr(command.command)}" data-tooltip="Explain command with AI (Ctrl+click to choose the language)">${icons.explain}</button>`
+    ? `<button class="btn icon-btn secondary btn-explain d-focus" data-command-id="${escapeAttr(command.id)}" data-command="${escapeAttr(command.command)}" data-tooltip="Explain command with AI (${MOD_KEY_LABEL}+click to choose the language)">${icons.explain}</button>`
     : "";
 
   // ── Delete button ───────────────────────────────────────────────────────────
@@ -1188,7 +1340,7 @@ function renderActionsCell(command, options) {
       _fs === "none"
         ? _isWsCmd
           ? 'Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br><span class="muted-tip">(Click to manage)</span>'
-          : 'Ctrl+Click: Add Global  •  Ctrl+Right-Click: Remove Global<br>Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br>Ctrl+Shift+Click: Add Both  •  Ctrl+Shift+Right-Click: Remove Both<br><span class="muted-tip">(Click to manage)</span>'
+          : `${MOD_KEY_LABEL}+Click: Add Global  •  ${MOD_KEY_LABEL}+Right-Click: Remove Global<br>Shift+Click: Add Local  •  Shift+Right-Click: Remove Local<br>${MOD_KEY_LABEL}+Shift+Click: Add Both  •  ${MOD_KEY_LABEL}+Shift+Right-Click: Remove Both<br><span class="muted-tip">(Click to manage)</span>`
         : _fs === "local"
           ? "In Local Favorites<br>(click to manage)"
           : _fs === "global"
@@ -1198,7 +1350,7 @@ function renderActionsCell(command, options) {
   } else if (favoriteStyle === "unfavorite") {
     var _scope = uiState.favoritesScope;
     var _scopeLabel = _scope === "local" ? "Local Workspace" : "Global";
-    favBtn = `<button class="btn icon-btn secondary btn-unfavorite d-focus" data-command-id="${escapeAttr(command.id)}" data-tooltip="Remove from ${escapeAttr(_scopeLabel)} favorites<br>CTRL+click to open manage panel">${icons.heartMinus}</button>`;
+    favBtn = `<button class="btn icon-btn secondary btn-unfavorite d-focus" data-command-id="${escapeAttr(command.id)}" data-tooltip="Remove from ${escapeAttr(_scopeLabel)} favorites<br>${MOD_KEY_LABEL}+click to open manage panel">${icons.heartMinus}</button>`;
   }
 
   // ── Goto button ─────────────────────────────────────────────────────────────

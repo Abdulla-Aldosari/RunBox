@@ -61,13 +61,45 @@
       {
         "command": "runBox.openPanel",
         "title": "RunBox: Open Panel"
+      },
+      {
+        "command": "runBox.variable.pickFile",
+        "title": "RunBox: Pick a File for the Focused Variable"
+      },
+      {
+        "command": "runBox.variable.toggleEmpty",
+        "title": "RunBox: Toggle Empty Value for the Focused Variable"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "runBox.variable.pickFile",
+          "when": "false"
+        },
+        {
+          "command": "runBox.variable.toggleEmpty",
+          "when": "false"
+        }
+      ]
+    },
     "keybindings": [
       {
         "command": "runBox.openPanel",
         "key": "f4 f4",
         "mac": "f4 f4"
+      },
+      {
+        "command": "runBox.variable.pickFile",
+        "key": "ctrl+shift+o",
+        "mac": "cmd+shift+o",
+        "when": "activeWebviewPanelId == 'runBoxPanel' && runBox.variableFilePickable"
+      },
+      {
+        "command": "runBox.variable.toggleEmpty",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "activeWebviewPanelId == 'runBoxPanel' && runBox.variableFieldFocused"
       }
     ],
     "configuration": {

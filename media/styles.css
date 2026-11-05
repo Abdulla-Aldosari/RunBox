@@ -3342,7 +3342,7 @@ tr.row-dragging td {
   animation: auto-var-copy-flash 0.32s ease-out forwards;
 }
 
-/* ─── Empty Value (Alt+0) ─────────────────────────────────────────────────── */
+/* ─── Empty Value ─────────────────────────────────────────────────── */
 
 /* Input in empty-value state: readonly, styled with muted yellow italic */
 .input[data-is-empty-value="true"] {

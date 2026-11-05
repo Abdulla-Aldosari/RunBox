@@ -89,6 +89,18 @@ function activate(context) {
   }
 
   /**
+   * Mirrors the webview's variable-field focus state into the context keys that gate the
+   * Ctrl/Cmd+Shift+O and Ctrl/Cmd+Shift+E keybindings in package.json, so those keys only
+   * override VS Code's own shortcuts while a variable field actually has focus.
+   * @param {boolean} focused - a variable text field (or its enum dropdown) has focus
+   * @param {boolean} filePickable - the focused field can receive a picked file path
+   */
+  function setVariableFieldContext(focused, filePickable) {
+    vscode.commands.executeCommand("setContext", "runBox.variableFieldFocused", focused);
+    vscode.commands.executeCommand("setContext", "runBox.variableFilePickable", filePickable);
+  }
+
+  /**
    * Collects all extension state (commands, variables, terminal profiles, favorites,
    * auto-variables) and sends it to the webview as a single "state" message.
    * Defined as a closure inside activate() so it can access `context.workspaceState`
@@ -428,6 +440,17 @@ function activate(context) {
           return;
         }
 
+        // Variable-field focus report from the webview (media/main.js). Only the panel
+        // currently tracked in `panel` may drive the context keys, and the payload is
+        // coerced to strict booleans so a malformed message can never leave a key stuck.
+        if (message.type === "variableFieldFocus") {
+          if (panel === targetPanel) {
+            const state = message.payload || {};
+            setVariableFieldContext(state.focused === true, state.filePickable === true);
+          }
+          return;
+        }
+
         // Both "ready" (initial DOM load) and "requestState" (explicit refresh request)
         // trigger the same full state push to the webview.
         if (message.type === "ready" || message.type === "requestState") {
@@ -653,6 +676,7 @@ function activate(context) {
       H.handleAiCancelGenerate(targetPanel);
       H.handleAiCancelExplain(targetPanel);
       if (panel === targetPanel) {
+        setVariableFieldContext(false, false);
         panel = null;
       }
     });
@@ -687,6 +711,26 @@ function activate(context) {
   });
 
   context.subscriptions.push(openPanelCommand);
+
+  // Keyboard shortcuts for the variable fields (Ctrl/Cmd+Shift+O picks a file,
+  // Ctrl/Cmd+Shift+E toggles the empty value). The keybindings are declared in
+  // package.json and only apply while a variable field has focus: the webview reports
+  // its focus state ("variableFieldFocus" message) and setVariableFieldContext()
+  // mirrors it into the runBox.variableFieldFocused / runBox.variableFilePickable
+  // context keys. The extension only relays the shortcut; the webview acts on
+  // whichever variable field currently has focus.
+  [
+    { commandId: "runBox.variable.pickFile", action: "pickFile" },
+    { commandId: "runBox.variable.toggleEmpty", action: "toggleEmpty" },
+  ].forEach(function (shortcut) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(shortcut.commandId, function () {
+        if (panel) {
+          panel.webview.postMessage({ type: "variableShortcut", payload: { action: shortcut.action } });
+        }
+      })
+    );
+  });
 
   // Intentionally does NOT register a vscode.window.registerWebviewPanelSerializer
   // for "runBoxPanel". VS Code's own webview-revival mechanism is currently unreliable

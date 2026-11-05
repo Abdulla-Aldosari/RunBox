@@ -73,6 +73,10 @@ Predefine a fixed list of options for a variable and pick one from a dropdown wh
 
 ![Enum Variables](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/enum-variables.gif)
 
+#### Keyboard Shortcuts for Variable Fields
+
+While a variable field is focused in the variables dialog, press **Ctrl+Shift+E** (⌘⇧E on macOS) to set it to an empty value, or **Ctrl+Shift+O** (⌘⇧O) to pick a file path with the native file dialog. These shortcuts only take over from VS Code's own shortcuts while a variable field has focus.
+
 <br>
 
 ### ✨ Generate Commands with AI

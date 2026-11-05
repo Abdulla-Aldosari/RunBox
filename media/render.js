@@ -286,6 +286,10 @@ function render() {
       scrollToAndHighlight(_pendingId);
     }, 30);
   }
+
+  // render() rebuilds the DOM, which can drop focus from a variable field without a
+  // reliable focusout event, so re-sync the focus state reported to the extension.
+  reportVariableFieldFocus();
 }
 
 // ─── Modal Dismiss Handlers ───────────────────────────────────────────────────

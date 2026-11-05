@@ -310,4 +310,9 @@ window.addEventListener("message", function (event) {
     // No render() here to avoid focus loss while editing
     return;
   }
+
+  if (message.type === "variableShortcut") {
+    applyVariableShortcut(message.payload && message.payload.action);
+    return;
+  }
 });

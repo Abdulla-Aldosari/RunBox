@@ -152,6 +152,26 @@ document.addEventListener("contextmenu", function (e) {
   });
 })();
 
+// ===== Variable field focus reporting =====
+// The Ctrl/Cmd+Shift+O and Ctrl/Cmd+Shift+E keybindings only apply while a variable field
+// has focus (see package.json). Focus changes are re-evaluated on the next tick, because
+// during focusin/focusout document.activeElement still points at the previous element.
+(function () {
+  function scheduleReport() {
+    setTimeout(function () {
+      reportVariableFieldFocus();
+    }, 0);
+  }
+  document.addEventListener("focusin", scheduleReport);
+  document.addEventListener("focusout", scheduleReport);
+  // When the whole webview loses focus (e.g. the user clicks the Explorer), activeElement
+  // keeps pointing at the old field, so report "not focused" explicitly.
+  window.addEventListener("blur", function () {
+    reportVariableFieldFocus(true);
+  });
+  window.addEventListener("focus", scheduleReport);
+})();
+
 // ─── Initialization ────────────────────────────────────────────────────────────
 // Signal the extension that the webview is ready to receive state.
 vscode.postMessage({ type: "ready" });

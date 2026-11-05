@@ -19,7 +19,8 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `openGlobalDataFile` | `media/render.js` (`bindTopActions`) | `openGlobalDataFile` |
 | `openLocalDataFile` | `media/render.js` (`bindTopActions`) | `openLocalDataFile` |
 | `openExternalUrl` | `media/utils.js` (`bindCmdTitleLinks`), various | `handleOpenExternalUrl` |
-| `pickFile` | `media/tabs/commands.js` (Alt+O on variable modal text inputs) | `handlePickFile` |
+| `pickFile` | `media/utils.js` (`applyVariableShortcut("pickFile")`, triggered by `Ctrl/Cmd+Shift+O` on a focused Enter Variable Values text input) | `handlePickFile` |
+| `variableFieldFocus` | `media/utils.js` (`reportVariableFieldFocus`, bound to `focusin`/`focusout`/window `blur`/`focus` in `media/main.js` and called at the end of `render()`; payload `{ focused, filePickable }`, posted only when the state changes) | dispatch table in `extension.js` — calls `setVariableFieldContext` (`setContext` for `runBox.variableFieldFocused` / `runBox.variableFilePickable`); ignored unless the sender is the tracked `panel` |
 | `aiGetSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiGetSettings` |
 | `aiSaveSettings` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiSaveSettings` |
 | `aiGenerate` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiGenerate` |
@@ -61,4 +62,5 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiListModelsResult` | inline in message dispatcher | On success: saves fetched models to localStorage cache and applies them to `aiState.aiProviderSetup[provider].models`. On failure or empty result: caches the static models from config to prevent re-fetching on next open. Re-renders only if result is for the currently displayed provider. |
 | `aiDeleteKeyResult` | inline in message dispatcher | On success: clears the model cache for the provider and re-fetches settings via `aiGetSettings`. Shows a confirmation notice. |
 | `aiExplainResult` | `handleAiExplainResult` (in `media/modals/ai-explain.js`) | Ignored unless `payload.requestId` matches `aiExplainState.requestId` and the modal is visible. Sets `aiExplainState.loading = false`; populates `markdown` or `error`; repaints the explain modal content without calling `render()` |
+| `variableShortcut` | inline in message dispatcher | Calls `applyVariableShortcut(payload.action)` (`"pickFile"` or `"toggleEmpty"`), which acts on the variable field that currently has focus and does nothing when none has focus. Sent by the `runBox.variable.pickFile` and `runBox.variable.toggleEmpty` commands. |
 | `pickFileResult` | inline in message dispatcher | On success: writes the selected `fsPath` into the matching `.variable-modal-input[data-variable-name]` and updates `variableInputState.inputValues`. No `render()` call, to avoid focus loss while editing. |
