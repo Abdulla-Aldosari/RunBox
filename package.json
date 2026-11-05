@@ -213,6 +213,7 @@
     "build": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --platform=node --target=node20 --minify",
     "watch": "esbuild extension.js --bundle --outfile=dist/extension.js --external:vscode --platform=node --target=node20 --sourcemap --watch",
     "vscode:prepublish": "npm run build",
+    "package": "vsce package",
     "test": "node testing/run-tests.js",
     "prettier": "prettier --write .",
     "prettier:check": "prettier --check .",
