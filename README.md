@@ -10,6 +10,9 @@
 
 **Your terminal command library inside VS Code: store, organize, and launch your everyday commands in one click, with reusable variables, favorites, automatic shell matching, and AI that writes and explains commands for you.**
 
+[![VS Code Marketplace](https://badgen.net/vs-marketplace/v/Abdulla-Aldosari.runbox?label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=Abdulla-Aldosari.runbox)
+[![Open VSX](https://img.shields.io/open-vsx/v/Abdulla-Aldosari/runbox?label=Open%20VSX)](https://open-vsx.org/extension/Abdulla-Aldosari/runbox)
+
 </div>
 
 ![RunBox Overview](docs/images/hero-screenshot.png)
@@ -180,7 +183,7 @@ To back up your command library or share it with your team, copy `~/.runbox/comm
 
 ## Getting Started
 
-1. Install the extension from the VS Code Marketplace.
+1. Install RunBox from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=Abdulla-Aldosari.runbox) or [Open VSX](https://open-vsx.org/extension/Abdulla-Aldosari/runbox), or search for **RunBox** in the Extensions view.
 2. Open the panel with `F4 F4` (press F4 twice), or run **RunBox: Open Panel** from the Command Palette.
 3. Create a category and, optionally, add groups to it.
 4. Add your first command. Use `${variableName}` placeholders for any values that change between runs.
