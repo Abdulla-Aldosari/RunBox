@@ -87,6 +87,18 @@
 - [ ] The visual order changes correctly during the drag
 - [ ] **Save Order** button saves the new order → green notice → commands stay in that order after a re-render
 - [ ] **Cancel** button restores the original order without saving
+- [ ] With more rows than fit on screen, dragging a row near the bottom/top edge of the table auto-scrolls the table rows (the page header and tabs stay still)
+
+### 3.6 Table Scrolling (Recent / Favorites / Commands)
+
+- [ ] With many rows, only the table rows scroll; the header, workspace label, tabs, toolbar, and the table header row stay fixed
+- [ ] The table area fills the panel down to its bottom edge, and the page shows no vertical scrollbar
+- [ ] Shrinking the panel height until the table reaches its minimum height makes the page scrollbar appear; enlarging it again removes the scrollbar
+- [ ] A wide table scrolls horizontally inside the table area
+- [ ] Toggling a favorite, changing a column's visibility, or a save from another window keeps the table's scroll position
+- [ ] Switching tab, category, group, or favorites scope starts the table at the top
+- [ ] After clicking inside the table, PageDown / PageUp / arrow keys scroll the rows; Tab focus on the table area shows a focus outline
+- [ ] "Go to command" and saving an edited command scroll the target row into view inside the table
 
 ---
 

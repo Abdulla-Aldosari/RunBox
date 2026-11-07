@@ -725,6 +725,64 @@ textarea {
   min-width: 0;
 }
 
+/* ===== Scrollable Table Card (Recent / Favorites / Commands) =====
+   The page itself does not scroll: the tab card stretches to the bottom of the
+   panel and only the table rows scroll inside `.table-scroll`, under a sticky
+   header. The page scrollbar appears only once the panel is too short to fit
+   the fixed rows above the card plus the minimum table height. */
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+/* Rows: header, workspace label, tabs, tab card (see render() in media/render.js).
+   Modal overlays are position: fixed and take no grid row. */
+.layout:has(> .table-card) {
+  min-height: 100%;
+  grid-template-rows: auto auto auto 1fr;
+}
+
+.layout > .table-card {
+  --table-scroll-min-height: 160px; /* sticky header + a few rows */
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card > * {
+  flex-shrink: 0;
+}
+
+.table-card > .table-panel {
+  flex: 1 0 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-card .table-scroll {
+  flex: 1 0 0;
+  min-height: var(--table-scroll-min-height);
+  overflow: auto;
+  /* Keeps the wide table from widening the card; it scrolls horizontally here instead */
+  contain: inline-size;
+}
+
+.table-scroll:focus {
+  outline: none;
+}
+
+/* A box-shadow draws the header divider because collapsed borders do not
+   travel with sticky cells. */
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--runbox-editor-background);
+  box-shadow: inset 0 -1px 0 var(--runbox-panel-border);
+  border-bottom: unset;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -2399,7 +2457,7 @@ table.commands-table.ai-results-table td:last-child {
 
 .selected-command-row {
   outline: 1px dashed var(--runbox-focusBorder);
-  outline-offset: -4px;
+  outline-offset: -3px;
   border-radius: var(--runbox-cornerRadius-large, 8px);
 }
 

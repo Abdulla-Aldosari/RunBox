@@ -199,6 +199,7 @@ function render() {
   // ─── Normal App UI Rendering ────────────────────────────────────────────────
 
   const selectedCategory = getSelectedCategory();
+  const tableScrollSnapshot = captureTableScroll();
 
   app.innerHTML = `
     <div class="layout">
@@ -258,6 +259,9 @@ function render() {
     </div>
   `;
 
+  // Rebuilding #app resets the table scroll area to the top; keep the user's
+  // position when the same table view is re-rendered.
+  restoreTableScroll(tableScrollSnapshot);
   paintNotice();
   bindEvents();
   // Auto-resize template textareas and initialize syntax highlight overlay

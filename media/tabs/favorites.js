@@ -43,11 +43,15 @@ function renderFavoritesTab() {
   const showWrap = hasWorkspace || skipConfirm;
 
   return `
-    <section class="card">
+    <section class="card${favoritedCommands.length === 0 ? "" : " table-card"}">
       ${showWrap ? renderFavoritesScopeToggle(scope, hasWorkspace, skipConfirm, validLocalCount, validGlobalCount) : ""}
-      <div class="table-wrap">
-        ${favoritedCommands.length === 0 ? `<p class="muted">${emptyMsg}</p>` : renderFavoritesTable(favoritedCommands)}
-      </div>
+      ${
+        favoritedCommands.length === 0
+          ? `<p class="muted">${emptyMsg}</p>`
+          : `<div class="table-wrap table-scroll" tabindex="0" role="region" aria-label="Favorite commands">
+              ${renderFavoritesTable(favoritedCommands)}
+            </div>`
+      }
     </section>
   `;
 }

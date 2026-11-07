@@ -35,7 +35,7 @@ function renderRecentCommandsTab() {
   }
 
   return `
-    <section class="card">
+    <section class="card table-card">
       <div class="row between">
         <h2>Recent Commands</h2>
         <div class="row">
@@ -43,7 +43,7 @@ function renderRecentCommandsTab() {
           <button id="btn-clear-recent" class="btn small danger" data-tooltip="Clear all recent command history">Clear Recent</button>
         </div>
       </div>
-      <div class="table-wrap recent-commands">
+      <div class="table-wrap table-scroll recent-commands" tabindex="0" role="region" aria-label="Recent commands">
         <table class="cmds-table recent-table">
           <thead>
             <tr>

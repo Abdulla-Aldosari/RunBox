@@ -1053,6 +1053,77 @@ function paintNotice() {
 // ─── Scroll / DOM Helpers ─────────────────────────────────────────────────────
 
 /**
+ * Builds the key identifying the table view currently selected in uiState.
+ * Two renders showing the same key display the same rows, so the table scroll
+ * position may be carried over between them; a different key (another tab,
+ * category, group, or favorites scope) means a different list that must start
+ * at the top.
+ * @returns {string}
+ */
+function getTableScrollViewKey() {
+  return [uiState.editingCommandId ? "edit" : uiState.activeTab, uiState.selectedCategoryId, uiState.selectedGroupId, uiState.favoritesScope].join("|");
+}
+
+/**
+ * Captures the scroll position of the scrollable table area (`.table-scroll`)
+ * before its DOM is rebuilt. The view key is read from the element itself (stamped
+ * by restoreTableScroll() when it was rendered), never from uiState, because
+ * uiState may already describe the next view by the time this runs.
+ * @returns {{ key: string, top: number, left: number } | null}
+ */
+function captureTableScroll() {
+  const scroller = document.querySelector(".table-scroll");
+  if (!scroller || !scroller.dataset.viewKey) {
+    return null;
+  }
+  return { key: scroller.dataset.viewKey, top: scroller.scrollTop, left: scroller.scrollLeft };
+}
+
+/**
+ * Stamps the current view key on the freshly rendered `.table-scroll` element and,
+ * when the snapshot belongs to the same view, restores its scroll position.
+ * @param {{ key: string, top: number, left: number } | null} snapshot - result of captureTableScroll()
+ */
+function restoreTableScroll(snapshot) {
+  const scroller = document.querySelector(".table-scroll");
+  if (!scroller) {
+    return;
+  }
+  const key = getTableScrollViewKey();
+  scroller.dataset.viewKey = key;
+  if (snapshot && snapshot.key === key) {
+    scroller.scrollTop = snapshot.top;
+    scroller.scrollLeft = snapshot.left;
+  }
+}
+
+/**
+ * Computes how far a scroll area should auto-scroll while a dragged item hovers
+ * near its top or bottom edge. The speed grows linearly with how deep the pointer
+ * is inside the edge zone. The zone shrinks to a third of the area height on short
+ * areas so the top and bottom zones never overlap.
+ * @param {number} pointerY - pointer clientY
+ * @param {number} areaTop - clientY where the visible scroll area begins
+ * @param {number} areaBottom - clientY where the visible scroll area ends
+ * @param {number} zone - maximum edge zone height in px
+ * @param {number} speed - maximum scroll step in px per frame
+ * @returns {number} negative to scroll up, positive to scroll down, 0 for none
+ */
+function computeEdgeScrollDelta(pointerY, areaTop, areaBottom, zone, speed) {
+  const effectiveZone = Math.min(zone, (areaBottom - areaTop) / 3);
+  if (!(effectiveZone > 0)) {
+    return 0;
+  }
+  if (pointerY < areaTop + effectiveZone) {
+    return -speed * Math.min(1, (areaTop + effectiveZone - pointerY) / effectiveZone);
+  }
+  if (pointerY > areaBottom - effectiveZone) {
+    return speed * Math.min(1, (pointerY - (areaBottom - effectiveZone)) / effectiveZone);
+  }
+  return 0;
+}
+
+/**
  * Selects a command row in the active tab: adds the visual highlight class,
  * updates the tab-specific selectedCommandRowId in uiState, and removes the
  * selection from any previously selected row.
@@ -1118,10 +1189,10 @@ function scrollToAndHighlight(commandId) {
     row.classList.add("row-highlight");
   }, 400);
 
-  // Wait for (2400ms) then remove the highlight class, so the row doesn't stay highlighted permanently after selection
+  // Wait for (1200ms) then remove the highlight class, so the row doesn't stay highlighted permanently after selection
   setTimeout(function () {
     row.classList.remove("row-highlight");
-  }, 2400);
+  }, 1200);
 }
 
 /**

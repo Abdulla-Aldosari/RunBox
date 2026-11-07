@@ -23,7 +23,7 @@ function renderCommandsTab(selectedCategory) {
   }
 
   return `
-    <section class="card">
+    <section class="card${commands.length ? " table-card" : ""}">
       
       <div class="row align-items-center commands-toolbar">
         <h2 class="pb-5">Commands Browser</h2>
@@ -127,7 +127,7 @@ function renderCommandsTable(commands, groups) {
     .join(" ");
 
   return `
-    <div class="table-wrap">
+    <div class="table-wrap table-scroll" tabindex="0" role="region" aria-label="Commands">
       <table class="${tableClasses}" id="commands-sortable-table">
         <thead>
           <tr>
@@ -204,7 +204,8 @@ function syncCommandOrderFromDOM(tbody) {
 /**
  * Binds live-reorder Drag & Drop on the sortable commands table.
  * Rows are physically moved in the DOM during dragover — no drop indicator line.
- * Supports auto-scroll when dragging near the top/bottom edges of the viewport.
+ * Supports auto-scroll when dragging near the top/bottom edges of the table's
+ * scroll area (`.table-scroll`).
  */
 function bindDragAndDrop() {
   var table = document.getElementById("commands-sortable-table");
@@ -220,31 +221,45 @@ function bindDragAndDrop() {
   var SCROLL_ZONE = 80;
   var SCROLL_SPEED = 12;
 
+  // The rows scroll inside the table's own scroll area, not the page.
+  var scroller = table.closest(".table-scroll");
+  var thead = table.querySelector("thead");
+  var tbody = table.querySelector("tbody");
+  if (!tbody || !scroller) {
+    return;
+  }
+
+  // Tracked on the whole document so the pointer position stays current even
+  // while it hovers the sticky header or leaves the scroll area entirely.
+  function trackDragY(e) {
+    lastDragY = e.clientY;
+  }
+
   function stopAutoScroll() {
     if (autoScrollTimer) {
       cancelAnimationFrame(autoScrollTimer);
       autoScrollTimer = null;
     }
+    document.removeEventListener("dragover", trackDragY);
   }
 
   function startAutoScroll() {
     stopAutoScroll();
+    document.addEventListener("dragover", trackDragY);
     function frame() {
-      var y = lastDragY;
-      var vh = window.innerHeight;
-      if (y < SCROLL_ZONE) {
-        window.scrollBy(0, -SCROLL_SPEED * (1 - y / SCROLL_ZONE));
-      } else if (y > vh - SCROLL_ZONE) {
-        window.scrollBy(0, SCROLL_SPEED * ((y - (vh - SCROLL_ZONE)) / SCROLL_ZONE));
+      var rect = scroller.getBoundingClientRect();
+      var viewportTop = rect.top + scroller.clientTop;
+      // The sticky header covers the top of the scroll area, so the upper edge
+      // zone starts below it.
+      var areaTop = viewportTop + (thead ? thead.offsetHeight : 0);
+      var areaBottom = viewportTop + scroller.clientHeight;
+      var delta = computeEdgeScrollDelta(lastDragY, areaTop, areaBottom, SCROLL_ZONE, SCROLL_SPEED);
+      if (delta !== 0) {
+        scroller.scrollTop += delta;
       }
       autoScrollTimer = requestAnimationFrame(frame);
     }
     autoScrollTimer = requestAnimationFrame(frame);
-  }
-
-  var tbody = table.querySelector("tbody");
-  if (!tbody) {
-    return;
   }
 
   // dragstart
@@ -255,6 +270,9 @@ function bindDragAndDrop() {
       lastTargetId = null;
       e.dataTransfer.effectAllowed = "move";
       e.dataTransfer.setData("text/plain", draggedId);
+      // Seed the pointer position so the first auto-scroll frame does not read a
+      // stale value (0 would sit above the scroll area and scroll it upward).
+      lastDragY = e.clientY;
       // Delay so the ghost image captures the row before opacity drops
       setTimeout(function () {
         row.classList.add("row-dragging");
@@ -279,7 +297,6 @@ function bindDragAndDrop() {
   tbody.addEventListener("dragover", function (e) {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
-    lastDragY = e.clientY;
 
     if (!draggedRow) {
       return;
@@ -428,7 +445,9 @@ function bindCommandsTabEvents() {
           if (tablePanel) {
             const groups = getSelectedCategoryGroups();
             const commands = getVisibleCommands();
+            const tableScrollSnapshot = captureTableScroll();
             tablePanel.innerHTML = renderCommandsTable(commands, groups);
+            restoreTableScroll(tableScrollSnapshot);
             bindCommandActionButtons();
           }
         }
