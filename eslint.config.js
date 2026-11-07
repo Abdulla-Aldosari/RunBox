@@ -139,6 +139,7 @@ const browserGlobals = {
   bindFavoriteModalEvents: "readonly",
   bindEnumManagerEvents: "readonly",
   bindCmdTitleLinks: "readonly",
+  bindRowSelectionEvents: "readonly",
   bindDevToolsEvents: "readonly",
   showNotice: "readonly",
   showError: "readonly",

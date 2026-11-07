@@ -448,7 +448,10 @@ function bindCommandsTabEvents() {
             const tableScrollSnapshot = captureTableScroll();
             tablePanel.innerHTML = renderCommandsTable(commands, groups);
             restoreTableScroll(tableScrollSnapshot);
+            // The new rows need every per-row binding that render() normally applies
             bindCommandActionButtons();
+            bindRowSelectionEvents();
+            bindCmdTitleLinks();
           }
         }
       });
