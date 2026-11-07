@@ -970,6 +970,11 @@ td.actions-cell {
   display: contents;
 }
 
+/* Wrapper that must not affect the parent grid layout */
+.contents-host {
+  display: contents;
+}
+
 .vars-store-location {
   font-size: 0.74rem;
   text-align: center;

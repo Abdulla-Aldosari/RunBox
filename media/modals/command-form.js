@@ -436,7 +436,7 @@ function renderCommandForm(mode) {
           ${renderTargetShellCheck(commandFormBuffer.targetShell)}
         </div>
 
-        ${renderCommandFormVariables(variables)}
+        <div id="command-form-variables-host" class="contents-host">${renderCommandFormVariables(variables)}</div>
         ${
           isEdit && command.lastRunAt
             ? `
@@ -674,7 +674,7 @@ function unbindTemplateResizeListener() {
 
 /**
  * Binds the template textarea: keeps the buffer in sync, auto-transfers data
- * on a 1-to-1 variable rename, then re-renders while preserving the caret.
+ * on a 1-to-1 variable rename, then repaints only the variables block.
  */
 function bindCommandFormTemplateInput() {
   const templateInput = document.getElementById("command-form-template");
@@ -702,16 +702,27 @@ function bindCommandFormTemplateInput() {
 
     commandFormBuffer._prevVarNames = newVarNames;
 
-    // Preserve the caret across the re-render triggered by the variables list
-    const cursorStart = templateInput.selectionStart;
-    const cursorEnd = templateInput.selectionEnd;
-    render();
-    const restored = document.getElementById("command-form-template");
-    if (restored) {
-      restored.focus();
-      restored.setSelectionRange(cursorStart, cursorEnd);
-    }
+    // Repaint only the variables block: re-rendering the whole app would
+    // replace this textarea and discard its native undo/redo history.
+    refreshCommandFormVariables();
+    autoResizeTextarea(templateInput);
+    updateTemplateHighlight(templateInput);
   });
+}
+
+/**
+ * Repaints only the Command Variables block and re-binds its events.
+ * The template textarea is left untouched so its native undo history survives.
+ */
+function refreshCommandFormVariables() {
+  const host = document.getElementById("command-form-variables-host");
+  if (!host) {
+    return;
+  }
+  host.innerHTML = renderCommandFormVariables(getUserVariableNames(commandFormBuffer.template));
+  bindCommandFormVariableInputs();
+  bindCommandFormScopeToggles();
+  bindCommandFormEnumButtons();
 }
 
 /**
