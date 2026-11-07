@@ -18,7 +18,7 @@ This file is shared across all your VS Code workspaces, so your commands are alw
 
 ### 🔵 Does RunBox support multi-root workspaces?
 
-Yes. When you open a multi-root workspace (a `.code-workspace` file with multiple folders), a **workspace folder selector** dropdown appears below the panel header. You can switch between folders at any time. Local variables, local favorites, and auto variables such as `${workspaceFolder}` and `${workspaceName}` all update to reflect the selected folder.
+Yes. When you open a multi-root workspace (a `.code-workspace` file with multiple folders), a **workspace folder selector** dropdown appears below the panel header. You can switch between folders at any time. Local variables, local favorites, and auto variables such as `${@workspaceFolder}` and `${@workspaceName}` all update to reflect the selected folder.
 
 The **Run confirmation dialog** also includes a per-execution folder override, so you can run a command against a different folder without changing the panel's active selection. The terminal opens in the chosen folder's directory.
 
@@ -85,17 +85,22 @@ Switching the toggle does **not** delete the value stored in the other scopes. E
 
 ### 🔵 What are Auto Variables?
 
-Auto Variables are built-in variables that are resolved automatically, with no input from you:
+Auto Variables are built-in variables that are resolved automatically, with no input from you. They are written with an `@` after `${`:
 
-| Variable             | Resolved value                                                                                                                          |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `${date}`            | Today's date (the format is configurable in the **Variables** tab)                                                                      |
-| `${username}`        | Your operating system username                                                                                                          |
-| `${workspaceFolder}` | The full path to the active workspace folder. In multi-root workspaces, reflects the folder selected in the panel's workspace selector. |
-| `${workspaceName}`   | The folder name (basename) of the active workspace folder. In multi-root workspaces, reflects the selected folder.                      |
+| Variable              | Resolved value                                                                                                                                  |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `${@date}`            | Today's date (the format is configurable in the **Variables** tab)                                                                              |
+| `${@time}`            | The current time, 24-hour (e.g. `22-45-59`) or 12-hour (e.g. `10-45-59-PM`), with or without separators (configurable in the **Variables** tab) |
+| `${@username}`        | Your operating system username                                                                                                                  |
+| `${@workspaceFolder}` | The full path to the active workspace folder. In multi-root workspaces, reflects the folder selected in the panel's workspace selector.         |
+| `${@workspaceName}`   | The folder name (basename) of the active workspace folder. In multi-root workspaces, reflects the selected folder.                              |
+
+Because of the `@` marker, names such as `${date}` or `${username}` remain available for your own variables and are never resolved automatically.
+
+`${@date}` and `${@time}` are computed when you run, use, or copy a command. The **Run** confirmation dialog computes them when it opens, and runs exactly the values it displays.
 
 > [!NOTE]
-> **Multi-root workspaces:** `${workspaceFolder}` and `${workspaceName}` always reflect the folder that is currently active in the panel. Switching the workspace folder dropdown updates these values for all subsequent command executions. You can also override them per-execution in the Run confirmation dialog.
+> **Multi-root workspaces:** `${@workspaceFolder}` and `${@workspaceName}` always reflect the folder that is currently active in the panel. Switching the workspace folder dropdown updates these values for all subsequent command executions. You can also override them per-execution in the Run confirmation dialog.
 
 ---
 

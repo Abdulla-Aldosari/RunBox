@@ -25,7 +25,8 @@
 - `setActiveWorkspaceFolder` — stores the user-selected folder path in `context.workspaceState` and calls `postState()` to refresh the webview.
 - `saveCommandVariables`, `saveFavorites`, `openLocalDataFile` — before delegating to `lib/handlers.js`, the dispatch table reads `context.workspaceState.get("activeWorkspaceFolder")` and injects it as `activeFsPath` in the payload so handlers write to the correct `.vscode/` folder.
 
-- `performAction` — `activeFsPath` comes from the webview payload directly (set by the run-confirm folder dropdown, not injected by the dispatch table).
+- `performAction` — `activeFsPath` comes from the webview payload directly (set by the run-confirm folder dropdown, not injected by the dispatch table). The dispatch table also injects `panelFsPath` (the panel's resolved active folder), used to resolve `${@workspaceFolder}`/`${@workspaceName}` when `activeFsPath` is absent (Use, Copy).
+- `requestAutoVariables` — injects the panel's resolved active folder as `workspaceFolder` and delegates to `handleRequestAutoVariables`.
 
 **VS Code setting:** `runBox.multiRootFolderResolution` controls how the active folder is resolved when the panel opens in a multi-root workspace. Values: `"remember"` (default — persists the user's last selection in `workspaceState`), `"followEditor"` (uses the active text editor's folder, falls back to `workspaceState`), `"alwaysFirst"` (always uses `workspaceFolders[0]`). Has no effect in single-folder workspaces.
 
@@ -142,7 +143,7 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | - | - | - |
 | `handleSaveCommandsData(panel, payload, postState)` | `saveData` | Normalizes and saves commands; posts `saveResult` |
 | `handleSaveCommandVariables(panel, payload)` | `saveCommandVariables` | Replaces one command's Local/Global values via `setWorkspaceCommandVariables`/`setGlobalCommandVariables`; rejects a missing `commandId`; reads `payload.activeFsPath` to write to the correct workspace folder; posts `saveVariablesResult` with `commandId` and both variable sections read fresh from disk |
-| `handlePerformAction(panel, payload, postState)` | `performAction` | Runs copy/run/use action; reads `payload.activeFsPath` to resolve `${workspaceFolder}`, write local variables, and open the terminal with `cwd`; for run/use, records the run (`recordRun` op) in whichever file owns the command — `commands.json` via `applyCommandsDataOperation`, otherwise the "Current Workspace" section via `applyWorkspaceCommandsOperation` (the workspace data file is never written for a command it does not hold); posts `actionResult` |
+| `handlePerformAction(panel, payload, postState)` | `performAction` | Runs copy/run/use action; for all three actions resolves remaining `${@name}` tokens at execution time with `resolveAutoVariables` (folder: `payload.activeFsPath`, else `payload.panelFsPath`, else the first folder); opens the terminal with `cwd` = `payload.activeFsPath`; for run/use, records the run (`recordRun` op) in whichever file owns the command — `commands.json` via `applyCommandsDataOperation`, otherwise the "Current Workspace" section via `applyWorkspaceCommandsOperation` (the workspace data file is never written for a command it does not hold); posts `actionResult` |
 | `handleClearRecent(panel, payload, postState)` | `clearRecent` | Clears the run history of every command in `commands.json` and, only when it holds run history, in the "Current Workspace" section (`clearRecent` op on each); calls `postState`, then posts `applyOperationResult` |
 | `handleOpenExternalUrl(payload)` | `openExternalUrl` | Opens URL via `vscode.env.openExternal` |
 | `handlePickFile(panel, payload, context)` | `pickFile` | Shows a native single-file `showOpenDialog`, defaulting to the folder of the last file picked in this VS Code window (`context.workspaceState.get("lastPickFileDir")`); saves the picked file's folder back to `workspaceState` for next time; posts `pickFileResult` with the selected `fsPath` (or nothing if cancelled) |
@@ -159,6 +160,7 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | `handleSaveCommandMove(panel, payload, postState)` | `saveCommandMove` | Moves a single command between a regular category (`commands.json`) and "Current Workspace" (`runbox.data.json`) as two surgical operations (delete from source, add to destination) via `applyCommandsDataOperation`/`applyWorkspaceCommandsOperation` — never a full-file snapshot overwrite of either file; posts `saveResult`. |
 | `handleAiInsertWorkspace(panel, payload, postState)` | `aiInsertWorkspace` | Merges AI-generated commands (and, for `full` mode, groups) into `workspaceCommands` instead of a regular category; posts `aiInsertResult` |
 | `handleSaveAutoVariablesSettings(panel, payload, postState)` | `saveAutoVariablesSettings` | Saves auto-variables settings; posts result |
+| `handleRequestAutoVariables(panel, payload)` | `requestAutoVariables` | Computes auto variable values at this moment for `payload.workspaceFolder`; posts `autoVariablesResult` with `{ requestId, autoVariables }` (ignored when `requestId` is missing) |
 | `handleSaveFavorites(panel, payload)` | `saveFavorites` | Applies one command's favorite change (`{ commandId, global?: boolean, local?: boolean }`; an omitted scope is left untouched) via `setGlobalFavorite`/`setWorkspaceFavorite`; rejects a missing `commandId`; posts `saveFavoritesResult` with both lists read fresh from disk |
 | `handleAiListModels(panel, context, payload)` | `aiListModels` | Fetches model list for one provider using its saved API key; posts `aiListModelsResult` |
 | `handleAiRefreshAllModels(panel, context)` | `aiRefreshAllModels` | Fetches model lists for **all** providers that have a saved key in parallel (`Promise.allSettled`); posts one `aiListModelsResult` per provider |
@@ -200,11 +202,11 @@ A fixed, non-deletable entry — `CURRENT_WORKSPACE_CATEGORY_ID = "__current_wor
 
 ## `lib/auto-variables.js`
 
-**Auto-variable resolution** (`$date`, `$user`, `$workspaceFolder`, etc.).
+**Auto-variable resolution.** Auto variables are written as `${@name}` (`AUTO_VARIABLE_TOKEN_PATTERN = /\$\{@([a-zA-Z0-9_]+)\}/g`), a namespace separate from user variables `${name}`, so user variables may use any name (including `date`, `workspaceFolder`). Variables: `workspaceFolder`, `workspaceName`, `username`, `date` (`DATE_FORMATS`), `time` (`TIME_FORMATS`: `HH mm ss`, `HH mm`, `hh mm ss A`, `hh mm A` joined by each separator `-`, `:`, `.`, `_`, or none; default `HH-mm-ss`). All variables are always active (no enable/disable). Each `AUTO_VARIABLES` entry is `{ name, label, description, resolve(context, config, now), configOptions?, defaultFormat? }`; adding an entry needs no change elsewhere. `formatDateTimePattern(format, now)` formats in a single pass. A saved format not in `configOptions` falls back to `defaultFormat`. The settings file stores `{ varName: { config: { format } } }`.
 
 | Export | Description |
 | - | - |
-| `resolveAutoVariables(settings, context)` | Resolves all auto-variable values for the current context |
-| `buildAutoVariablesPayload(settings, context)` | Builds the payload sent to the webview |
+| `resolveAutoVariables(template, context, userSettings, now?)` | Replaces every known `${@name}` token (`context = { workspaceFolder }`); unknown `${@name}` tokens and all `${name}` tokens are left as-is |
+| `buildAutoVariablesPayload(context, userSettings, now?)` | Builds the webview payload: `Array<{ name, token, label, description, configurable, config, currentValue, configOptions }>` |
 
 **Dependencies:** `os`, `path` (Node.js built-ins).

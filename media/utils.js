@@ -393,29 +393,83 @@ function collectVariables(commandTemplates) {
 }
 
 /**
- * Returns a list of currently enabled auto variable names.
- * Used to exclude these variables from input prompts.
- * @returns {string[]}
+ * Auto variable token syntax: ${@name}. Kept in a namespace separate from user
+ * variables (${name}), which collectVariables() never matches. Must stay in sync
+ * with AUTO_VARIABLE_TOKEN_PATTERN in lib/auto-variables.js.
  */
-function getEnabledAutoVariableNames() {
-  return (state.autoVariables || [])
-    .filter(function (v) {
-      return v.enabled;
-    })
-    .map(function (v) {
-      return v.name;
-    });
+const AUTO_VARIABLE_TOKEN_PATTERN = /\$\{@([a-zA-Z0-9_]+)\}/g;
+
+/**
+ * Returns true when the text contains at least one ${@name} token.
+ * @param {string} text
+ * @returns {boolean}
+ */
+function hasAutoVariables(text) {
+  AUTO_VARIABLE_TOKEN_PATTERN.lastIndex = 0;
+  const found = AUTO_VARIABLE_TOKEN_PATTERN.test(text || "");
+  AUTO_VARIABLE_TOKEN_PATTERN.lastIndex = 0;
+  return found;
+}
+
+/**
+ * Builds a { name: value } map from an auto variables payload.
+ * @param {Array<{ name: string, currentValue: string }>} autoVariables
+ * @returns {Object<string, string>}
+ */
+function mapAutoVariableValues(autoVariables) {
+  const values = {};
+  (autoVariables || []).forEach(function (v) {
+    if (v && typeof v.name === "string") {
+      values[v.name] = typeof v.currentValue === "string" ? v.currentValue : "";
+    }
+  });
+  return values;
+}
+
+/**
+ * Returns the auto variable values from the last state message (display only;
+ * date/time values may be older than the current moment).
+ * @returns {Object<string, string>}
+ */
+function getAutoVariablePreviewValues() {
+  return mapAutoVariableValues(state.autoVariables);
+}
+
+/**
+ * Replaces every known ${@name} token with its value from `autoValues`.
+ * Unknown tokens are left untouched.
+ * @param {string} text
+ * @param {Object<string, string>} autoValues
+ * @param {function(string, string): string} [wrap] - formats a substituted value (default: raw value)
+ * @returns {string}
+ */
+function substituteAutoVariables(text, autoValues, wrap) {
+  return text.replace(AUTO_VARIABLE_TOKEN_PATTERN, function (token, name) {
+    if (!Object.prototype.hasOwnProperty.call(autoValues, name)) {
+      return token;
+    }
+    return wrap ? wrap(autoValues[name], name) : autoValues[name];
+  });
+}
+
+/**
+ * Asks the extension for auto variable values computed right now, for the open
+ * Run Confirm modal. The reply (autoVariablesResult) is matched by requestId so a
+ * late reply for a closed or replaced modal is ignored. The Run button executes
+ * exactly the values shown in the preview.
+ */
+function requestRunConfirmAutoValues() {
+  const requestId = generateEntityId();
+  runConfirmState.autoRequestId = requestId;
+  runConfirmState.autoValues = null;
+  vscode.postMessage({ type: "requestAutoVariables", payload: { requestId } });
 }
 
 function getMissingVariables(command) {
   const names = collectVariables([command.command]);
   const draft = getCommandDraft(command.id);
-  const autoVarNames = getEnabledAutoVariableNames();
 
   return names.filter(function (name) {
-    if (autoVarNames.includes(name)) {
-      return false;
-    }
     // RUNBOX_EMPTY_VALUE is an explicit empty value — it is NOT missing
     if (draft[name] === RUNBOX_EMPTY_VALUE) {
       return false;
@@ -425,27 +479,20 @@ function getMissingVariables(command) {
 }
 
 /**
- * Resolves a command template by substituting all ${varName} tokens
- * with values from the command draft and auto variables.
+ * Resolves a command template by substituting all ${varName} tokens with values
+ * from the command draft. ${@name} auto variable tokens are substituted afterwards
+ * (the same order the extension uses) only when `autoValues` is given; otherwise
+ * they are kept for the extension to resolve at execution time.
  * @param {object} command - the command object with .command template
+ * @param {Object<string, string>} [autoValues] - auto variable values to substitute
  * @returns {string}
  */
-function resolveCommandTemplate(command) {
+function resolveCommandTemplate(command, autoValues) {
   const names = collectVariables([command.command]);
   let resolved = command.command;
   const draft = getCommandDraft(command.id);
-  const autoVarNames = getEnabledAutoVariableNames();
 
   names.forEach(function (name) {
-    // Auto variables: use currentValue from state.autoVariables for preview
-    if (autoVarNames.includes(name)) {
-      const autoVarDef = (state.autoVariables || []).find(function (v) {
-        return v.name === name;
-      });
-      const value = autoVarDef ? autoVarDef.currentValue || "" : "";
-      resolved = resolved.replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), value);
-      return;
-    }
     // Regular variables: from user draft
     // RUNBOX_EMPTY_VALUE means the user explicitly wants an empty string
     const rawVal = draft[name];
@@ -459,7 +506,7 @@ function resolveCommandTemplate(command) {
     }
   });
 
-  return resolved;
+  return autoValues ? substituteAutoVariables(resolved, autoValues) : resolved;
 }
 
 function resolveGroupTitle(groupId, groups) {
@@ -619,9 +666,6 @@ function buildCommandVariablesPayload(commandId) {
   function nonEmptyValues(draft) {
     var values = {};
     Object.keys(draft || {}).forEach(function (varName) {
-      if (varName === "workspaceFolder") {
-        return;
-      }
       var val = draft[varName];
       if (val !== undefined && val !== null && val !== "") {
         values[varName] = val;
@@ -840,58 +884,63 @@ function getEditingCommand() {
 // ─── Template Syntax Highlighting ─────────────────────────────────────────────
 
 /**
- * Returns HTML string with ${varName} tokens wrapped in colored spans.
- * .var-auto for reserved/auto-resolved variables, .var-user for user-defined.
+ * Wraps the variable tokens of already HTML-escaped text in colored spans:
+ * .var-auto for known ${@name} auto variable tokens, .var-user for ${name} user
+ * variables. Unknown ${@name} tokens are left plain (they are never resolved).
+ * @param {string} escapedText - HTML-escaped text
+ * @returns {string}
+ */
+function wrapVariableTokensHtml(escapedText) {
+  var autoValues = getAutoVariablePreviewValues();
+  return escapedText.replace(/\$\{(@?)([a-zA-Z0-9_]+)\}/g, function (match, marker, name) {
+    if (!marker) {
+      return `<span class="var-user">${match}</span>`;
+    }
+    return Object.prototype.hasOwnProperty.call(autoValues, name) ? `<span class="var-auto">${match}</span>` : match;
+  });
+}
+
+/**
+ * Returns HTML string with variable tokens wrapped in colored spans.
+ * .var-auto for auto variables (${@name}), .var-user for user-defined (${name}).
  * @param {string} text - raw template text
  * @returns {string} HTML string safe for innerHTML
  */
 function highlightTemplateHtml(text) {
-  var autoVarNames = getEnabledAutoVariableNames();
-  return escapeHtml(text).replace(/\$\{([a-zA-Z0-9_]+)\}/g, function (match, name) {
-    var cls = autoVarNames.includes(name) ? "var-auto" : "var-user";
-    return '<span class="' + cls + '">' + match + "</span>";
-  });
+  return wrapVariableTokensHtml(escapeHtml(text));
 }
 
 /**
  * Returns HTML string of a resolved command where each substituted variable value
  * is wrapped in a colored span reflecting its origin:
- * .var-auto (green) for auto-resolved variables, .var-user (blue) for user-defined.
+ * .var-auto (green) for auto variables, .var-user (blue) for user-defined.
  * @param {object} command - the command object with .command template
+ * @param {Object<string, string>} [autoValues] - auto variable values (default: last state values)
  * @returns {string} HTML string safe for innerHTML
  */
-function highlightResolvedHtml(command) {
+function highlightResolvedHtml(command, autoValues) {
   var names = collectVariables([command.command]);
   var draft = getCommandDraft(command.id);
-  var autoVarNames = getEnabledAutoVariableNames();
   var result = escapeHtml(command.command);
 
   names.forEach(function (name) {
-    var value;
-    var cls = autoVarNames.includes(name) ? "var-auto" : "var-user";
-
-    if (autoVarNames.includes(name)) {
-      // Auto variables: read resolved value from state.autoVariables (sent by the extension)
-      var autoVarDef = (state.autoVariables || []).find(function (v) {
-        return v.name === name;
-      });
-      value = autoVarDef ? autoVarDef.currentValue || "" : "";
-    } else {
-      // Regular variables: read from the user's command draft
-      var rawVal = draft[name];
-      value = rawVal === RUNBOX_EMPTY_VALUE ? "" : rawVal || "";
-    }
+    // Regular variables: read from the user's command draft
+    var rawVal = draft[name];
+    var value = rawVal === RUNBOX_EMPTY_VALUE ? "" : rawVal || "";
 
     if (value === "") {
       // Remove " ${name} " (space on both sides) → single space to avoid extra gaps.
       // Then remove any remaining bare placeholder (no surrounding spaces).
       result = result.replace(new RegExp(" \\$\\{" + escapeRegExp(name) + "\\} ", "g"), " ").replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), "");
     } else {
-      result = result.replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), '<span class="' + cls + '">' + escapeHtml(value) + "</span>");
+      result = result.replace(new RegExp("\\$\\{" + escapeRegExp(name) + "\\}", "g"), `<span class="var-user">${escapeHtml(value)}</span>`);
     }
   });
 
-  return result;
+  // Auto variables are substituted after user variables, the same order used at execution time
+  return substituteAutoVariables(result, autoValues || getAutoVariablePreviewValues(), function (value) {
+    return `<span class="var-auto">${escapeHtml(value)}</span>`;
+  });
 }
 
 /**
@@ -930,7 +979,7 @@ function autoResizeTextarea(el) {
 
 /**
  * Updates the syntax highlight overlay div for a template textarea.
- * Wraps ${varName} tokens in colored spans: .var-auto (reserved) or .var-user (user-defined).
+ * Wraps variable tokens in colored spans: .var-auto (${@name}) or .var-user (${name}).
  * @param {HTMLTextAreaElement} textarea
  */
 function updateTemplateHighlight(textarea) {
@@ -938,18 +987,9 @@ function updateTemplateHighlight(textarea) {
   if (!highlightDiv || !highlightDiv.classList.contains("template-highlight")) {
     return;
   }
-  var autoVarNames = getEnabledAutoVariableNames();
-  var allVarNames = collectVariables([textarea.value]);
-  var hasAuto = allVarNames.some(function (n) {
-    return autoVarNames.includes(n);
-  });
-  var hasUser = allVarNames.some(function (n) {
-    return !autoVarNames.includes(n);
-  });
-  var html = escapeHtml(textarea.value).replace(/\$\{([a-zA-Z0-9_]+)\}/g, function (match, name) {
-    var cls = autoVarNames.includes(name) ? "var-auto" : "var-user";
-    return '<span class="' + cls + '">' + match + "</span>";
-  });
+  var html = wrapVariableTokensHtml(escapeHtml(textarea.value));
+  var hasAuto = html.includes('<span class="var-auto">');
+  var hasUser = collectVariables([textarea.value]).length > 0;
   // Trailing \n prevents the last line from collapsing in height
   highlightDiv.innerHTML = html + "\n";
   // Keep scroll in sync
@@ -1372,9 +1412,7 @@ function renderActionsCell(command, options) {
   var favoriteStyle = options.favoriteStyle;
 
   // ── Use button ──────────────────────────────────────────────────────────────
-  var _useVars = collectVariables([command.command]).filter(function (n) {
-    return n !== "workspaceFolder";
-  });
+  var _useVars = collectVariables([command.command]);
   var _useMissing = getMissingVariables(command);
   var _useCtrlHint = _useVars.length > 0 && _useMissing.length === 0;
   var _useTitle = _useCtrlHint ? `Insert into terminal (without running)<br>Press ${MOD_KEY_LABEL} key to edit the variables` : "Insert into terminal (without running)";

@@ -68,7 +68,7 @@ Switching the scope toggle never deletes the value stored in the other scopes.
 
 #### Auto Variables
 
-`${date}`, `${username}`, `${workspaceFolder}`, and `${workspaceName}` are resolved automatically, with no input required.
+`${@date}`, `${@time}`, `${@username}`, `${@workspaceFolder}`, and `${@workspaceName}` are resolved automatically, with no input required. The `@` marker keeps them separate from your own variables, so a plain `${date}` stays a regular variable you fill in.
 
 ![Auto Variables](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/auto-variables.gif)
 
@@ -143,7 +143,7 @@ This is useful for commands that only make sense for one specific project, such 
 
 ### 🗃️ Multi-Root Workspace Support
 
-A workspace folder selector appears in the panel when you work in a multi-root workspace. Local variables, local favorites, and auto variables such as `${workspaceFolder}` and `${workspaceName}` automatically reflect the selected folder, and **Run** opens the terminal in that folder.
+A workspace folder selector appears in the panel when you work in a multi-root workspace. Local variables, local favorites, and auto variables such as `${@workspaceFolder}` and `${@workspaceName}` automatically reflect the selected folder, and **Run** opens the terminal in that folder.
 
 ![Multi-Root Workspace](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/multi-root-workspace.gif)
 

@@ -97,6 +97,17 @@ window.addEventListener("message", function (event) {
     return;
   }
 
+  // Fresh auto variable values for the open Run Confirm modal. Ignored when the
+  // modal was closed or reopened since the request (requestId mismatch).
+  if (message.type === "autoVariablesResult") {
+    const payload = message.payload || {};
+    if (runConfirmState.commandId && payload.requestId && payload.requestId === runConfirmState.autoRequestId) {
+      runConfirmState.autoValues = mapAutoVariableValues(payload.autoVariables);
+      render();
+    }
+    return;
+  }
+
   if (message.type === "actionResult") {
     if (message.payload && message.payload.success) {
       showNotice(`Action "${message.payload.action}" completed.`, icons.circleCheck, "info");

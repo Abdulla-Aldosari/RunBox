@@ -195,10 +195,10 @@
 
 ### 9.1 Auto-Variables
 
-- [ ] **Auto-Variables Settings** button/section is visible
-- [ ] Opening the settings reveals toggles for each auto-variable (e.g. DATE, TIME, USERNAME, OS, etc.)
-- [ ] Toggling an auto-variable on/off and saving persists the setting
-- [ ] Enabled auto-variables are correctly resolved in command strings (e.g. `{DATE}` → today's date)
+- [ ] The **Variables** tab lists `${@workspaceFolder}`, `${@workspaceName}`, `${@username}`, `${@date}`, `${@time}` with their current values (no on/off toggle)
+- [ ] Changing the `${@date}` or `${@time}` format persists and updates the current value
+- [ ] `${@name}` tokens are resolved in Run, Use, and Copy; `${date}` (without `@`) prompts for a value like any user variable
+- [ ] The Run confirmation dialog shows the current `${@time}` value, and the command runs with exactly that value
 
 ---
 

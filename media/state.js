@@ -108,6 +108,10 @@ let runConfirmState = {
   resolvedCommand: "",
   selectedShellPath: null,
   selectedShellName: null,
+  // Pending requestAutoVariables request; a reply with another requestId is ignored
+  autoRequestId: null,
+  // { name: value } auto variable values computed when the modal opened; null while pending
+  autoValues: null,
 };
 
 let variableInputState = {

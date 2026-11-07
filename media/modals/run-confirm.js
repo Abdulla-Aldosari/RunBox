@@ -84,13 +84,13 @@ function renderRunConfirmModal() {
 
   const command = findCommandById(runConfirmState.commandId);
 
-  const hasVariables = command
-    ? collectVariables([command.command]).some(function (name) {
-        return !getEnabledAutoVariableNames().includes(name);
-      })
-    : false;
+  const hasVariables = command ? collectVariables([command.command]).length > 0 : false;
 
-  const previewHtml = command ? highlightResolvedHtml(command) : escapeHtml(runConfirmState.resolvedCommand);
+  // While fresh auto variable values are pending, the preview shows the last known
+  // values and Run stays disabled, so the command that runs is the one displayed.
+  const autoValuesPending = Boolean(command && hasAutoVariables(command.command) && !runConfirmState.autoValues);
+
+  const previewHtml = command ? highlightResolvedHtml(command, runConfirmState.autoValues || undefined) : escapeHtml(runConfirmState.resolvedCommand);
 
   return `
     <div class="modal-overlay" id="run-confirm-overlay" data-dismiss-on-outside-click="false">
@@ -101,7 +101,7 @@ function renderRunConfirmModal() {
         <div class="row justify-content-flex-end f-nowrap">
         ${hasVariables ? `<button class="btn small secondary min-w65" id="btn-confirm-run-variables">Edit Variables</button>` : ""}
           ${renderShellSelector()}
-          <button class="btn small success min-w65" id="btn-confirm-run-yes">Run</button>
+          <button class="btn small success min-w65" id="btn-confirm-run-yes" ${autoValuesPending ? "disabled" : ""}>Run</button>
           <button class="btn small secondary action min-w65" id="btn-confirm-run-no">Cancel</button>
         </div>
       </div>

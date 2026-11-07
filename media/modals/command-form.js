@@ -23,16 +23,12 @@ let _templateResizeTimer = null;
 
 /**
  * Returns the user-defined variable names of a template
-
- * (auto-resolved variables are excluded).
+ * (${@name} auto variable tokens are never matched by collectVariables).
  * @param {string} template
  * @returns {string[]}
  */
 function getUserVariableNames(template) {
-  const autoNames = getEnabledAutoVariableNames();
-  return collectVariables([template || ""]).filter(function (name) {
-    return !autoNames.includes(name);
-  });
+  return collectVariables([template || ""]);
 }
 
 /**

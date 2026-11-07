@@ -514,7 +514,17 @@ function activate(context) {
         // Runs a command in the terminal using the folder and profile from the payload.
         if (message.type === "performAction") {
           // activeFsPath comes from the run-confirm folder dropdown in the webview payload.
-          await H.handlePerformAction(panel, message.payload, postState);
+          // panelFsPath (the panel's active folder) resolves ${@workspaceFolder}/${@workspaceName}
+          // for actions sent without activeFsPath (Use, Copy).
+          const panelFsPath = resolveActiveWorkspaceFolder(context.workspaceState.get("activeWorkspaceFolder") || null);
+          await H.handlePerformAction(panel, Object.assign({}, message.payload, { panelFsPath }), postState);
+          return;
+        }
+
+        // Replies with auto variable values computed now, for the Run Confirm modal.
+        if (message.type === "requestAutoVariables") {
+          const workspaceFolder = resolveActiveWorkspaceFolder(context.workspaceState.get("activeWorkspaceFolder") || null);
+          await H.handleRequestAutoVariables(panel, Object.assign({}, message.payload, { workspaceFolder }));
           return;
         }
 

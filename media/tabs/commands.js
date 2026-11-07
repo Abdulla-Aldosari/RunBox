@@ -464,10 +464,7 @@ function performCommandAction(commandId, action, forceShowVariables) {
     return;
   }
 
-  const autoVarNames = getEnabledAutoVariableNames();
-  const allVars = collectVariables([command.command]).filter(function (name) {
-    return !autoVarNames.includes(name);
-  });
+  const allVars = collectVariables([command.command]);
   const hasVariables = allVars.length > 0;
 
   // If CTRL is held and the command has variables → force open the variable input modal
@@ -543,14 +540,25 @@ function performCommandAction(commandId, action, forceShowVariables) {
   dispatchCommandAction(commandId, action);
 }
 
-function dispatchCommandAction(commandId, action, shellPath, shellName, activeFsPath) {
+/**
+ * Sends a command action to the extension.
+ * @param {string} commandId
+ * @param {"run"|"use"|"copy"} action
+ * @param {string|null} [shellPath]
+ * @param {string|null} [shellName]
+ * @param {string|null} [activeFsPath]
+ * @param {Object<string, string>|null} [autoValues] - auto variable values shown in the
+ *   Run Confirm modal; when omitted, ${@name} tokens are resolved by the extension at
+ *   execution time
+ */
+function dispatchCommandAction(commandId, action, shellPath, shellName, activeFsPath, autoValues) {
   const command = findCommandById(commandId);
 
   if (!command) {
     return;
   }
 
-  const resolved = resolveCommandTemplate(command);
+  const resolved = resolveCommandTemplate(command, autoValues || undefined);
 
   vscode.postMessage({
     type: "performAction",
@@ -578,10 +586,7 @@ function bindCommandActionButtons() {
       const missing = getMissingVariables(command);
 
       if (missing.length > 0) {
-        const autoVarNames = getEnabledAutoVariableNames();
-        const allVars = collectVariables([command.command]).filter(function (name) {
-          return !autoVarNames.includes(name);
-        });
+        const allVars = collectVariables([command.command]);
         const rememberMap = getCommandRemember(commandId);
         const inputValues = {};
         const rememberFlags = {};
@@ -620,7 +625,10 @@ function bindCommandActionButtons() {
         resolvedCommand: resolveCommandTemplate(command),
         selectedShellPath: runShell.shellPath,
         selectedShellName: runShell.shellName,
+        autoRequestId: null,
+        autoValues: null,
       };
+      requestRunConfirmAutoValues();
 
       render();
     });
@@ -880,6 +888,7 @@ function bindCommandActionButtons() {
       const shellPath = runConfirmState.selectedShellPath || null;
       const shellName = runConfirmState.selectedShellName || null;
       const activeFsPath = state.workspaceFolder || null;
+      const autoValues = runConfirmState.autoValues;
       runConfirmState = {
         commandId: null,
         resolvedCommand: "",
@@ -892,7 +901,8 @@ function bindCommandActionButtons() {
         return;
       }
 
-      dispatchCommandAction(commandId, "run", shellPath, shellName, activeFsPath);
+      // Runs exactly the auto variable values displayed in the modal
+      dispatchCommandAction(commandId, "run", shellPath, shellName, activeFsPath, autoValues);
     });
   }
 
@@ -922,10 +932,7 @@ function bindCommandActionButtons() {
         return;
       }
 
-      const autoVarNamesRunVars = getEnabledAutoVariableNames();
-      const allVars = collectVariables([command.command]).filter(function (name) {
-        return !autoVarNamesRunVars.includes(name);
-      });
+      const allVars = collectVariables([command.command]);
 
       const rememberMap = getCommandRemember(commandId);
       const inputValues = {};
@@ -1225,7 +1232,10 @@ function bindCommandActionButtons() {
             resolvedCommand: resolveCommandTemplate(command),
             selectedShellPath: keepSessionShell ? runConfirmState.selectedShellPath : runShell.shellPath,
             selectedShellName: keepSessionShell ? runConfirmState.selectedShellName : runShell.shellName,
+            autoRequestId: null,
+            autoValues: null,
           };
+          requestRunConfirmAutoValues();
         }
 
         render();

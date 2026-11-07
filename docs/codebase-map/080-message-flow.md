@@ -28,6 +28,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiCancelGenerate` | `media/modals/ai-generate.js` (`btn-ai-loading-cancel`) | `handleAiCancelGenerate` |
 | `aiInsert` | `media/modals/ai-generate.js` (`bindAiGenerateEvents`) | `handleAiInsert` |
 | `saveAutoVariablesSettings` | `media/tabs/variables.js` | `handleSaveAutoVariablesSettings` |
+| `requestAutoVariables` | `media/utils.js` (`requestRunConfirmAutoValues`, called when the Run Confirm modal opens); payload `{ requestId }` | `handleRequestAutoVariables` (dispatch table injects `workspaceFolder`) |
 | `saveFavorites` | `media/utils.js` (`persistFavorites(commandId, { global?, local? })`), called from `media/tabs/commands.js`, `media/tabs/favorites.js`, `media/modals/command-form.js`. Payload carries one command's change only, never a whole list. | `handleSaveFavorites` |
 | `aiListModels` | `media/modals/ai-settings.js`, `media/messages.js` | `handleAiListModels` |
 | `aiRefreshAllModels` | `media/modals/ai-settings.js` (`bindAiSettingsEvents`) | `handleAiRefreshAllModels` |
@@ -40,7 +41,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 
 **`saveCommandVariables` payload format:** `{ commandId, local: { [varName]: value }, global: { [varName]: value } }` — one command's values in both scopes; each replaces only that command's entry in its own data file (an empty map deletes it).
 
-**`performAction` payload format (multi-root addition):** includes `activeFsPath?: string` — the workspace folder path selected in the run-confirm modal. Used by `handlePerformAction` to resolve `${workspaceFolder}`, write local variables, and open the terminal with `cwd`. Absent or `null` in single-root workspaces or when `alwaysFirst` is used.
+**`performAction` payload format (multi-root addition):** includes `activeFsPath?: string` — the workspace folder path selected in the run-confirm modal. Used by `handlePerformAction` to resolve `${@workspaceFolder}`/`${@workspaceName}` and open the terminal with `cwd`. Absent for Use and Copy, where the extension falls back to the injected `panelFsPath`. `resolvedCommand` carries user variables already substituted; `${@name}` tokens are either still present (resolved by the extension at execution time) or, for Run Confirm, already substituted with the values the modal displayed.
 
 ## Extension → Webview (`panel.webview.postMessage`)
 
@@ -60,6 +61,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `aiInsertResult` | `handleAiInsertResult` | Shows insert confirmation notice |
 | `saveFavoritesResult` | `handleSaveFavoritesResult` | Shows favorites save result |
 | `saveAutoVariablesSettingsResult` | `handleSaveAutoVariablesSettingsResult` | Shows auto-vars save result |
+| `autoVariablesResult` | inline in message dispatcher | Ignored unless the Run Confirm modal is open and `payload.requestId` matches `runConfirmState.autoRequestId`; stores the values in `runConfirmState.autoValues` and re-renders (preview updates, Run is enabled) |
 | `aiListModelsResult` | inline in message dispatcher | On success: saves fetched models to localStorage cache and applies them to `aiState.aiProviderSetup[provider].models`. On failure or empty result: caches the static models from config to prevent re-fetching on next open. Re-renders only if result is for the currently displayed provider. |
 | `aiDeleteKeyResult` | inline in message dispatcher | On success: clears the model cache for the provider and re-fetches settings via `aiGetSettings`. Shows a confirmation notice. |
 | `aiExplainResult` | `handleAiExplainResult` (in `media/modals/ai-explain.js`) | Ignored unless `payload.requestId` matches `aiExplainState.requestId` and the modal is visible. Sets `aiExplainState.loading = false`; populates `markdown` or `error`; repaints the explain modal content without calling `render()` |

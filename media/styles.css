@@ -2981,19 +2981,6 @@ tr.row-highlight td {
   background: var(--runbox-editor-background);
 }
 
-.auto-var-row.auto-var-disabled {
-  opacity: 0.5;
-}
-
-.auto-var-row.auto-var-disabled .auto-var-name-code {
-  cursor: default;
-}
-
-.auto-var-toggle {
-  padding-top: 2px;
-  flex-shrink: 0;
-}
-
 .auto-var-info {
   flex: 1;
   min-width: 0;

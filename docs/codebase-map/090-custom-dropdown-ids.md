@@ -13,6 +13,7 @@ All dropdowns use `renderCustomSelect()` + `bindCustomSelect()` from `media/util
 | AI Generate Modal — target shell | `ai-shell-select-wrap` | `media/modals/ai-generate.js` |
 | Command Form (Add + Edit) - target shell | `command-form-shell-wrap` | `media/modals/command-form.js` |
 | Variable inputs - enum type | `enum-var-wrap-{varName}` | `media/modals/run-confirm.js` (variable input modal), `media/modals/command-form.js` |
+| Variables Tab — auto variable format (one per configurable variable: `date`, `time`) | `auto-var-{name}-format-wrap` | `media/tabs/variables.js` |
 | **Header** — workspace folder (multi-root only) | `workspace-folder-select` | `media/render.js` — visible only when `state.workspaceFolders.length > 1`; selecting a folder posts `setActiveWorkspaceFolder` to the extension |
 
 ## `renderCustomSelect()` — Option Item Schema

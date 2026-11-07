@@ -25,6 +25,7 @@ const TESTS = [
   { label: "FixShellPath", header: "Terminal test :", file: "testing/terminal.test.js" },
   { label: "RunShell", header: "Run Shell test :", file: "testing/run-shell.test.js" },
   { label: "VarShortcuts", header: "Variable Shortcuts test :", file: "testing/variable-shortcuts.test.js" },
+  { label: "AutoVariables", header: "Auto Variables test :", file: "testing/auto-variables.test.js" },
   { label: "TableScroll", header: "Table Scroll test :", file: "testing/table-scroll.test.js" },
   { label: "Storage", header: "Storage test :", file: "testing/storage.test.js" },
   { label: "Exports", header: "Exports test :", file: "testing/exports.test.js" },
