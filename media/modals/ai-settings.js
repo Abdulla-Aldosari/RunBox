@@ -362,7 +362,7 @@ function bindAiSettingsEvents() {
       // Use cache if fresh; otherwise fetch from API
       if (aiState.keyStatus[newProvider]) {
         const cached = getCachedModels(newProvider);
-        if (cached && aiState.aiProviderSetup && aiState.aiProviderSetup[newProvider]) {
+        if (cached && aiState.aiProviderSetup && !["__proto__", "constructor", "prototype"].includes(newProvider) && aiState.aiProviderSetup[newProvider]) {
           aiState.aiProviderSetup[newProvider].models = cached;
           aiState.modelsLoading = false;
         } else {

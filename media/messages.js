@@ -148,7 +148,7 @@ window.addEventListener("message", function (event) {
       // Apply cached model list if fresh; otherwise fetch from API
       if (aiState.keyStatus[providerName]) {
         const cached = getCachedModels(providerName);
-        if (cached && aiState.aiProviderSetup && aiState.aiProviderSetup[providerName]) {
+        if (cached && aiState.aiProviderSetup && !["__proto__", "constructor", "prototype"].includes(providerName) && aiState.aiProviderSetup[providerName]) {
           aiState.aiProviderSetup[providerName].models = cached;
           aiState.modelsLoading = false;
         } else {
@@ -247,7 +247,7 @@ window.addEventListener("message", function (event) {
     // Persist to cache and apply to aiState on success
     if (message.payload && message.payload.success && Array.isArray(message.payload.models) && message.payload.models.length > 0) {
       setModelsCache(resultProvider, message.payload.models);
-      if (aiState.aiProviderSetup && aiState.aiProviderSetup[resultProvider]) {
+      if (aiState.aiProviderSetup && !["__proto__", "constructor", "prototype"].includes(resultProvider) && aiState.aiProviderSetup[resultProvider]) {
         aiState.aiProviderSetup[resultProvider].models = message.payload.models;
       }
     } else {
