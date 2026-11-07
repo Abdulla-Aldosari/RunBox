@@ -1289,11 +1289,15 @@ function executeDeleteConfirm() {
   deleteConfirmState = { type: null, id: null, title: "", template: "" };
 
   if (type === "clearRecent") {
-    (state.data.commands || []).forEach(function (cmd) {
+    // Run history lives in both the global commands and the "Current Workspace"
+    // commands; the extension clears both files in a single "clearRecent" message.
+    (state.data.commands || []).concat(state.workspaceCommands.commands || []).forEach(function (cmd) {
       delete cmd.lastRunAt;
       delete cmd.runCount;
     });
-    persistGlobalOperation({ type: "clearRecent" }, "Recent history cleared.");
+    uiState.pendingSaveMessage = "Recent history cleared.";
+    render();
+    vscode.postMessage({ type: "clearRecent" });
     return;
   }
 

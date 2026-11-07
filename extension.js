@@ -484,6 +484,14 @@ function activate(context) {
           return;
         }
 
+        // Clears the Run/Use history of every command in both the global
+        // commands.json and the workspace-local "Current Workspace" section.
+        if (message.type === "clearRecent") {
+          const activeFsPath = context.workspaceState.get("activeWorkspaceFolder") || null;
+          await H.handleClearRecent(panel, { activeFsPath }, postState);
+          return;
+        }
+
         // Moves a single command between a regular category (global commands.json)
         // and the "Current Workspace" pseudo-category (workspace-local
         // runbox.data.json) via two surgical per-file operations, read-modify-write

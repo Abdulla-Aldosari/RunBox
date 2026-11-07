@@ -34,6 +34,7 @@ const {
   setWorkspaceCommandVariables,
   readWorkspaceVariables,
   getWorkspaceDataFilePath,
+  applyWorkspaceCommandsOperation,
 } = require("../lib/storage");
 
 // ---------------------------------------------------------------------------
@@ -238,12 +239,68 @@ async function runCommandVariablesTests() {
   }
 }
 
+async function runWorkspaceRunHistoryTests() {
+  section("applyWorkspaceCommandsOperation (recordRun / clearRecent)");
+
+  const workspaceDir = fs.mkdtempSync(path.join(os.tmpdir(), "runbox-recent-test-"));
+  const readWorkspaceCommands = function () {
+    const raw = fs.readFileSync(getWorkspaceDataFilePath(workspaceDir), "utf8");
+    return JSON.parse(raw).workspaceCommands.commands;
+  };
+
+  try {
+    await applyWorkspaceCommandsOperation({ type: "addCommand", command: { id: "ws-a", title: "A", command: "echo a" } }, workspaceDir);
+    await applyWorkspaceCommandsOperation({ type: "addCommand", command: { id: "ws-b", title: "B", command: "echo b" } }, workspaceDir);
+
+    await asyncTest("recordRun sets lastRunAt and starts runCount at 1", async function () {
+      await applyWorkspaceCommandsOperation({ type: "recordRun", commandId: "ws-a", ranAt: "2026-01-01T00:00:00.000Z" }, workspaceDir);
+      const cmd = readWorkspaceCommands().find(function (c) {
+        return c.id === "ws-a";
+      });
+      assert.strictEqual(cmd.lastRunAt, "2026-01-01T00:00:00.000Z");
+      assert.strictEqual(cmd.runCount, 1);
+    });
+
+    await asyncTest("recordRun increments runCount and updates lastRunAt", async function () {
+      await applyWorkspaceCommandsOperation({ type: "recordRun", commandId: "ws-a", ranAt: "2026-01-02T00:00:00.000Z" }, workspaceDir);
+      const cmd = readWorkspaceCommands().find(function (c) {
+        return c.id === "ws-a";
+      });
+      assert.strictEqual(cmd.lastRunAt, "2026-01-02T00:00:00.000Z");
+      assert.strictEqual(cmd.runCount, 2);
+    });
+
+    await asyncTest("recordRun leaves other commands untouched and ignores unknown ids", async function () {
+      await applyWorkspaceCommandsOperation({ type: "recordRun", commandId: "missing", ranAt: "2026-01-03T00:00:00.000Z" }, workspaceDir);
+      const cmdB = readWorkspaceCommands().find(function (c) {
+        return c.id === "ws-b";
+      });
+      assert.strictEqual(cmdB.lastRunAt, undefined);
+      assert.strictEqual(cmdB.runCount, undefined);
+      assert.strictEqual(readWorkspaceCommands().length, 2);
+    });
+
+    await asyncTest("clearRecent removes lastRunAt and runCount from every command", async function () {
+      await applyWorkspaceCommandsOperation({ type: "recordRun", commandId: "ws-b" }, workspaceDir);
+      await applyWorkspaceCommandsOperation({ type: "clearRecent" }, workspaceDir);
+      readWorkspaceCommands().forEach(function (c) {
+        assert.strictEqual(c.lastRunAt, undefined);
+        assert.strictEqual(c.runCount, undefined);
+      });
+      assert.strictEqual(readWorkspaceCommands().length, 2);
+    });
+  } finally {
+    fs.rmSync(workspaceDir, { recursive: true, force: true });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Results
 // ---------------------------------------------------------------------------
 
 runFavoritesTests()
   .then(runCommandVariablesTests)
+  .then(runWorkspaceRunHistoryTests)
   .then(function () {
     const SEP = "─".repeat(55);
 

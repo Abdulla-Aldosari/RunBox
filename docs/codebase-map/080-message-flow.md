@@ -12,6 +12,7 @@ All `vscode.postMessage` calls are inlined at their call sites in tabs, modals, 
 | `saveData` | `media/utils.js` (`persistDataThenRender`) | `handleSaveCommandsData` |
 | `saveWorkspaceCommandsData` | `media/utils.js` (`persistWorkspaceCommandsThenRender`) | `handleSaveWorkspaceCommandsData` |
 | `applyOperation` | `media/utils.js` (`persistWorkspaceOperation`/`persistGlobalOperation`) | `handleApplyOperation` |
+| `clearRecent` | `media/tabs/commands.js` (`executeDeleteConfirm`, Clear Recent confirmation) | `handleClearRecent` |
 | `saveCommandMove` | `media/utils.js` (`persistCommandMoveThenRender`) | `handleSaveCommandMove` |
 | `saveCommandVariables` | `media/utils.js` (`persistCommandVariables`) | `handleSaveCommandVariables` |
 | `performAction` | `media/tabs/commands.js` (`performCommandAction`) | `handlePerformAction` |

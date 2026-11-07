@@ -10,7 +10,9 @@
 // Loads after the modal files.
 
 function renderRecentCommandsTab() {
+  // Commands from both the global data and the "Current Workspace" pseudo-category.
   const recentCommands = (state.data.commands || [])
+    .concat((state.workspaceCommands && state.workspaceCommands.commands) || [])
     .filter(function (cmd) {
       return cmd.lastRunAt;
     })
