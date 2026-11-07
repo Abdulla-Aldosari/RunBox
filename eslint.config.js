@@ -87,6 +87,7 @@ const browserGlobals = {
   renderAiPlanVisual: "readonly",
   playAiLoadingFinale: "readonly",
   applyAiGenerateResult: "readonly",
+  getOwnProviderSetup: "readonly",
   getCachedModels: "readonly",
   setModelsCache: "readonly",
   clearModelsCache: "readonly",

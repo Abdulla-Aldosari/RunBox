@@ -17,6 +17,21 @@ const AI_MODELS_CACHE_KEY = "tr_ai_models_cache";
 const AI_MODELS_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /**
+ * Returns the provider setup entry only when providerName is an own key of
+ * aiState.aiProviderSetup. Rejects inherited keys such as "__proto__" so that
+ * message-supplied names can never reach Object.prototype.
+ * @param {string} providerName
+ * @returns {{ models: { modelId: string, modelLabel: string }[] }|null}
+ */
+function getOwnProviderSetup(providerName) {
+  const setup = aiState.aiProviderSetup;
+  if (!setup || typeof providerName !== "string") {
+    return null;
+  }
+  return Object.prototype.hasOwnProperty.call(setup, providerName) ? setup[providerName] : null;
+}
+
+/**
  * Returns cached models for a provider if the cache entry exists and is fresh.
  * @param {string} providerName
  * @returns {{ modelId: string, modelLabel: string }[]|null}
@@ -362,8 +377,9 @@ function bindAiSettingsEvents() {
       // Use cache if fresh; otherwise fetch from API
       if (aiState.keyStatus[newProvider]) {
         const cached = getCachedModels(newProvider);
-        if (cached && aiState.aiProviderSetup && aiState.aiProviderSetup[newProvider]) {
-          aiState.aiProviderSetup[newProvider].models = cached;
+        const providerEntry = getOwnProviderSetup(newProvider);
+        if (cached && providerEntry) {
+          providerEntry.models = cached;
           aiState.modelsLoading = false;
         } else {
           aiState.modelsLoading = true;
