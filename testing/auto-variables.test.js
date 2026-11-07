@@ -180,10 +180,59 @@ this.highlightTemplateHtml = highlightTemplateHtml;
 this.highlightResolvedHtml = highlightResolvedHtml;
 this.getMissingVariables = getMissingVariables;
 this.hasAutoVariables = hasAutoVariables;
-this.requestRunConfirmAutoValues = requestRunConfirmAutoValues;`,
+this.requestRunConfirmAutoValues = requestRunConfirmAutoValues;
+this.insertTextAtCursor = insertTextAtCursor;`,
     sandbox
   );
   return { sandbox, posted };
+}
+
+/**
+ * Minimal textarea stand-in for insertTextAtCursor: tracks value/selection and
+ * lets the test choose whether the native "insertText" edit is available.
+ */
+function makeFakeTextarea(value, start, end, nativeInsert) {
+  const events = [];
+  const area = {
+    value,
+    selectionStart: start,
+    selectionEnd: end,
+    focused: false,
+    focus() {
+      this.focused = true;
+    },
+    setSelectionRange(s, e) {
+      this.selectionStart = s;
+      this.selectionEnd = e;
+    },
+    setRangeText(text, s, e) {
+      this.value = this.value.slice(0, s) + text + this.value.slice(e);
+      this.selectionStart = this.selectionEnd = s + text.length;
+    },
+    dispatchEvent(event) {
+      events.push(event.type);
+    },
+  };
+  area.events = events;
+  area.nativeInsert = function (text) {
+    if (!nativeInsert) {
+      return false;
+    }
+    area.setRangeText(text, area.selectionStart, area.selectionEnd);
+    return true;
+  };
+  return area;
+}
+
+function insertWith(area, text, caretKnown) {
+  const { sandbox } = loadUtils();
+  sandbox.document.execCommand = function (_command, _showUi, value) {
+    return area.nativeInsert(value);
+  };
+  sandbox.Event = function (type) {
+    this.type = type;
+  };
+  sandbox.insertTextAtCursor(area, text, caretKnown);
 }
 
 section("media/utils.js");
@@ -235,6 +284,42 @@ test("requestRunConfirmAutoValues posts a request and clears pending values", fu
   assert.strictEqual(posted.length, 1);
   assert.strictEqual(posted[0].type, "requestAutoVariables");
   assert.strictEqual(posted[0].payload.requestId, sandbox.runConfirmState.autoRequestId);
+});
+
+section("insertTextAtCursor (Insert variable picker)");
+
+test("inserts the token at the caret in the middle of the text", function () {
+  const area = makeFakeTextarea("echo  done", 5, 5, true);
+  insertWith(area, "${@date}", true);
+  assert.strictEqual(area.value, "echo ${@date} done");
+  assert.strictEqual(area.selectionStart, 13);
+  assert.strictEqual(area.focused, true);
+});
+
+test("replaces the current selection with the token", function () {
+  const area = makeFakeTextarea("echo XXX", 5, 8, true);
+  insertWith(area, "${@time}", true);
+  assert.strictEqual(area.value, "echo ${@time}");
+});
+
+test("appends at the end when the caret was never placed", function () {
+  const area = makeFakeTextarea("cd ", 0, 0, true);
+  insertWith(area, "${@workspaceFolder}", false);
+  assert.strictEqual(area.value, "cd ${@workspaceFolder}");
+});
+
+test("falls back to setRangeText and fires an input event without native edit support", function () {
+  const area = makeFakeTextarea("ab", 1, 1, false);
+  insertWith(area, "${@username}", true);
+  assert.strictEqual(area.value, "a${@username}b");
+  assert.deepStrictEqual(area.events, ["input"]);
+});
+
+test("ignores empty or non-string text", function () {
+  const area = makeFakeTextarea("ab", 1, 1, true);
+  insertWith(area, "", true);
+  insertWith(area, null, true);
+  assert.strictEqual(area.value, "ab");
 });
 
 console.log("\n──────────────────────────────");

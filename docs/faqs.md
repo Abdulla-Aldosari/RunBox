@@ -97,6 +97,8 @@ Auto Variables are built-in variables that are resolved automatically, with no i
 
 Because of the `@` marker, names such as `${date}` or `${username}` remain available for your own variables and are never resolved automatically.
 
+To add one without typing it, click **Insert variable** above the **Command Template** field and choose a variable. It is inserted at the cursor (or replaces the selected text). Hover a variable to see its description and current value.
+
 `${@date}` and `${@time}` are computed when you run, use, or copy a command. The **Run** confirmation dialog computes them when it opens, and runs exactly the values it displays.
 
 > [!NOTE]

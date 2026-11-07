@@ -103,6 +103,8 @@ One set of IDs serves both modes; only the visible labels differ.
 | - | - | - |
 | `btn-command-form-submit` | Submit the form. Label is "Add Command" in add mode and "Save Changes" in edit mode | Always |
 | `btn-command-form-cancel` | Discard the form buffer and return to the originating tab | Always |
+| `btn-insert-auto-var` | Open the auto variable popover next to the Command Template label | Only when `state.autoVariables` is not empty |
+| `.auto-var-chip` | Insert the chip's `data-token` (e.g. `${@date}`) at the template caret and close the popover | Inside the open popover |
 | `.btn-open-enum-manager` | Open the Enum values manager for a specific variable (`data-var-name`) | Only when template has variables |
 | `.toggle-option-3` | Switch scope preference (`Local` / `Off` / `Global`) for a variable, within a `variable-remember-toggle` container | Only when template has variables |
 

@@ -21,6 +21,10 @@ const COMMAND_FORM_CTX = "__form__";
 let _templateResizeHandler = null;
 let _templateResizeTimer = null;
 
+// Tracks the document-level "click"/"keydown" handler that closes the auto variable
+// popover. At most one is bound at a time; it removes itself once the picker is gone.
+let _autoVarPickerDocHandler = null;
+
 /**
  * Returns the user-defined variable names of a template
  * (${@name} auto variable tokens are never matched by collectVariables).
@@ -256,6 +260,37 @@ const commandFormBuffer = {
 // ─── Render ───────────────────────────────────────────────────────────────────
 
 /**
+ * Renders the "Insert variable" link and its popover of auto variable chips,
+ * shown in the Command Template label row. Returns "" when no auto variables
+ * are available so no dead link is shown.
+ * @returns {string} HTML string
+ */
+function renderAutoVariablePicker() {
+  const autoVars = state.autoVariables || [];
+  if (autoVars.length === 0) {
+    return "";
+  }
+
+  const chips = autoVars
+    .map(function (varDef) {
+      // The tooltip system injects data-tooltip through innerHTML, so the value is HTML-escaped before attribute-escaping.
+      const tooltipValue = escapeAttr(escapeHtml(varDef.currentValue || "—"));
+      return `<button type="button" class="auto-var-chip" data-token="${escapeAttr(varDef.token)}" data-tooltip-header="${escapeAttr(varDef.label)}" data-tooltip="${tooltipValue}" data-tooltip-footer="${escapeAttr(varDef.description)}">@${escapeHtml(varDef.name)}</button>`;
+    })
+    .join("");
+
+  return `
+    <div class="auto-var-picker" id="auto-var-picker">
+      <button type="button" class="template-var-insert-btn" id="btn-insert-auto-var" aria-haspopup="true" aria-expanded="false" data-tooltip="Insert an auto variable at the cursor" data-tooltip-pos="left"><span class="template-var-insert-glyph" aria-hidden="true">{@}</span>Insert variable</button>
+      <div class="auto-var-popover" id="auto-var-popover" role="group" aria-label="Auto variables">
+        <div class="auto-var-popover-hint">Click a variable to insert it at the cursor</div>
+        <div class="auto-var-chips">${chips}</div>
+      </div>
+    </div>
+  `;
+}
+
+/**
  * Renders the Command Variables block of the form.
  * @param {string[]} variables - User-defined variable names in the template
  * @returns {string} HTML string
@@ -364,7 +399,12 @@ function renderCommandForm(mode) {
       <h2>${isEdit ? "Edit Command" : `Add Command to ( ${escapeHtml(category ? category.title : "")} )`}</h2>
       <form id="form-command-form" class="form-grid add-command-grid">
         <label class="add-command-title">Command Title<input id="command-form-title" class="input" required value="${escapeAttr(commandFormBuffer.title)}" /></label>
-        <label class="add-command-template">Command Template (Variables supported)<div class="template-editor-wrap"><div class="template-highlight" aria-hidden="true"></div>
+        <div class="add-command-template">
+        <div class="template-label-row">
+          <label for="command-form-template">Command Template (Variables supported)</label>
+          ${renderAutoVariablePicker()}
+        </div>
+        <div class="template-editor-wrap"><div class="template-highlight" aria-hidden="true"></div>
         <textarea id="command-form-template" class="input template-textarea" required placeholder="npm install \${package_name}" rows="1">${escapeHtml(commandFormBuffer.template)}</textarea></div>
         <div class="template-var-legend">
 
@@ -373,7 +413,7 @@ function renderCommandForm(mode) {
 
         <span class="legend-item legend-user hidden" data-tooltip="Variables that are defined by the user.<br>
         Their values must be set by the user."><span class="legend-dot" aria-hidden="true"></span>user defined</span></div>
-        </label>
+        </div>
         <label class="full-width">Description<textarea id="command-form-description" class="input" rows="2">${escapeHtml(commandFormBuffer.description)}</textarea></label>
         ${
           isEdit
@@ -518,6 +558,7 @@ function flushScopeDataToState(commandId) {
 function closeCommandForm(savedCommandId) {
   const returnTab = commandFormBuffer.mode === "edit" ? uiState.editSourceTab || "commands" : "commands";
   unbindTemplateResizeListener();
+  unbindAutoVariablePickerDocHandler();
   commandFormBuffer.clear();
   uiState.editingCommandId = null;
   uiState.editSourceTab = null;
@@ -704,6 +745,83 @@ function bindCommandFormTemplateInput() {
     autoResizeTextarea(templateInput);
     updateTemplateHighlight(templateInput);
   });
+}
+
+/**
+ * Removes the document-level handler that closes the auto variable popover.
+ */
+function unbindAutoVariablePickerDocHandler() {
+  if (_autoVarPickerDocHandler) {
+    document.removeEventListener("click", _autoVarPickerDocHandler);
+    document.removeEventListener("keydown", _autoVarPickerDocHandler);
+    _autoVarPickerDocHandler = null;
+  }
+}
+
+/**
+ * Binds the "Insert variable" link: opens/closes the popover, inserts the clicked
+ * chip's token at the template caret and closes the popover after every insertion.
+ * Mouse presses on the link and chips are prevented from moving focus, so the
+ * textarea keeps its caret and selection.
+ */
+function bindAutoVariablePicker() {
+  unbindAutoVariablePickerDocHandler();
+
+  const picker = document.getElementById("auto-var-picker");
+  const toggle = document.getElementById("btn-insert-auto-var");
+  const popover = document.getElementById("auto-var-popover");
+  const textarea = document.getElementById("command-form-template");
+  if (!picker || !toggle || !popover || !textarea) {
+    return;
+  }
+
+  // Until the user focuses the field there is no real caret, so insertion appends to the end.
+  let caretKnown = false;
+  textarea.addEventListener("focus", function () {
+    caretKnown = true;
+  });
+
+  const setOpen = function (open) {
+    popover.classList.toggle("open", open);
+    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  picker.addEventListener("mousedown", function (e) {
+    if (e.target.closest(".template-var-insert-btn, .auto-var-chip")) {
+      e.preventDefault();
+    }
+  });
+
+  toggle.addEventListener("click", function () {
+    setOpen(!popover.classList.contains("open"));
+  });
+
+  popover.querySelectorAll(".auto-var-chip").forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      insertTextAtCursor(textarea, chip.dataset.token, caretKnown);
+      caretKnown = true;
+      setOpen(false);
+    });
+  });
+
+  _autoVarPickerDocHandler = function (e) {
+    if (!document.getElementById("auto-var-picker")) {
+      unbindAutoVariablePickerDocHandler();
+      return;
+    }
+    if (e.type === "keydown") {
+      if (e.key === "Escape" && popover.classList.contains("open")) {
+        setOpen(false);
+        toggle.focus();
+      }
+      return;
+    }
+    if (!picker.contains(e.target)) {
+      setOpen(false);
+    }
+  };
+  document.addEventListener("click", _autoVarPickerDocHandler);
+  document.addEventListener("keydown", _autoVarPickerDocHandler);
 }
 
 /**
@@ -1021,6 +1139,7 @@ function bindCommandFormEvents(mode) {
   }
 
   bindCommandFormTemplateInput();
+  bindAutoVariablePicker();
 
   document.querySelectorAll(".command-form-group-tag").forEach(function (tagButton) {
     tagButton.addEventListener("click", function () {

@@ -360,6 +360,8 @@ button:focus:not(.d-focus) {
 
 .add-command-template {
   grid-column: 2 / -1;
+  display: grid;
+  gap: 6px;
 }
 
 .full-width {
@@ -488,6 +490,92 @@ textarea {
 .var-user {
   color: var(--runbox-user-defined-variables);
   opacity: 0.9;
+}
+
+/* ===== Template Auto Variable Picker (Insert variable link + popover) ===== */
+
+/* Label row: field title on the left, the insert link on the right */
+.template-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.auto-var-picker {
+  position: relative;
+}
+
+.template-var-insert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--runbox-textLink-foreground);
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.template-var-insert-btn:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.template-var-insert-glyph {
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
+  color: var(--runbox-auto-resolved-variables);
+}
+
+.auto-var-popover {
+  display: none;
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 200;
+  width: max-content;
+  max-width: min(380px, 90vw);
+  padding: 8px 10px 10px;
+  background: var(--vscode-editorWidget-background, var(--vscode-editor-background));
+  border: 1px solid var(--vscode-widget-border, var(--vscode-panel-border));
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+.auto-var-popover.open {
+  display: block;
+}
+
+.auto-var-popover-hint {
+  margin-bottom: 7px;
+  font-size: 0.7rem;
+  color: var(--runbox-descriptionForeground);
+}
+
+.auto-var-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.auto-var-chip {
+  padding: 2px 9px;
+  border: 1px solid color-mix(in srgb, var(--runbox-auto-resolved-variables) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--runbox-auto-resolved-variables) 12%, transparent);
+  color: var(--runbox-auto-resolved-variables);
+  font-family: var(--runbox-editor-font-family, Consolas, monospace);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.auto-var-chip:hover {
+  background: color-mix(in srgb, var(--runbox-auto-resolved-variables) 28%, transparent);
 }
 
 /* ===== Template Variable Legend ===== */

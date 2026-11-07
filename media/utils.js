@@ -978,6 +978,31 @@ function autoResizeTextarea(el) {
 }
 
 /**
+ * Inserts text at the caret of a textarea, replacing the current selection.
+ * Uses the native "insertText" edit so the textarea keeps its Ctrl+Z history and
+ * fires a regular "input" event; falls back to setRangeText when it is unavailable.
+ * @param {HTMLTextAreaElement} textarea
+ * @param {string} text
+ * @param {boolean} [caretKnown=true] - false when the user never placed a caret
+ *   in the textarea, so the text is appended at the end instead of the start
+ */
+function insertTextAtCursor(textarea, text, caretKnown) {
+  if (!textarea || typeof text !== "string" || text === "") {
+    return;
+  }
+  textarea.focus();
+  if (caretKnown === false) {
+    var end = textarea.value.length;
+    textarea.setSelectionRange(end, end);
+  }
+  if (document.execCommand("insertText", false, text)) {
+    return;
+  }
+  textarea.setRangeText(text, textarea.selectionStart, textarea.selectionEnd, "end");
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+/**
  * Updates the syntax highlight overlay div for a template textarea.
  * Wraps variable tokens in colored spans: .var-auto (${@name}) or .var-user (${name}).
  * @param {HTMLTextAreaElement} textarea
