@@ -340,6 +340,15 @@ function bindDragAndDrop() {
   });
 }
 
+// ESC exits sort mode. Registered once at load time: render() rebuilds the tab on
+// every state change, so a listener added per render would pile up on document.
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" && uiState.sortingMode) {
+    uiState.sortingMode = false;
+    render();
+  }
+});
+
 function bindCommandsTabEvents() {
   // --- Custom category select ---
   bindCustomSelect("custom-category-select", "cs-btn-toggle", "cs-menu", function (value) {
@@ -377,17 +386,6 @@ function bindCommandsTabEvents() {
     sortBtn.addEventListener("click", function () {
       uiState.sortingMode = !uiState.sortingMode;
       render();
-    });
-  }
-
-  // --- ESC key to exit sort mode ---
-  if (uiState.sortingMode) {
-    document.addEventListener("keydown", function onEscExitSort(e) {
-      if (e.key === "Escape") {
-        uiState.sortingMode = false;
-        document.removeEventListener("keydown", onEscExitSort);
-        render();
-      }
     });
   }
 
