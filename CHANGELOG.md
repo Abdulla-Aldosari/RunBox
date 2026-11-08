@@ -1,5 +1,27 @@
 All notable changes to **[RunBox](https://github.com/Abdulla-Aldosari/runbox)** are documented here.<br>
 
+## [2.0.0](https://github.com/Abdulla-Aldosari/runbox/compare/v1.1.0..v2.0.0) - 2026-11-08
+
+### ⚠️ Important Changes
+
+- _(auto-variables)_ [**breaking**] Add ${@name} syntax and the ${@time} variable - ([4d86805](https://github.com/Abdulla-Aldosari/runbox/commit/4d86805c5d0c2e58478f4a77b0ca8d427a5474e1))
+
+### 🚀 Features
+
+- _(ai-generation)_ Limit AI generated names to the allowed format - ([6fbd298](https://github.com/Abdulla-Aldosari/runbox/commit/6fbd2989a7e40ffa0a0d3a4c823ccdb0507df338))
+- _(categories)_ Validate category and group name format - ([b6dcd8b](https://github.com/Abdulla-Aldosari/runbox/commit/b6dcd8bcb49b1493b668e543b4f2ecbf2d8e4a03))
+- _(categories)_ Block duplicate category and group names - ([d9934d1](https://github.com/Abdulla-Aldosari/runbox/commit/d9934d16027f3ee6b033975749e21a6f4ffb166e))
+- _(command-form)_ Add insert variable picker for auto variables - ([54356d4](https://github.com/Abdulla-Aldosari/runbox/commit/54356d47ebc5da2a1695fe594666fea578e73daa))
+- _(commands)_ Add quick add group button to the groups row - ([d46a6a3](https://github.com/Abdulla-Aldosari/runbox/commit/d46a6a3d08943eddb6d9716d51102d3103181757))
+- _(ui)_ Keep panel header and tabs visible when scrolling long tables - ([aafb70d](https://github.com/Abdulla-Aldosari/runbox/commit/aafb70d588014fefc3d3edda890cda473843e601))
+
+### 🐛 Bug Fixes
+
+- _(command-form)_ Keep undo history in the command template field - ([a4db48c](https://github.com/Abdulla-Aldosari/runbox/commit/a4db48c535c3f62223bbfae831b2b31bb1524a42))
+- _(commands)_ Restore row selection and help links after column toggle - ([8c120ff](https://github.com/Abdulla-Aldosari/runbox/commit/8c120ffda4661ddff19fb419ff7b95100d3564c6))
+- _(recent)_ Show current workspace commands in the recent tab - ([b015535](https://github.com/Abdulla-Aldosari/runbox/commit/b015535a2860af4c31600046247cf779959da956))
+- _(security)_ Prevent prototype pollution in AI provider model cache - ([01418fe](https://github.com/Abdulla-Aldosari/runbox/commit/01418fe393a9bcbe17d8fefce240b12e5ae0b20f))
+
 ## [1.1.0](https://github.com/Abdulla-Aldosari/runbox/compare/v1.0.0..v1.1.0) - 2026-11-05
 
 ### 🚀 Features
