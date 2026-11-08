@@ -44,7 +44,7 @@ Buttons with a unique `id` attribute. Located via `document.getElementById(id)`.
 | `btn-create-with-ai` | Open the AI Generate modal from the categories panel |
 | `btn-open-add-category-modal` | Open the inline modal to add a new category |
 | `btn-open-add-group-modal` | Open the inline modal to add a new group (disabled if no category selected) |
-| `btn-manage-modal-confirm` | Confirm the add/rename category or group action |
+| `btn-manage-modal-confirm` | Confirm the add/rename category or group action (disabled while the name is a case-insensitive duplicate; the red `#manage-modal-error` hint sits at the far left of the button row) |
 | `btn-manage-modal-cancel` | Cancel the add/rename modal |
 
 ### Commands Tab — Quick Add Group — `media/tabs/commands.js`

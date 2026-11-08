@@ -118,6 +118,68 @@ function renderCategoriesTab() {
   `;
 }
 
+const MANAGE_MODAL_DUPLICATE_MESSAGE = "This name already exists";
+
+/**
+ * Returns true when the typed name collides (case-insensitive) with an existing
+ * category (add/rename category) or a group of the selected category
+ * (add/rename group, including the reserved "All" group). Renaming ignores the
+ * item being renamed.
+ * @param {string} mode categoriesModalState.mode
+ * @param {string} value Trimmed name typed by the user
+ * @returns {boolean}
+ */
+function isManageModalNameDuplicate(mode, value) {
+  const name = value.trim().toLowerCase();
+  if (!name) {
+    return false;
+  }
+
+  if (mode === "add-category" || mode === "rename-category") {
+    if (name === "current workspace") {
+      return true;
+    }
+    const renamingId = mode === "rename-category" ? uiState.selectedCategoryId : null;
+    return (state.data.categories || []).some(function (category) {
+      return category.id !== renamingId && String(category.title).trim().toLowerCase() === name;
+    });
+  }
+
+  if (mode === "add-group" || mode === "rename-group") {
+    if (name === "all") {
+      return true;
+    }
+    const category = getSelectedCategory();
+    if (!category) {
+      return false;
+    }
+    const renamingId = mode === "rename-group" ? uiState.categoriesSelectedGroupId : null;
+    return (category.groups || []).some(function (group) {
+      return group.id !== renamingId && String(group.title).trim().toLowerCase() === name;
+    });
+  }
+
+  return false;
+}
+
+/**
+ * Shows/hides the duplicate-name hint and enables/disables the confirm button.
+ * @returns {boolean} true when the current input is a duplicate
+ */
+function updateManageModalDuplicateHint() {
+  const input = document.getElementById("manage-modal-input");
+  const hint = document.getElementById("manage-modal-error");
+  const confirmBtn = document.getElementById("btn-manage-modal-confirm");
+  const duplicate = input ? isManageModalNameDuplicate(categoriesModalState.mode, input.value) : false;
+  if (hint) {
+    hint.hidden = !duplicate;
+  }
+  if (confirmBtn) {
+    confirmBtn.disabled = duplicate;
+  }
+  return duplicate;
+}
+
 /**
  * Renders the inline modal for add/rename category/group actions.
  * Returns empty string if the modal is not currently visible.
@@ -157,6 +219,7 @@ function renderCategoriesModal() {
         <h3>${escapeHtml(title)}</h3>
         <input id="manage-modal-input" class="input" placeholder="${escapeAttr(placeholder)}" value="${escapeAttr(categoriesModalState.value)}" autocomplete="off" />
         <div class="row justify-content-flex-end">
+          <span class="modal-error-hint" id="manage-modal-error" hidden>${escapeHtml(MANAGE_MODAL_DUPLICATE_MESSAGE)}</span>
           <button class="btn small primary min-w65" id="btn-manage-modal-confirm">${escapeHtml(btnLabel)}</button>
           <button class="btn small secondary action min-w65" id="btn-manage-modal-cancel">Cancel</button>
         </div>
@@ -324,6 +387,9 @@ function bindCategoriesModalEvents() {
   // --- Modal Input: confirm on Enter ---
   const modalInput = document.getElementById("manage-modal-input");
   if (modalInput) {
+    modalInput.addEventListener("input", function () {
+      updateManageModalDuplicateHint();
+    });
     modalInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -358,6 +424,13 @@ function executeManageModalConfirm() {
 
   if (!value) {
     showNotice("Name is required.", icons.exclamationTriangle, "warning");
+    if (input) {
+      input.focus();
+    }
+    return;
+  }
+
+  if (updateManageModalDuplicateHint()) {
     if (input) {
       input.focus();
     }

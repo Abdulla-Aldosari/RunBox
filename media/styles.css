@@ -978,6 +978,16 @@ td.actions-cell {
   font-size: 0.95rem;
 }
 
+.modal-error-hint {
+  margin-inline-end: auto;
+  font-size: 0.82rem;
+  color: var(--vscode-errorForeground, #e05252);
+}
+
+.modal-error-hint[hidden] {
+  display: none;
+}
+
 /* ===== AI Provider Setup Steps Styling ===== */
 .ai-setup-steps {
   list-style: none;
