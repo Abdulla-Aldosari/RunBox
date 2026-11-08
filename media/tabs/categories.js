@@ -296,6 +296,14 @@ function bindCategoriesTabEvents() {
     });
   });
 
+  bindCategoriesModalEvents();
+}
+
+/**
+ * Binds the confirm/cancel/keyboard events of the add/rename category/group modal.
+ * Shared by the Categories tab and the Commands tab (quick "add group" button).
+ */
+function bindCategoriesModalEvents() {
   // --- Modal Confirm ---
   const modalConfirmBtn = document.getElementById("btn-manage-modal-confirm");
   if (modalConfirmBtn) {
@@ -326,6 +334,20 @@ function bindCategoriesTabEvents() {
         render();
       }
     });
+  }
+}
+
+/**
+ * Marks a freshly added group as selected. When the group was added from the
+ * Commands tab, it also becomes the active Commands group filter.
+ * @param {string} groupId
+ */
+function selectNewGroup(groupId) {
+  uiState.categoriesSelectedGroupId = groupId;
+  saveUiPreference("categoriesSelectedGroupId", groupId);
+  if (uiState.activeTab === "commands") {
+    uiState.selectedGroupId = groupId;
+    saveUiPreference("selectedGroupId", groupId);
   }
 }
 
@@ -383,8 +405,7 @@ function executeManageModalConfirm() {
     if (selectedCategory.isCurrentWorkspace) {
       state.workspaceCommands.groups = state.workspaceCommands.groups || [];
       state.workspaceCommands.groups.push(newGroup);
-      uiState.categoriesSelectedGroupId = newGroup.id;
-      saveUiPreference("categoriesSelectedGroupId", newGroup.id);
+      selectNewGroup(newGroup.id);
       categoriesModalState = { visible: false, mode: null, value: "" };
       persistWorkspaceOperation({ type: "addGroup", group: newGroup }, "Group added.");
       return;
@@ -392,8 +413,7 @@ function executeManageModalConfirm() {
 
     selectedCategory.groups = selectedCategory.groups || [];
     selectedCategory.groups.push(newGroup);
-    uiState.categoriesSelectedGroupId = newGroup.id;
-    saveUiPreference("categoriesSelectedGroupId", newGroup.id);
+    selectNewGroup(newGroup.id);
     categoriesModalState = { visible: false, mode: null, value: "" };
     persistGlobalOperation({ type: "addGroup", categoryId: selectedCategory.id, group: newGroup }, "Group added.");
     return;

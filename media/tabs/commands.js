@@ -41,11 +41,13 @@ function renderCommandsTab(selectedCategory) {
             return `<button class="tag d-focus group-filter-tag ${uiState.selectedGroupId === group.id ? "active" : ""}" data-group-id="${escapeAttr(group.id)}">${escapeHtml(group.title)}</button>`;
           })
           .join("")}
+        <button class="tag d-focus group-add-tag" id="btn-quick-add-group" data-tooltip="Add a new group to this category">${icons.add}</button>
       </div>
       <div class="table-panel">
         ${renderCommandsTable(commands, groups)}
       </div>
     </section>
+    ${renderCategoriesModal()}
   `;
 }
 
@@ -369,6 +371,20 @@ function bindCommandsTabEvents() {
       render();
     });
   });
+
+  // --- Quick Add Group Button (same modal as Categories & Groups tab) ---
+  var quickAddGroupBtn = document.getElementById("btn-quick-add-group");
+  if (quickAddGroupBtn) {
+    quickAddGroupBtn.addEventListener("click", function () {
+      categoriesModalState = { visible: true, mode: "add-group", value: "" };
+      render();
+      var input = document.getElementById("manage-modal-input");
+      if (input) {
+        input.focus();
+      }
+    });
+  }
+  bindCategoriesModalEvents();
 
   // --- Add New Command Button ---
   var addNewCommandBtn = document.getElementById("btn-add-new-command");

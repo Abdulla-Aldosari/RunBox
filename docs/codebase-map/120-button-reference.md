@@ -47,6 +47,12 @@ Buttons with a unique `id` attribute. Located via `document.getElementById(id)`.
 | `btn-manage-modal-confirm` | Confirm the add/rename category or group action |
 | `btn-manage-modal-cancel` | Cancel the add/rename modal |
 
+### Commands Tab — Quick Add Group — `media/tabs/commands.js`
+
+| Button ID | Purpose |
+| - | - |
+| `btn-quick-add-group` | Icon-only "+" button (class `group-add-tag`) after the last group in the Groups row. Opens the same add-group modal as `btn-open-add-group-modal`; the new group becomes the active Commands group filter. Disabled together with the groups row in sort mode. Not a group filter. |
+
 ### Enum Variable Manager — `media/modals/enum-manager.js`
 
 | Button ID | Purpose |

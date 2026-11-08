@@ -751,6 +751,13 @@ textarea {
   padding-bottom: 4px;
 }
 
+.tag.group-add-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 .groups-label {
   font-size: 0.82rem;
   opacity: 0.85;

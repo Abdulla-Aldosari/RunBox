@@ -133,6 +133,8 @@ const browserGlobals = {
   bindCommandsTabEvents: "readonly",
   bindCommandActionButtons: "readonly",
   bindCategoriesTabEvents: "readonly",
+  bindCategoriesModalEvents: "readonly",
+  renderCategoriesModal: "readonly",
   bindFavoritesTabEvents: "readonly",
   bindRecentTabEvents: "readonly",
   bindVariablesTabEvents: "readonly",
