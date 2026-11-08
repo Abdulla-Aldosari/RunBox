@@ -834,7 +834,8 @@ body,
 
 /* Rows: header, workspace label, tabs, tab card (see render() in media/render.js).
    Modal overlays are position: fixed and take no grid row. */
-.layout:has(> .table-card) {
+.layout:has(> .table-card),
+.layout:has(> .manage-card) {
   min-height: 100%;
   grid-template-rows: auto auto auto 1fr;
 }
@@ -1426,15 +1427,22 @@ code {
 
 /* ===== Manage Tab (Categories & Groups) ===== */
 
+/* The card fills the remaining panel height (see `.layout:has(> .manage-card)`),
+   the layout fills the card, and only each panel's list scrolls. */
 .manage-card {
   padding: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .manage-layout {
+  --manage-min-height: 240px;
+  flex: 1 0 0;
+  min-height: var(--manage-min-height);
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: minmax(0, 1fr);
   gap: 16px;
-  align-items: start;
 }
 
 .manage-panel {
@@ -1443,6 +1451,7 @@ code {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .manage-panel-header {
@@ -1464,8 +1473,8 @@ code {
 .manage-list {
   display: flex;
   flex-direction: column;
-  min-height: 120px;
-  max-height: 420px;
+  flex: 1 1 0;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -3059,11 +3068,9 @@ tr.row-highlight td {
   }
 
   .manage-layout {
+    --manage-min-height: 400px;
     grid-template-columns: 1fr;
-  }
-
-  .manage-item-actions {
-    opacity: 1;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 }
 
