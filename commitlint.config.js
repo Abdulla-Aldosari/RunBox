@@ -57,6 +57,7 @@ const baseScopes = [
   "messages", // media/messages.js: incoming message handling in the webview
   "mistral", // lib/ai/providers/mistral.js
   "modals", // media/modals/* shared modal logic when not confined to one modal file
+  "name-rules", // media/name-rules.js: category and group name format rules
   "normalize", // lib/normalize.js: data sanitizing and normalizing
   "notice", // the webview notice/toast system (showNotice, paintNotice)
   "openai", // lib/ai/providers/openai.js

@@ -130,7 +130,7 @@ const MANAGE_MODAL_DUPLICATE_MESSAGE = "This name already exists";
  * @returns {boolean}
  */
 function isManageModalNameDuplicate(mode, value) {
-  const name = value.trim().toLowerCase();
+  const name = normalizeName(value).toLowerCase();
   if (!name) {
     return false;
   }
@@ -163,21 +163,37 @@ function isManageModalNameDuplicate(mode, value) {
 }
 
 /**
- * Shows/hides the duplicate-name hint and enables/disables the confirm button.
- * @returns {boolean} true when the current input is a duplicate
+ * Returns the first problem of a typed name (format first, then duplicate),
+ * or "" when the name is acceptable.
+ * @param {string} mode categoriesModalState.mode
+ * @param {string} value Raw input value
+ * @returns {string}
  */
-function updateManageModalDuplicateHint() {
+function getManageModalNameError(mode, value) {
+  const formatError = getNameFormatError(normalizeName(value));
+  if (formatError) {
+    return formatError;
+  }
+  return isManageModalNameDuplicate(mode, value) ? MANAGE_MODAL_DUPLICATE_MESSAGE : "";
+}
+
+/**
+ * Shows/hides the name hint and enables/disables the confirm button.
+ * @returns {boolean} true when the current input has a problem
+ */
+function updateManageModalNameHint() {
   const input = document.getElementById("manage-modal-input");
   const hint = document.getElementById("manage-modal-error");
   const confirmBtn = document.getElementById("btn-manage-modal-confirm");
-  const duplicate = input ? isManageModalNameDuplicate(categoriesModalState.mode, input.value) : false;
+  const error = input ? getManageModalNameError(categoriesModalState.mode, input.value) : "";
   if (hint) {
-    hint.hidden = !duplicate;
+    hint.textContent = error;
+    hint.hidden = !error;
   }
   if (confirmBtn) {
-    confirmBtn.disabled = duplicate;
+    confirmBtn.disabled = Boolean(error);
   }
-  return duplicate;
+  return Boolean(error);
 }
 
 /**
@@ -219,7 +235,7 @@ function renderCategoriesModal() {
         <h3>${escapeHtml(title)}</h3>
         <input id="manage-modal-input" class="input" placeholder="${escapeAttr(placeholder)}" value="${escapeAttr(categoriesModalState.value)}" autocomplete="off" />
         <div class="row justify-content-flex-end">
-          <span class="modal-error-hint" id="manage-modal-error" hidden>${escapeHtml(MANAGE_MODAL_DUPLICATE_MESSAGE)}</span>
+          <span class="modal-error-hint" id="manage-modal-error" hidden></span>
           <button class="btn small primary min-w65" id="btn-manage-modal-confirm">${escapeHtml(btnLabel)}</button>
           <button class="btn small secondary action min-w65" id="btn-manage-modal-cancel">Cancel</button>
         </div>
@@ -388,7 +404,7 @@ function bindCategoriesModalEvents() {
   const modalInput = document.getElementById("manage-modal-input");
   if (modalInput) {
     modalInput.addEventListener("input", function () {
-      updateManageModalDuplicateHint();
+      updateManageModalNameHint();
     });
     modalInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
@@ -419,7 +435,7 @@ function selectNewGroup(groupId) {
 
 function executeManageModalConfirm() {
   const input = document.getElementById("manage-modal-input");
-  const value = input ? input.value.trim() : "";
+  const value = input ? normalizeName(input.value) : "";
   const mode = categoriesModalState.mode;
 
   if (!value) {
@@ -430,7 +446,7 @@ function executeManageModalConfirm() {
     return;
   }
 
-  if (updateManageModalDuplicateHint()) {
+  if (updateManageModalNameHint()) {
     if (input) {
       input.focus();
     }

@@ -800,6 +800,7 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   const stateUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "state.js"));
   const iconsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "icons.js"));
   const utilsUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "utils.js"));
+  const nameRulesUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, "media", "name-rules.js"));
 
   // 1a. Connection watchdog (independent heartbeat — only depends on icons and vscode,
   // both already defined earlier)
@@ -854,6 +855,7 @@ function getWebviewHtml(webview, extensionUri, isDev = false, devModuleFiles = [
   <script nonce="${nonce}" src="${stateUri}"></script>
   <script nonce="${nonce}" src="${iconsUri}"></script>
   <script nonce="${nonce}" src="${utilsUri}"></script>
+  <script nonce="${nonce}" src="${nameRulesUri}"></script>
   <script nonce="${nonce}" src="${connectionWatchdogUri}"></script>
   <script nonce="${nonce}" src="${markdownParserUri}"></script>
 
