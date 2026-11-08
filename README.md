@@ -32,6 +32,8 @@ RunBox gives you a central panel inside VS Code for the terminal commands you us
 
 Organize commands into **categories** and **groups** (for example, MySQL → Setup, Build, Deploy). Create, rename, and delete both. Filter the command table by category and group, toggle visible columns, and drag rows to reorder them within a group.
 
+Names can be up to 40 characters, use letters, numbers, spaces, and `- _ . & + # / ( ) :`, and must be unique among categories, and among the groups of a category.
+
 ![Categories & Groups](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/categorized-command-management.gif)
 
 <br>
@@ -68,7 +70,7 @@ Switching the scope toggle never deletes the value stored in the other scopes.
 
 #### Auto Variables
 
-`${@date}`, `${@time}`, `${@username}`, `${@workspaceFolder}`, and `${@workspaceName}` are resolved automatically, with no input required. The `@` marker keeps them separate from your own variables, so a plain `${date}` stays a regular variable you fill in.
+`${@date}`, `${@time}`, `${@username}`, `${@workspaceFolder}`, and `${@workspaceName}` are resolved automatically, with no input required. The `@` marker keeps them separate from your own variables, so a plain `${date}` stays a regular variable you fill in. Use the **Insert variable** link above the command template to add one at the cursor instead of typing it.
 
 ![Auto Variables](https://raw.githubusercontent.com/Abdulla-Aldosari/repo-assets/refs/heads/main/RunBox/auto-variables.gif)
 
