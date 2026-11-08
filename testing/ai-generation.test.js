@@ -112,6 +112,47 @@ test("keeps a valid outline unchanged", function () {
   assert.deepStrictEqual(result.dropped, { invalid: 0, duplicates: 0, overLimit: 0 });
 });
 
+test("removes disallowed characters from category and group names", function () {
+  const result = validateOutline({
+    valid: true,
+    categoryName: "  Git <Tools>  ${x} ",
+    groups: [{ name: "Build & Deploy!  (dev)", commands: ["git init"] }],
+  });
+  assert.strictEqual(result.categoryName, "Git Tools x");
+  assert.strictEqual(result.groups[0].name, "Build & Deploy (dev)");
+});
+
+test("keeps non-Latin letters and does not cut long names", function () {
+  const longName = "a".repeat(60);
+  const result = validateOutline({ valid: true, categoryName: longName, groups: [{ name: "أدوات", commands: ["ls"] }] });
+  assert.strictEqual(result.categoryName, longName);
+  assert.strictEqual(result.groups[0].name, "أدوات");
+});
+
+test("a category name with no letter or number counts as missing", function () {
+  assert.throws(function () {
+    validateOutline({ valid: true, categoryName: "!@#$%", groups: [{ name: "G", commands: ["ls"] }] });
+  }, AiInvalidResponseError);
+});
+
+test("a group name with no letter or number skips the group", function () {
+  const result = validateOutline({
+    valid: true,
+    categoryName: "X",
+    groups: [
+      { name: "---", commands: ["ls"] },
+      { name: "Good", commands: ["pwd"] },
+    ],
+  });
+  assert.deepStrictEqual(
+    result.groups.map(function (g) {
+      return g.name;
+    }),
+    ["Good"]
+  );
+  assert.strictEqual(result.dropped.invalid, 1);
+});
+
 test(`trims each group to ${MAX_COMMANDS_PER_GROUP} commands`, function () {
   const result = validateOutline({ valid: true, categoryName: "X", groups: [{ name: "G", commands: range(MAX_COMMANDS_PER_GROUP + 4, "cmd") }] });
   assert.strictEqual(result.groups[0].commands.length, MAX_COMMANDS_PER_GROUP);
