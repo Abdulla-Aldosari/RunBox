@@ -2,7 +2,7 @@
   "name": "runbox",
   "displayName": "RunBox",
   "description": "Save and organize your terminal commands, then run them in one click, with reusable variables, favorites, and AI-powered generation and explanations.",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "publisher": "Abdulla-Aldosari",
   "icon": "media/icon.png",
   "homepage": "https://github.com/Abdulla-Aldosari/RunBox#readme",

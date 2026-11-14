@@ -1,5 +1,11 @@
 All notable changes to **[RunBox](https://github.com/Abdulla-Aldosari/runbox)** are documented here.<br>
 
+## [2.0.1](https://github.com/Abdulla-Aldosari/runbox/compare/v2.0.0..v2.0.1) - 2026-11-14
+
+### 🐛 Bug Fixes
+
+- _(terminal)_ Run commands in a free terminal, not a busy one - ([f074a61](https://github.com/Abdulla-Aldosari/runbox/commit/f074a61aa7c024836e56227f8fbc19c89c6e7b4f))
+
 ## [2.0.0](https://github.com/Abdulla-Aldosari/runbox/compare/v1.1.0..v2.0.0) - 2026-11-08
 
 ### ⚠️ Important Changes
