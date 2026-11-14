@@ -113,12 +113,16 @@ expectFn(terminal, "fixShellPath");
 expectFn(terminal, "resolveSourceProfilePath");
 expectFn(terminal, "getTerminalProfiles");
 expectFn(terminal, "getOrCreateTerminal");
+expectFn(terminal, "initTerminalTracking");
+expectFn(terminal, "isShellProcessBusy");
+expectFn(terminal, "classifyTerminalBusy");
+expectFn(terminal, "pickIdleTerminal");
 expectFn(terminal, "detectShellType");
 expectFn(terminal, "findDuplicateShellProfiles");
 
-test("has exactly 6 exports", function () {
+test("has exactly 10 exports", function () {
   const keys = Object.keys(terminal);
-  assert.strictEqual(keys.length, 6, `Expected 6 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 10, `Expected 10 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------

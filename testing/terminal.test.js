@@ -23,7 +23,8 @@ Module._resolveFilename = function (request, ...args) {
 };
 
 const assert = require("assert");
-const { fixShellPath, findDuplicateShellProfiles, detectShellType } = require("../lib/terminal");
+const vscodeMock = require("./mocks/vscode.js");
+const { fixShellPath, findDuplicateShellProfiles, detectShellType, isShellProcessBusy, classifyTerminalBusy, pickIdleTerminal, initTerminalTracking } = require("../lib/terminal");
 
 // ---------------------------------------------------------------------------
 // Simple test runner
@@ -31,6 +32,7 @@ const { fixShellPath, findDuplicateShellProfiles, detectShellType } = require(".
 
 let passed = 0;
 let failed = 0;
+const pendingAsyncTests = [];
 
 function test(description, fn) {
   try {
@@ -42,6 +44,17 @@ function test(description, fn) {
     console.error(`       ${err.message}`);
     failed++;
   }
+}
+
+// Async tests run in registration order after all sync tests; results are
+// printed as they settle and counted before the final summary.
+function testAsync(description, fn) {
+  pendingAsyncTests.push({ description, fn });
+}
+
+// Section header for async tests, printed when the queue reaches it.
+function asyncSection(name) {
+  pendingAsyncTests.push({ sectionName: name });
 }
 
 function section(name) {
@@ -220,17 +233,264 @@ test("returns null for an empty string", function () {
 });
 
 // ---------------------------------------------------------------------------
+// isShellProcessBusy
+// ---------------------------------------------------------------------------
+
+section("isShellProcessBusy");
+
+// Process trees below mirror what was observed from real shells on Windows.
+function proc(pid, ppid, name) {
+  return { pid, ppid, name };
+}
+
+test("idle pwsh (only conhost below it) is not busy", function () {
+  const tree = [proc(10, 1, "pwsh.exe"), proc(11, 10, "conhost.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), false);
+});
+
+test("pwsh running a foreground command is busy", function () {
+  const tree = [proc(10, 1, "pwsh.exe"), proc(11, 10, "conhost.exe"), proc(12, 10, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), true);
+});
+
+test("cmd running a foreground command is busy; idle cmd is not", function () {
+  const idle = [proc(10, 1, "cmd.exe"), proc(11, 10, "conhost.exe")];
+  const busy = [...idle, proc(12, 10, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, idle, "win32"), false);
+  assert.strictEqual(isShellProcessBusy(10, busy, "win32"), true);
+});
+
+test("a command nested several levels deep still counts as busy", function () {
+  const tree = [proc(10, 1, "pwsh.exe"), proc(11, 10, "npm.cmd"), proc(12, 11, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), true);
+});
+
+test("OpenConsole helper is ignored like conhost", function () {
+  const tree = [proc(10, 1, "pwsh.exe"), proc(11, 10, "OpenConsole.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), false);
+});
+
+test("unrelated processes elsewhere in the table do not make the shell busy", function () {
+  const tree = [proc(10, 1, "pwsh.exe"), proc(20, 1, "node.exe"), proc(21, 20, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), false);
+});
+
+test("Windows Git Bash launcher: one bash child is idle", function () {
+  const tree = [proc(10, 1, "bash.exe"), proc(11, 10, "conhost.exe"), proc(12, 10, "bash.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), false);
+});
+
+test("Windows Git Bash launcher: a running command is busy", function () {
+  const tree = [proc(10, 1, "bash.exe"), proc(11, 10, "conhost.exe"), proc(12, 10, "bash.exe"), proc(13, 12, "bash.exe"), proc(14, 13, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), true);
+});
+
+test("bash on Linux: a single bash child is a running command, not a launcher", function () {
+  const tree = [proc(10, 1, "bash"), proc(11, 10, "bash")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "linux"), true);
+});
+
+test("wsl returns null because Linux processes are invisible to Windows", function () {
+  const tree = [proc(10, 1, "wsl.exe"), proc(11, 10, "wsl.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "win32"), null);
+});
+
+test("returns null when the shell process is missing from the snapshot", function () {
+  assert.strictEqual(isShellProcessBusy(99, [proc(10, 1, "pwsh.exe")], "win32"), null);
+});
+
+test("a cyclic parent chain does not loop forever", function () {
+  const tree = [proc(10, 11, "pwsh.exe"), proc(11, 10, "node.exe")];
+  assert.strictEqual(isShellProcessBusy(10, tree, "linux"), true);
+});
+
+// ---------------------------------------------------------------------------
+// classifyTerminalBusy
+// ---------------------------------------------------------------------------
+
+section("classifyTerminalBusy");
+
+function signals(overrides) {
+  return { exited: false, running: false, integrationTrusted: false, processBusy: null, ...overrides };
+}
+
+test("an exited terminal is busy", function () {
+  assert.strictEqual(classifyTerminalBusy(signals({ exited: true, processBusy: false })), "busy");
+});
+
+test("a command reported running by shell integration is busy", function () {
+  assert.strictEqual(classifyTerminalBusy(signals({ running: true, integrationTrusted: true })), "busy");
+});
+
+test("a trusted shell-integration terminal with no running command is idle", function () {
+  assert.strictEqual(classifyTerminalBusy(signals({ integrationTrusted: true })), "idle");
+});
+
+test("without trusted integration the process tree decides", function () {
+  assert.strictEqual(classifyTerminalBusy(signals({ processBusy: true })), "busy");
+  assert.strictEqual(classifyTerminalBusy(signals({ processBusy: false })), "idle");
+});
+
+test("no signal at all is unknown", function () {
+  assert.strictEqual(classifyTerminalBusy(signals({})), "unknown");
+});
+
+// ---------------------------------------------------------------------------
+// pickIdleTerminal
+// ---------------------------------------------------------------------------
+
+asyncSection("pickIdleTerminal");
+
+function makeTerminal(pid, extra) {
+  return { exitStatus: undefined, shellIntegration: undefined, processId: Promise.resolve(pid), ...extra };
+}
+
+function noSnapshot() {
+  return Promise.resolve(null);
+}
+
+function snapshotOf(processes) {
+  return function () {
+    return Promise.resolve(processes);
+  };
+}
+
+testAsync("returns undefined when there are no candidates", async function () {
+  assert.strictEqual(await pickIdleTerminal([], noSnapshot), undefined);
+});
+
+testAsync("skips a busy terminal and returns the idle one (server terminal is not reused)", async function () {
+  const serverTerminal = makeTerminal(10);
+  const freeTerminal = makeTerminal(20);
+  const snapshot = [proc(10, 1, "pwsh.exe"), proc(11, 10, "node.exe"), proc(20, 1, "pwsh.exe"), proc(21, 20, "conhost.exe")];
+  const picked = await pickIdleTerminal([serverTerminal, freeTerminal], snapshotOf(snapshot));
+  assert.strictEqual(picked, freeTerminal);
+});
+
+testAsync("returns undefined when every candidate is busy so a new terminal is created", async function () {
+  const snapshot = [proc(10, 1, "pwsh.exe"), proc(11, 10, "node.exe")];
+  assert.strictEqual(await pickIdleTerminal([makeTerminal(10)], snapshotOf(snapshot)), undefined);
+});
+
+testAsync("a terminal whose state is unknown (no pid) is never reused", async function () {
+  assert.strictEqual(await pickIdleTerminal([makeTerminal(undefined)], noSnapshot), undefined);
+});
+
+testAsync("a terminal is not reused when the process snapshot is unavailable", async function () {
+  assert.strictEqual(await pickIdleTerminal([makeTerminal(10)], noSnapshot), undefined);
+});
+
+testAsync("an exited terminal is never reused", async function () {
+  const snapshot = [proc(10, 1, "pwsh.exe")];
+  const picked = await pickIdleTerminal([makeTerminal(10, { exitStatus: { code: 0 } })], snapshotOf(snapshot));
+  assert.strictEqual(picked, undefined);
+});
+
+testAsync("the process snapshot is read at most once for many candidates", async function () {
+  let reads = 0;
+  const snapshot = [proc(10, 1, "pwsh.exe"), proc(11, 10, "node.exe"), proc(20, 1, "pwsh.exe"), proc(21, 20, "node.exe")];
+  await pickIdleTerminal([makeTerminal(10), makeTerminal(20)], function () {
+    reads++;
+    return Promise.resolve(snapshot);
+  });
+  assert.strictEqual(reads, 1);
+});
+
+// ---------------------------------------------------------------------------
+// initTerminalTracking (shell integration events)
+// ---------------------------------------------------------------------------
+
+asyncSection("initTerminalTracking");
+
+testAsync("shell integration events decide without reading a process snapshot", async function () {
+  const handlers = {};
+  const noop = { dispose: function () {} };
+  vscodeMock.window.onDidStartTerminalShellExecution = function (cb) {
+    handlers.start = cb;
+    return noop;
+  };
+  vscodeMock.window.onDidEndTerminalShellExecution = function (cb) {
+    handlers.end = cb;
+    return noop;
+  };
+  vscodeMock.window.onDidCloseTerminal = function (cb) {
+    handlers.close = cb;
+    return noop;
+  };
+
+  const subscriptions = [];
+  initTerminalTracking({ subscriptions });
+
+  const forbidSnapshot = function () {
+    throw new Error("snapshot must not be read when shell integration answers");
+  };
+  const integration = {};
+  const server = makeTerminal(10, { shellIntegration: integration });
+  const free = makeTerminal(20, { shellIntegration: integration });
+
+  // `free` completes one command, so shell integration is proven for it.
+  handlers.start({ terminal: free });
+  handlers.end({ terminal: free });
+  // `server` starts a command that does not end.
+  handlers.start({ terminal: server });
+
+  assert.strictEqual(await pickIdleTerminal([server, free], forbidSnapshot), free);
+
+  // Once the server command ends, the same terminal is reusable.
+  handlers.end({ terminal: server });
+  assert.strictEqual(await pickIdleTerminal([server], forbidSnapshot), server);
+
+  // Closing a terminal forgets it: it is no longer trusted as proven idle.
+  handlers.close(server);
+  assert.strictEqual(await pickIdleTerminal([server], noSnapshot), undefined);
+
+  subscriptions.forEach(function (s) {
+    s.dispose();
+  });
+  delete vscodeMock.window.onDidStartTerminalShellExecution;
+  delete vscodeMock.window.onDidEndTerminalShellExecution;
+  delete vscodeMock.window.onDidCloseTerminal;
+});
+
+testAsync("initTerminalTracking does nothing harmful when the shell integration API is absent", async function () {
+  const subscriptions = [];
+  initTerminalTracking({ subscriptions });
+  assert.strictEqual(subscriptions.length, 1);
+  subscriptions[0].dispose();
+});
+
+// ---------------------------------------------------------------------------
 // Results
 // ---------------------------------------------------------------------------
 
-const SEP = "─".repeat(55);
+async function runAsyncTestsAndReport() {
+  for (const { description, fn, sectionName } of pendingAsyncTests) {
+    if (sectionName) {
+      section(sectionName);
+      continue;
+    }
+    try {
+      await fn();
+      console.log(`  ✓  ${description}`);
+      passed++;
+    } catch (err) {
+      console.error(`  ✗  ${description}`);
+      console.error(`       ${err.message}`);
+      failed++;
+    }
+  }
 
-console.log("\n" + SEP);
-console.log(`  Total : ${passed + failed}`);
-console.log(`  Passed: ${passed}`);
-console.log(`  Failed: ${failed}`);
-console.log(SEP);
+  const SEP = "─".repeat(55);
 
-if (failed > 0) {
-  process.exit(1);
+  console.log("\n" + SEP);
+  console.log(`  Total : ${passed + failed}`);
+  console.log(`  Passed: ${passed}`);
+  console.log(`  Failed: ${failed}`);
+  console.log(SEP);
+
+  if (failed > 0) {
+    process.exit(1);
+  }
 }
+
+runAsyncTestsAndReport();

@@ -124,10 +124,16 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | `fixShellPath(rawPath)` | Replaces `\Sysnative\` with `\System32\` on Windows |
 | `resolveSourceProfilePath(source)` | Resolves shell path from a VS Code profile source name |
 | `getTerminalProfiles()` | Reads terminal profiles from VS Code settings. Each returned profile includes a `shellType` field (see `detectShellType` below), used to match profiles against a command's `targetShell`. |
-| `getOrCreateTerminal(shellPath, shellName, cwd?)` | Returns the active terminal or creates a new one. When `cwd` is provided, always creates a new terminal that opens at the specified directory — reusing an existing terminal would ignore the `cwd`. Used by `handlePerformAction` to open the terminal in the workspace folder selected in the run-confirm modal. |
+| `getOrCreateTerminal(shellPath, shellName, cwd?)` | Async. Returns an **idle** terminal named `RunBox (<profile>)` (or `RunBox`) whose `creationOptions.cwd` equals `cwd`, or creates one when none qualifies. Candidates are checked in order via `pickIdleTerminal`; a busy, exited, or undeterminable terminal is skipped, so text is never sent to a terminal occupied by a long-running process (e.g. a dev server). Terminals therefore only accumulate up to the number of commands running at the same time. Used by `handlePerformAction`, which passes the workspace folder selected in the run-confirm modal as `cwd`. |
+| `initTerminalTracking(context)` | Registers `onDidStartTerminalShellExecution`, `onDidEndTerminalShellExecution` and `onDidCloseTerminal` listeners (shell integration API, VS Code 1.93+; skipped when absent) that maintain the `runningTerminals` and `provenTerminals` sets. Called once from `activate()` in `extension.js`; disposal clears both sets. |
+| `pickIdleTerminal(candidates, readSnapshot)` | Returns the first candidate that is verifiably idle, or `undefined`. Builds each terminal's signals and asks `classifyTerminalBusy`; only when the verdict is `unknown` does it resolve `terminal.processId` (2 s timeout) and read the process snapshot, at most once per call. |
+| `classifyTerminalBusy(signals)` | Pure decision function over `{ exited, running, integrationTrusted, processBusy }`. Returns `"busy"` (exited, or a shell-integration execution is running), `"idle"` (shell integration is trusted, or the process tree shows no command), or `"unknown"` (no usable signal; callers treat it as busy). Shell integration is trusted only for a terminal with an observed execution that finished (`provenTerminals`) and a defined `shellIntegration`. |
+| `isShellProcessBusy(shellPid, processes, platform?)` | Pure process-tree check: `true` when the shell has any descendant other than `conhost`/`OpenConsole`, `false` when it has none, `null` when the shell is missing from the snapshot or is `wsl` (Linux processes are invisible to the Windows process table). On Windows, a single `bash` descendant of Git Bash's `bin\bash.exe` launcher counts as idle. |
+
+Internal helper `readProcessSnapshot()` returns `{ pid, ppid, name }[]` for the host (`Get-CimInstance Win32_Process` on Windows, `/proc/*/stat` on Linux, `ps` on macOS), or `null` on failure.
 | `detectShellType(shellPath)` | Classifies a shell executable path into a standardized identifier: `"pwsh"` (PowerShell 7+), `"powershell"` (Windows PowerShell 5.1), `"cmd"`, `"bash"`, `"wsl"`, `"zsh"`, `"sh"`, or `null` if unrecognized. See "Target Shell System" below. |
 
-**Dependencies:** `vscode`, `fs` (sync `accessSync` only).
+**Dependencies:** `vscode`, `fs`, `path`, `child_process` (`execFile`, process snapshot only), `util`.
 
 ---
 

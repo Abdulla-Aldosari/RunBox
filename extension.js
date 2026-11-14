@@ -27,7 +27,7 @@ const {
   readWorkspaceCommandsSection,
   normalizeLocalWorkspaceDir,
 } = require("./lib/storage");
-const { getTerminalProfiles, findDuplicateShellProfiles } = require("./lib/terminal");
+const { getTerminalProfiles, findDuplicateShellProfiles, initTerminalTracking } = require("./lib/terminal");
 const { getHelpLink } = require("./lib/help-links");
 const { buildAutoVariablesPayload } = require("./lib/auto-variables");
 const H = require("./lib/handlers");
@@ -66,6 +66,10 @@ function activate(context) {
   const loggerOutputChannel = vscode.window.createOutputChannel("RunBox", "json");
   context.subscriptions.push(loggerOutputChannel);
   initLogger(loggerOutputChannel);
+
+  // Tracks which terminals have a command running, so a new command is never
+  // sent to a terminal that is occupied by a long-running process.
+  initTerminalTracking(context);
 
   // ─── postState ────────────────────────────────────────────────────────────────
   /**
