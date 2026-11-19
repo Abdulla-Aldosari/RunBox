@@ -223,12 +223,12 @@
     "*.{js,json,css,md}": "prettier --write"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^1.4.0",
+    "@anthropic-ai/sdk": "^1.8.0",
     "@google/generative-ai": "^0.24.1",
     "@mistralai/mistralai": "^2.7.0",
-    "cohere-ai": "^8.1.0",
+    "cohere-ai": "^8.3.1",
     "groq-sdk": "^1.6.0",
-    "openai": "^7.18.0"
+    "openai": "^7.56.0"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.1",
@@ -239,7 +239,7 @@
     "git-cliff": "^2.13.1",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "prettier": "^3.9.8"
+    "prettier": "^3.10.1"
   },
   "overrides": {
     "minimatch": "^11.0.4"
