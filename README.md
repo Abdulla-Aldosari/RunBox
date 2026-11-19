@@ -94,8 +94,13 @@ Describe what you need in plain language (for example, "commands to manage a MyS
 
 **8 AI providers supported:** Google Gemini · OpenAI · Anthropic Claude · DeepSeek · Groq · Mistral AI · Cohere · StepFun
 
+<p align="center"><img src="docs/images/faqs/ai-settings.png" alt="AI Settings walkthrough" /></p>
+
+Open **AI Settings** to pick a provider and model, save your API key (stored encrypted in your operating system's credential manager), refresh the model list, check the connection, and view the provider's rate limits.  
+See the [AI Settings walkthrough](docs/faqs.md#ai-settings-walkthrough) for screenshots of each step.
+
 > [!NOTE]
-> AI features are optional and use your own API key. Open the panel, click **AI Settings**, choose a provider, and paste your key. Several providers offer **free tiers**: Gemini, DeepSeek, and Groq are good starting points. See the [FAQ](docs/faqs.md) for where to get a key.
+> AI features are optional and use your own API key. Open the panel, click **AI Settings**, choose a provider, and paste your key. Several providers offer **free tiers**: Gemini, DeepSeek, and Groq are good starting points. See the [FAQ](docs/faqs.md#-ai-assistant) for where to get a key.
 
 <br>
 

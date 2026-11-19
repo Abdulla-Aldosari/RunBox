@@ -20,6 +20,8 @@ This file is shared across all your VS Code workspaces, so your commands are alw
 
 Yes. When you open a multi-root workspace (a `.code-workspace` file with multiple folders), a **workspace folder selector** dropdown appears below the panel header. You can switch between folders at any time. Local variables, local favorites, and auto variables such as `${@workspaceFolder}` and `${@workspaceName}` all update to reflect the selected folder.
 
+![Workspace folder selector dropdown below the panel header](images/faqs/workspace-folder-selector-dropdown.png)
+
 The **Run confirmation dialog** also includes a per-execution folder override, so you can run a command against a different folder without changing the panel's active selection. The terminal opens in the chosen folder's directory.
 
 How the folder is chosen when the panel opens is controlled by the `runBox.multiRootFolderResolution` setting. See the [Settings Reference](settings.md) for details.
@@ -29,6 +31,8 @@ How the folder is chosen when the panel opens is controlled by the `runBox.multi
 ### 🔵 What is "Current Workspace" in the Commands Browser?
 
 **Current Workspace** is a special entry that always appears first in the category list, both in the **Categories & Groups** tab and in the **Commands Browser** dropdown on the **Commands** tab, whenever a workspace folder is open. Unlike regular categories, commands and groups added under **Current Workspace** are stored privately in `runbox.data.json` inside this project's `.vscode/` folder (or in the path set by `runBox.localWorkspaceFilesPath`) and are never written to the shared `~/.runbox/commands.json` file. They are visible and usable only in this exact workspace folder, never in any other project.
+
+![Current Workspace entry in the Commands Browser dropdown](images/faqs/current-workspace-dropdown.png)
 
 This is useful for commands that only make sense for one specific project (for example a project-specific build script or a database connection string) and that you never want to see when you open a different project.
 
@@ -150,7 +154,35 @@ Each provider has a free option to get started:
 | **OpenAI**        | [platform.openai.com](https://platform.openai.com/): paid                          |
 | **Anthropic**     | [console.anthropic.com](https://console.anthropic.com/): paid                      |
 
-Once you have a key, open the panel, click **AI Settings**, select your provider, paste the key, and click **Save Key**.
+Once you have a key, open the panel, click **AI Settings**, select your provider, paste the key, and click **Save**.
+
+You do not need to remember the steps for each provider. In **AI Settings**, click **How to get (provider) API Key?** to open a step-by-step guide for the selected provider, or **Get API Key (provider)** to go straight to its key page.
+
+![Step-by-step guide for getting an API key](images/faqs/ai-how-to-get-api-key-steps.png)
+
+---
+
+<a id="ai-settings-walkthrough"></a>
+
+### 🔵 How do I use AI Settings (connection status and rate limits)?
+
+Open the panel and click **AI Settings**. Choose an **AI Provider** and a **Model**, then paste your key in the **API Key** field. Once a key is stored, the field shows **Key saved**, and you can replace it with **Update Key** or delete it with **Remove Key**. Keys are kept in VS Code's `SecretStorage`, never in your settings or workspace files.
+
+![AI Settings dialog](images/faqs/ai-settings.png)
+
+**Check Connection** sends a small test request with your saved key and reports the provider, the model, and the response time.
+
+![Connection Status dialog showing a successful connection](images/faqs/ai-connection-status.png)
+
+**Check Rate Limits** shows the remaining requests and tokens for the selected provider and model, and when each limit resets. Limits depend on your account tier and model usage.
+
+![Rate Limits Status dialog showing remaining requests and tokens](images/faqs/ai-rate-limits-status-a.png)
+
+Not every provider exposes its limits through its API. When a provider does not, RunBox says so and gives you a link to the provider's own usage page.
+
+![Rate Limits Status dialog for a provider without rate limit information](images/faqs/ai-rate-limits-status-b.png)
+
+Use **Refresh models** to reload the list of models available for your key.
 
 ---
 
