@@ -1,5 +1,11 @@
 All notable changes to **[RunBox](https://github.com/Abdulla-Aldosari/runbox)** are documented here.<br>
 
+## [2.0.2](https://github.com/Abdulla-Aldosari/runbox/compare/v2.0.1..v2.0.2) - 2026-11-19
+
+### 🐛 Bug Fixes
+
+- _(terminal)_ Detect Git Bash installed per user or with scoop - ([c327759](https://github.com/Abdulla-Aldosari/runbox/commit/c32775997d22e64c9a715e59e4785bebc267e8ef))
+
 ## [2.0.1](https://github.com/Abdulla-Aldosari/runbox/compare/v2.0.0..v2.0.1) - 2026-11-14
 
 ### 🐛 Bug Fixes
