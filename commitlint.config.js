@@ -67,11 +67,10 @@ const baseScopes = [
   "providers-config", // lib/ai/providers-config.js: provider metadata registry
   "readme", // README.md
   "recent", // media/tabs/recent.js: Recent tab
-  "release", // version bump, CHANGELOG.md updates, and .vsenv/scripts/release.ps1
+  "release", // version bump, CHANGELOG.md updates
   "render", // media/render.js: UI rendering
   "run-confirm", // media/modals/run-confirm.js: run confirmation and variable input modals
   "schemas", // lib/ai/schemas.js: AI response schemas
-  "scripts", // .vsenv/scripts/*: personal developer utilities
   "security", // SECURITY.md and security-related workflows
   "settings", // docs/settings.md and extension settings behavior
   "state", // media/state.js: webview state objects and their hydration
