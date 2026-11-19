@@ -683,7 +683,6 @@ function bindTemplateResizeListener() {
     return;
   }
   _templateResizeHandler = function () {
-    console.log("resize.");
     clearTimeout(_templateResizeTimer);
     _templateResizeTimer = setTimeout(function () {
       const el = document.getElementById("command-form-template");
