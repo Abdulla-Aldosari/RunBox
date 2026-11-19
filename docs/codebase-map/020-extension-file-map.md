@@ -122,7 +122,8 @@ This closes two failure modes: (1) corrupted JSON from overlapping writes to the
 | Export | Description |
 | - | - |
 | `fixShellPath(rawPath)` | Replaces `\Sysnative\` with `\System32\` on Windows |
-| `resolveSourceProfilePath(source)` | Resolves shell path from a VS Code profile source name |
+| `getGitBashCandidates(env, gitExePath?)` | Pure. Lists the Windows `bash.exe` locations for the "Git Bash" profile source in lookup order: the install derived from `git.exe` on PATH, then `ProgramW6432`/`ProgramFiles`/`ProgramFiles(x86)`, then `%LOCALAPPDATA%\\Programs`, then scoop installs. |
+| `resolveSourceProfilePath(source)` | Resolves shell path from a VS Code profile source name. For "Git Bash" it returns the first existing path from `getGitBashCandidates`. |
 | `getTerminalProfiles()` | Reads terminal profiles from VS Code settings. Each returned profile includes a `shellType` field (see `detectShellType` below), used to match profiles against a command's `targetShell`. |
 | `getOrCreateTerminal(shellPath, shellName, cwd?)` | Async. Returns an **idle** terminal named `RunBox (<profile>)` (or `RunBox`) whose `creationOptions.cwd` equals `cwd`, or creates one when none qualifies. Candidates are checked in order via `pickIdleTerminal`; a busy, exited, or undeterminable terminal is skipped, so text is never sent to a terminal occupied by a long-running process (e.g. a dev server). Terminals therefore only accumulate up to the number of commands running at the same time. Used by `handlePerformAction`, which passes the workspace folder selected in the run-confirm modal as `cwd`. |
 | `initTerminalTracking(context)` | Registers `onDidStartTerminalShellExecution`, `onDidEndTerminalShellExecution` and `onDidCloseTerminal` listeners (shell integration API, VS Code 1.93+; skipped when absent) that maintain the `runningTerminals` and `provenTerminals` sets. Called once from `activate()` in `extension.js`; disposal clears both sets. |

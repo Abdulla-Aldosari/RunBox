@@ -24,7 +24,16 @@ Module._resolveFilename = function (request, ...args) {
 
 const assert = require("assert");
 const vscodeMock = require("./mocks/vscode.js");
-const { fixShellPath, findDuplicateShellProfiles, detectShellType, isShellProcessBusy, classifyTerminalBusy, pickIdleTerminal, initTerminalTracking } = require("../lib/terminal");
+const {
+  fixShellPath,
+  getGitBashCandidates,
+  findDuplicateShellProfiles,
+  detectShellType,
+  isShellProcessBusy,
+  classifyTerminalBusy,
+  pickIdleTerminal,
+  initTerminalTracking,
+} = require("../lib/terminal");
 
 // ---------------------------------------------------------------------------
 // Simple test runner
@@ -109,6 +118,36 @@ test("handles a path where Sysnative appears in a non-separator context (no repl
   // "Sysnative" without surrounding backslashes should NOT be replaced
   const path = "C:\\MySysnativeFolder\\cmd.exe";
   assert.strictEqual(fixShellPath(path), path);
+});
+
+// ---------------------------------------------------------------------------
+// getGitBashCandidates
+// ---------------------------------------------------------------------------
+
+section("getGitBashCandidates");
+
+test("includes the machine-wide Program Files install", function () {
+  const list = getGitBashCandidates({ ProgramFiles: "C:\\Program Files" });
+  assert.ok(list.includes("C:\\Program Files\\Git\\bin\\bash.exe"));
+});
+
+test("includes the per-user install under LOCALAPPDATA\\Programs", function () {
+  const list = getGitBashCandidates({ LOCALAPPDATA: "C:\\Users\\me\\AppData\\Local" });
+  assert.ok(list.includes("C:\\Users\\me\\AppData\\Local\\Programs\\Git\\bin\\bash.exe"));
+});
+
+test("includes scoop installs", function () {
+  const list = getGitBashCandidates({ USERPROFILE: "C:\\Users\\me" });
+  assert.ok(list.includes("C:\\Users\\me\\scoop\\apps\\git\\current\\bin\\bash.exe"));
+});
+
+test("puts the install found through git.exe on PATH first", function () {
+  const list = getGitBashCandidates({ ProgramFiles: "C:\\Program Files" }, "D:\\Tools\\Git\\cmd\\git.exe");
+  assert.strictEqual(list[0], "D:\\Tools\\Git\\bin\\bash.exe");
+});
+
+test("returns no candidate from missing variables", function () {
+  assert.deepStrictEqual(getGitBashCandidates({}), []);
 });
 
 // ---------------------------------------------------------------------------

@@ -110,6 +110,7 @@ section("lib/terminal.js");
 const terminal = require("../lib/terminal");
 
 expectFn(terminal, "fixShellPath");
+expectFn(terminal, "getGitBashCandidates");
 expectFn(terminal, "resolveSourceProfilePath");
 expectFn(terminal, "getTerminalProfiles");
 expectFn(terminal, "getOrCreateTerminal");
@@ -120,9 +121,9 @@ expectFn(terminal, "pickIdleTerminal");
 expectFn(terminal, "detectShellType");
 expectFn(terminal, "findDuplicateShellProfiles");
 
-test("has exactly 10 exports", function () {
+test("has exactly 11 exports", function () {
   const keys = Object.keys(terminal);
-  assert.strictEqual(keys.length, 10, `Expected 10 exports, got ${keys.length}: ${keys.join(", ")}`);
+  assert.strictEqual(keys.length, 11, `Expected 11 exports, got ${keys.length}: ${keys.join(", ")}`);
 });
 
 // ---------------------------------------------------------------------------
