@@ -168,17 +168,20 @@ Open RunBox in as many VS Code windows as you like, whether they show different 
 
 RunBox stores everything in plain JSON files that you can open, back up, or share:
 
-| File                                             | Contents                                                               | Open from the panel with  |
-| ------------------------------------------------ | ---------------------------------------------------------------------- | ------------------------- |
-| `~/.runbox/commands.json`                        | All global categories, groups, and commands                            | **Open Global JSON**      |
-| `~/.runbox/data.json`                            | Global variable values and Global favorites                            | **Open Global Data JSON** |
-| `.vscode/runbox.data.json` (inside each project) | Current Workspace commands, Local variable values, and Local favorites | **Open Local Data JSON**  |
+| File                                             | Contents                                                                                         | Open from the panel with  |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------ | ------------------------- |
+| `~/.runbox/commands.json`                        | All global categories, groups, and commands                                                      | **Open Global JSON**      |
+| `~/.runbox/data.json`                            | Global variable values and Global favorites                                                      | **Open Global Data JSON** |
+| `.vscode/runbox.data.json` (inside each project) | Current Workspace category (its groups and commands), Local variable values, and Local favorites | **Open Local Data JSON**  |
 
 To back up your command library or share it with your team, copy `~/.runbox/commands.json`, plus `~/.runbox/data.json` if you also want your global variable values and favorites. Anyone can restore them by placing the files at the same paths on their machine.
 
 ## Privacy & Security
 
 - **API keys** are stored in VS Code's `SecretStorage`, which uses your operating system's credential manager. They are never written to settings or workspace files.
+- **Variable values are stored in plaintext.** Values you save for command variables are written as-is to plain JSON files — `~/.runbox/data.json` (Global scope) and `.vscode/runbox.data.json` (Local scope). Never store passwords, API keys, tokens, or other secrets as variable values.
+- **Keep credentials out of your commands.** Reference a secret from your shell's environment (a variable exported in your shell profile, or a password-manager/secret CLI) instead of writing the secret itself into a command or a variable, so it never gets saved to a RunBox JSON file.
+- **Use the Off scope for one-time secrets.** A variable value saved with the Off scope stays in memory for the current session only and is never written to disk — the safest choice for a password you only need once.
 - **No telemetry.** RunBox does not collect or send usage data.
 - **AI requests** are sent only when you use an AI feature, and only to the provider you selected. They contain your prompt (and the name of the selected terminal profile) when generating, or the command template when explaining.
 - **Local data files** (`.vscode/runbox.data.json`) can contain variable values such as hostnames or tokens. Add the file to `.gitignore` if your project is shared.
